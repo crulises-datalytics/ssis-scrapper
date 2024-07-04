@@ -9,7 +9,7 @@ def extract_executable_type(obj, node=None, result=None):
     if isinstance(obj, dict):
         if 'Attributes' in obj and '{www.microsoft.com/SqlServer/Dts}ExecutableType' in obj['Attributes']:
             result.append({
-                'Node': node,
+                'RefId': obj['Attributes'].get('{www.microsoft.com/SqlServer/Dts}refId', ''),
                 'ExecutableType': obj['Attributes']['{www.microsoft.com/SqlServer/Dts}ExecutableType'],
                 'ObjectName': obj['Attributes'].get('{www.microsoft.com/SqlServer/Dts}ObjectName', '')  # Add this line
             })
