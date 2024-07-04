@@ -1,3 +1,8 @@
+# csv json, and other files
+*.dtsx
+*.csv
+*.json
+
 # Temporary and binary files
 *~
 *.py[cod]

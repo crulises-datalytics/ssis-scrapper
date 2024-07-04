@@ -35,9 +35,17 @@ def get_parent_path(path, levels):
 def get_node_by_path(parsed_data, path):
     node = parsed_data
     for step in path:
-        node = node.get(step)
-        if isinstance(node, list):
-            node = node[0]
+        
+        if isinstance(node, dict):
+            node = node.get(step)
+            if isinstance(node, list):
+                node = node[0]
+            
+        elif isinstance(node, str):
+            node:str = node
+        
+        else:
+            node:str = 'None'
     return node
 
 def get_nodes_by_key(parsed_data, key, levels_up):
@@ -61,7 +69,7 @@ def get_nodes_by_key(parsed_data, key, levels_up):
     return recursive_search(parsed_data, key)
 
 if __name__ == "__main__":
-    file_path = "LaborHoursCosting.dtsx"
+    file_path = "LaborHoursAccntSubAccnt.dtsx"
     parsed_data = parse_xml_file(file_path)
     import json
     with open("out.json", "w") as f:
