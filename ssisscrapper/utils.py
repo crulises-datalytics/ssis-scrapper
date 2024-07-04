@@ -1,3 +1,4 @@
+#%%
 import xml.etree.ElementTree as ET
 
 def parse_node(node):
@@ -60,10 +61,10 @@ def get_nodes_by_key(parsed_data, key, levels_up):
     return recursive_search(parsed_data, key)
 
 if __name__ == "__main__":
-    file_path = "LaborHoursActuals.dtsx"
+    file_path = "LaborHoursCosting.dtsx"
     parsed_data = parse_xml_file(file_path)
     import json
-    with open("out", "w") as f:
+    with open("out.json", "w") as f:
         f.write(json.dumps(parsed_data, indent=4))
     print("Parsed Data is written out to file")
 
