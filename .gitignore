@@ -2,6 +2,10 @@
 *.dtsx
 *.csv
 *.json
+csv/*
+json/*
+dtsx/*
+
 
 # Temporary and binary files
 *~
