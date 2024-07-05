@@ -1,5 +1,7 @@
 import xml.etree.ElementTree as ET
+import shutil
 import pandas as pd
+import os
 import re
 import json
 
@@ -109,3 +111,24 @@ class SSISMigrator:
         executable_types = self.extract_executable_type(data)
         df = pd.DataFrame(executable_types)
         return df
+
+
+class SSISDiscovery:
+    def __init__(self, root_directory):
+        self.root_directory = root_directory
+
+    def get_dtsx_files(self):
+        dtsx_files = []
+        for root, dirs, files in os.walk(self.root_directory):
+            for file in files:
+                if file.endswith(".dtsx"):
+                    dtsx_files.append(os.path.join(root, file))
+        return dtsx_files
+    
+    def extract_dtsx_files(self, target_dir, files):
+        for file_path in files:
+            parent_dir_name = os.path.basename(os.path.dirname(file_path))
+            new_file_name = f"{parent_dir_name}_{os.path.basename(file_path)}"
+            target_path = os.path.join(target_dir, new_file_name)
+            shutil.copy(file_path, target_path)
+    

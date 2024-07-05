@@ -2,10 +2,13 @@
 *.dtsx
 *.csv
 *.json
-csv/*
-json/*
-dtsx/*
-
+*csv/*
+*json/*
+*dtsx/*
+*csv
+*json
+*dtsx
+SSIS/*
 
 # Temporary and binary files
 *~
