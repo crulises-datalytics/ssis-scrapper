@@ -1,13 +1,18 @@
-# Folders and files
-*csv/
-*data/
-*dtsx/
-*json/
-*SSIS/
-*csv_main_files/
+# csv json, and other files
+*.dtsx
+*.csv
+*.json
+*csv/*
+*json/*
+*dtsx/*
 *analysis/
 *bing/
-*StoreProcedures_from_bing_rar/
+*SSIS/
+*csv_main_files/
+*csv
+*json
+*dtsx
+SSIS/*
 
 # Temporary and binary files
 *~
