@@ -5,6 +5,11 @@
 *csv/*
 *json/*
 *dtsx/*
+*analysis/
+*bing/
+*SSIS/
+*csv_main_files/
+
 *csv
 *json
 *dtsx
