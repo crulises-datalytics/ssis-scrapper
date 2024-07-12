@@ -7,6 +7,7 @@ import json
 
 import xml.etree.ElementTree as ET
 
+
 class SSISMigrator:
     """
     Parses SSIS package XML files to extract and manipulate package data.
