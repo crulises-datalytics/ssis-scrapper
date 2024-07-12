@@ -1,4 +1,5 @@
 #%%
+
 #FIRST PART ANALYZING AND GROUPING DIFFERENT PACKAGES FOR DIFFERENT VARIABLES
 
 import pandas as pd
@@ -108,4 +109,15 @@ df.to_csv(r"C:\Users\luciano.argolo\ssis-scrapper\analysis\clasification_estimat
 #%%
 df = df[['File_path', 'Estimation']]
 df.groupby('File_path').sum().sort_values(by='File_path', ascending=True).to_csv(r"C:\Users\luciano.argolo\ssis-scrapper\analysis\clasification_estimation_by_file_path.csv", index=True)
+
+disc = SSISAnalyzer(r"C:\Users\luciano.argolo\ssis-scrapper\csv")
+df = disc.read_all_files(file_extension=".csv")
+#disc.get_and_save_unique_values(df, column_name='ExecutableType')
+
+# %%
+
+#i want to only keep the columns ExecutableTYpe, and File Path
+df = df[['ExecutableType', 'File_path']]
+df.groupby('File_path').count()
+
 # %%

@@ -4,6 +4,7 @@ import json
 import os
 
 if __name__ == '__main__':
+
     #--------------------------------------
     # EXTRACITING ALL SP FROM BING.RAR FILE
     from SSISModule import SSISDiscovery
@@ -45,3 +46,26 @@ if __name__ == '__main__':
         print("Parsed Data is written out to file")
 
         df.to_csv(file_path.replace('dtsx', 'csv'), index=False)
+
+    dir_path = r"C:\Users\luciano.argolo\ssis-scrapper\SSIS"
+    target_dir = r"C:\Users\luciano.argolo\ssis-scrapper\dtsx"
+
+    discovery = SSISDiscovery(dir_path)
+    files = discovery.get_files()
+    discovery.extract_dtsx_files(target_dir, files)
+
+    migrator = SSISMigrator()
+    file_paths = os.listdir(dir_path)
+
+
+    for file_name in file_paths:
+        file_path = dir_path + "\\" + file_name
+        parsed_data = migrator.parse_xml_file(file_path)
+        df = migrator.get_df(parsed_data)
+        
+        with open((dir_path + "\\" + file_name).replace('dtsx', 'json'), "w") as f:
+            f.write(json.dumps(parsed_data, indent=4))
+        print("Parsed Data is written out to file")
+
+        df.to_csv((dir_path + "\\" + file_name).replace('dtsx', 'csv'), index=False)
+

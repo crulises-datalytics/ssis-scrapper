@@ -1,3 +1,4 @@
+#%%
 import xml.etree.ElementTree as ET
 
 def parse_node(node):
@@ -34,9 +35,17 @@ def get_parent_path(path, levels):
 def get_node_by_path(parsed_data, path):
     node = parsed_data
     for step in path:
-        node = node.get(step)
-        if isinstance(node, list):
-            node = node[0]
+        
+        if isinstance(node, dict):
+            node = node.get(step)
+            if isinstance(node, list):
+                node = node[0]
+            
+        elif isinstance(node, str):
+            node:str = node
+        
+        else:
+            node:str = 'None'
     return node
 
 def get_nodes_by_key(parsed_data, key, levels_up):
@@ -60,16 +69,16 @@ def get_nodes_by_key(parsed_data, key, levels_up):
     return recursive_search(parsed_data, key)
 
 if __name__ == "__main__":
-    file_path = "LaborHoursActuals.dtsx"
+    file_path = "LaborHoursAccntSubAccnt.dtsx"
     parsed_data = parse_xml_file(file_path)
     import json
-    with open("out", "w") as f:
+    with open(f"{file_path.split(".")[0]}.json", "w") as f:
         f.write(json.dumps(parsed_data, indent=4))
     print("Parsed Data is written out to file")
 
-    key = "{www.microsoft.com/sqlserver/dts/tasks/sqltask}SqlStatementSource"
-    levels_up = 2
-    nodes_with_key = get_nodes_by_key(parsed_data, key, levels_up)
-    print(f"Nodes with key '{key}' {levels_up} levels up:")
-    for parent, node in nodes_with_key:
-        print(f"Parent: {parent}, Node: {node}")
+    # key = "{www.microsoft.com/sqlserver/dts/tasks/sqltask}SqlStatementSource"
+    # levels_up = 2
+    # nodes_with_key = get_nodes_by_key(parsed_data, key, levels_up)
+    # print(f"Nodes with key '{key}' {levels_up} levels up:")
+    # for parent, node in nodes_with_key:
+    #     print(f"Parent: {parent}, Node: {node}")
