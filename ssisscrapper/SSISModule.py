@@ -24,6 +24,9 @@ class SSISMigrator:
         """
         parsed_data = {}
 
+        if "{www.microsoft.com/SqlServer/Dts}ObjectData" in str(node.attrib) and "Microsoft.ExecutePackageTask".lower() in str(node.attrib).lower():
+            print(parsed_data.get("{www.microsoft.com/SqlServer/Dts}ObjectData",{}))
+
         # Parse attributes
         if node.attrib:
             parsed_data['Attributes'] = {key: value for key, value in node.attrib.items()}
@@ -33,6 +36,8 @@ class SSISMigrator:
             sub_node_data = self.parse_node(sub_node)
             sub_node_tag = sub_node.tag
 
+
+                
             if sub_node_tag in parsed_data:
                 if isinstance(parsed_data[sub_node_tag], list):
                     parsed_data[sub_node_tag].append(sub_node_data)
@@ -40,6 +45,8 @@ class SSISMigrator:
                     parsed_data[sub_node_tag] = [parsed_data[sub_node_tag], sub_node_data]
             else:
                 parsed_data[sub_node_tag] = sub_node_data
+            
+
 
         return parsed_data
 
@@ -154,17 +161,15 @@ class SSISDiscovery:
         get_files: Retrieves a list of file paths for files with a specified extension.
         extract_dtsx_files: Copies discovered .dtsx files to a target directory, renaming them for uniqueness.
     """
-
     def __init__(self, root_directory:str, valid_dirs:list=['csv'], file_extension:str=".dtsx"):
         """
         Initializes the SSISDiscovery with a root directory to search within.
         """
         self.root_directory = root_directory
-
         self.valid_dirs = valid_dirs
         self.file_extension = file_extension
 
-    def get_files(self, file_extension=".dtsx"):
+    def get_files(self) -> list:
         """
         Retrieves a list of file paths for files with a specified extension.
         """
@@ -177,11 +182,6 @@ class SSISDiscovery:
         return final_files
     
     def extract_files(self, target_dir, files):
-                if file.endswith(file_extension):
-                    final_files.append(os.path.join(root, file))
-        return final_files
-    
-    def extract_dtsx_files(self, target_dir, files):
         """
         Copies discovered .dtsx files to a target directory, renaming them for uniqueness.
         """
@@ -201,15 +201,6 @@ class SSISAnalyzer(SSISDiscovery):
     """
     
     def read_all_files(self) -> pd.DataFrame:
-
-
-    def __init__(self, root_directory):
-        """
-        Initializes the SSISAnalyzer with a root directory to search within.
-        """
-        self.root_directory = root_directory
-    
-    def read_all_files(self, file_extension=".dtsx") -> pd.DataFrame:
         """
         Reads and combines data from all discovered .dtsx files into a single DataFrame.
         """
