@@ -25,10 +25,21 @@ csv_main_files
 #%%
 #i need to open a .dtsx file
 from SSISModule import SSISDiscovery
+import json
+from more_itertools import flatten
+import pandas as pd
 import os
 import re 
 
-def mapping_out(file_path, map_dict):
+def mapping_out(file_path, map_dict, visited=None):
+    if visited is None:
+        visited = set()
+
+    # Avoid revisiting files
+    if file_path in visited:
+        return None
+    visited.add(file_path)
+
     with open(file_path, 'r') as file:
         content = file.read()
 
@@ -49,7 +60,26 @@ def mapping_out(file_path, map_dict):
     else:
         return None
 
+    return map_dict
 
+
+def dependencies(file_path):
+    with open(file_path, 'r') as file:
+        content = file.read()
+        
+
+    # Extract with this pattern <PackageName>(.*?)<\/PackageName> all the matches
+    list_of_match_and_time = []
+    matches = re.findall('<PackageName>(.*?)<\/PackageName>', content)
+
+    dir_name = os.path.dirname(file_path)
+    matches = [os.path.join(dir_name, match) for match in matches]  # Assuming '.dtsx' needs to be appended
+    
+    if len(matches) > 0:
+        return matches
+    else:
+        match = file_path
+        return ""
 
 
 dir_path = r"C:\Users\luciano.argolo\ssis-scrapper\SSIS"
@@ -61,17 +91,34 @@ files_path = discovery.get_files()
 
 map_dict = {}
 
+df = pd.read_csv(r"C:\Users\luciano.argolo\ssis-scrapper\analysis\files_estimated.csv")
+
 for file_path in files_path:
-    print(f"File: {file_path}")
-    print(f"File position: {files_path.index(file_path) + 1}/{len(files_path)}")
-    #file_path = r'C:\Users\luciano.argolo\ssis-scrapper\SSIS\ADPtoStagingIncrementalLoad\ADPtoStagingIncrementalLoad\ADPToStagingIncrementalParentPackage.dtsx'  # Update this to your file's path
-    if file_path != r'C:\Users\luciano.argolo\ssis-scrapper\SSIS\StagingToEDW\StagingToEDW\StagingToEDWParentPackage.dtsx':
-        mapping_out(file_path, map_dict)
+    map_dict.update({file_path: dependencies(file_path)})
 
+map_dict = {k: v for k, v in sorted(map_dict.items(), key=lambda item: len(item[1]) if item[1] is not None else 0, reverse=True)}
 
+iterated_keys = []
+new_dep_dict = {}
+for key, value in map_dict.items():
+    print(f"{key} : {value}")
+    if key not in iterated_keys:
+        if value:
+            for v in value:
+                print(f"    {v}")
+                if key not in new_dep_dict:
+                    new_dep_dict[key] = {v: map_dict[v]}
+                else:
+                    new_dep_dict[key].update({v: map_dict[v]})
+                iterated_keys.append(v)
+    else:
+        new_dep_dict[key] = ""
 
-map_dict
+# i want to pop all the keys that are in the iterated_keys list
+for key in list(set(iterated_keys)):
+    new_dep_dict.pop(key)
+
+with open(r"C:\Users\luciano.argolo\ssis-scrapper\analysis\tree_deps.json", "w") as f:
+    f.write(json.dumps(new_dep_dict, indent=4))
 
 pass
-pass
-
