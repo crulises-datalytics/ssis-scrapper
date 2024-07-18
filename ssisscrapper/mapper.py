@@ -1,17 +1,21 @@
 #%%
 
 import pandas as pd
+import os
 from SSISModule import SSISAnalyzer
 
-disc = SSISAnalyzer(root_directory=r"C:\Users\luciano.argolo\ssis-scrapper\csv", valid_dirs=['csv'], file_extension=".csv")
+path = os.getcwd()
+
+
+disc = SSISAnalyzer(root_directory=path+"\\"+"csv", valid_dirs=['csv'], file_extension=".csv")
 df = disc.read_all_files()
 df = df[['File_path']].drop_duplicates()
-df.to_csv(r"C:\Users\luciano.argolo\ssis-scrapper\analysis\all_files.csv", index=False)
+df.to_csv(path+"\\"+"all_files.csv", index=False)
 
 #Nakash_packages_ssis.csv
 df['File_path'] = df['File_path'].str.lower()
 
-df_nakash = pd.read_csv(r"C:\Users\luciano.argolo\ssis-scrapper\analysis\Nakash_packages_SSIS.csv")
+df_nakash = pd.read_csv(path+"\\"+"Nakash_packages_SSIS.csv")
 
 df['is_contained'] = df['File_path'].apply(lambda x: any(df_nakash['path'].str.contains(x)))
 df = df[df['is_contained']]
@@ -82,8 +86,8 @@ def dependencies(file_path):
         return ""
 
 
-dir_path = r"C:\Users\luciano.argolo\ssis-scrapper\SSIS"
-target_dir = r"C:\Users\luciano.argolo\ssis-scrapper\dtsx"
+dir_path = path+"\\"+"SSIS"
+target_dir = path+"\\"+"dtsx"
 valid_dirs = ['StagingToEDW', 'DWBaseIncrementalLoad']
 
 discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".dtsx")
@@ -91,7 +95,7 @@ files_path = discovery.get_files()
 
 map_dict = {}
 
-df = pd.read_csv(r"C:\Users\luciano.argolo\ssis-scrapper\analysis\files_estimated.csv")
+df = pd.read_csv(path+"\\"+"files_estimated.csv")
 
 for file_path in files_path:
     map_dict.update({file_path: dependencies(file_path)})
@@ -121,7 +125,6 @@ for key, value in map_dict.items():
 for key in list(set(iterated_keys)):
     new_dep_dict.pop(key)
 
-with open(r"C:\Users\luciano.argolo\ssis-scrapper\analysis\tree_deps.json", "w") as f:
-    f.write(json.dumps(new_dep_dict, indent=4))
 
-pass
+with open(path+"\\"+"tree_deps.json", "w") as f:
+    f.write(json.dumps(new_dep_dict, indent=4))
