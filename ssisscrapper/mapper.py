@@ -125,5 +125,6 @@ for key, value in map_dict.items():
 for key in list(set(iterated_keys)):
     new_dep_dict.pop(key)
 
+
 with open(path+"\\"+"tree_deps.json", "w") as f:
     f.write(json.dumps(new_dep_dict, indent=4))
