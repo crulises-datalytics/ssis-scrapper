@@ -1,5 +1,6 @@
 #%%
 from SSISModule import SSISMigrator, SSISDiscovery
+from utils import create_directories
 import json
 import os
 
@@ -8,26 +9,34 @@ if __name__ == '__main__':
     #--------------------------------------
     # EXTRACITING ALL SP FROM BING.RAR FILE
     from SSISModule import SSISDiscovery
+    #--------------------------------------
+    # EXTRACITING ALL SP FROM BING.RAR FILE
 
-    dir_path = r"C:\Users\luciano.argolo\ssis-scrapper\bing"
-    target_dir = r"C:\Users\luciano.argolo\ssis-scrapper\StoreProcedures"
+    path = os.getcwd()
+    create_directories(['dtsx', 'json', 'csv', 'analysis', 'StoreProcedures'], path)
+
+
+    #--------------------------------------
+    # EXTRACITING ALL .dtsx files FROM SSIS folder
+    dir_path = os.path.join(path, "bing")
+    target_dir = os.path.join(path, "StoreProcedures")
     valid_dirs = ['Stored Procedures']
 
     discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".sql")
     files = discovery.get_files()
-    # discovery.extract_files(target_dir, files)
+    discovery.extract_files(target_dir, files)
     #--------------------------------------
 
 
     #--------------------------------------
     # EXTRACITING ALL .dtsx files FROM SSIS folder
-    dir_path = r"C:\Users\luciano.argolo\ssis-scrapper\SSIS"
-    target_dir = r"C:\Users\luciano.argolo\ssis-scrapper\dtsx"
-    valid_dirs = ['StagingToEDW', 'DWBaseIncrementalLoad']
+    dir_path = os.path.join(path, "SSIS")
+    target_dir = os.path.join(path, "dtsx")
+    valid_dirs = ['DWBaseIncrementalLoad']
 
-    discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".sql")
+    discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".dtsx")
     files = discovery.get_files()
-    # discovery.extract_files(target_dir, files)
+    discovery.extract_files(target_dir, files)
     #--------------------------------------
 
     #--------------------------------------
