@@ -15,7 +15,7 @@ df.to_csv(path+"\\"+"all_files.csv", index=False)
 #Nakash_packages_ssis.csv
 df['File_path'] = df['File_path'].str.lower()
 
-df_nakash = pd.read_csv(path+"\\"+"Nakash_packages_SSIS.csv")
+df_nakash = pd.read_csv(path+"\\analysis\\"+"Nakash_packages_SSIS.csv")
 
 df['is_contained'] = df['File_path'].apply(lambda x: any(df_nakash['path'].str.contains(x)))
 df = df[df['is_contained']]
@@ -95,7 +95,7 @@ files_path = discovery.get_files()
 
 map_dict = {}
 
-df = pd.read_csv(path+"\\"+"files_estimated.csv")
+df = pd.read_csv(path+"\\analysis\\"+"files_estimated.csv")
 
 for file_path in files_path:
     map_dict.update({file_path: dependencies(file_path)})
@@ -126,5 +126,5 @@ for key in list(set(iterated_keys)):
     new_dep_dict.pop(key)
 
 
-with open(path+"\\"+"tree_deps.json", "w") as f:
+with open(path+"\\analysis\\"+"tree_deps.json", "w") as f:
     f.write(json.dumps(new_dep_dict, indent=4))

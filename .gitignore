@@ -12,6 +12,8 @@
 *StoreProcedures/
 *bing/
 
+*.vs
+
 !analysis/*
 
 *dtsx

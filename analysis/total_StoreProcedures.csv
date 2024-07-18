@@ -1,0 +1,6 @@
+SqlTaskData
+"Execute spEndAuditLog ?,?,?,?,?,?,?;"
+"Execute spBeginAuditLog ? OUTPUT, ?, ?;"
+"Execute spEndAuditLog ?, ?, ?, ?, ?;"
+EXEC [dbo].[SpPopulateNSESupport]   @DebugMode =1
+ Exec [dbo].[SpPopulateNSESupportSD]   @DebugMode =1
