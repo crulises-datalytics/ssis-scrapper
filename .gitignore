@@ -2,19 +2,18 @@
 *.dtsx
 *.csv
 *.json
+
 *csv/*
 *json/*
 *dtsx/*
-*analysis/
 *bing/
 *SSIS/
 *csv_main_files/
 *StoreProcedures/
 *bing/
 
+!analysis/*
 
-*csv
-*json
 *dtsx
 SSIS/*
 

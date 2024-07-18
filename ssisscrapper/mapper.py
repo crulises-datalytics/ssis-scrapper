@@ -98,6 +98,7 @@ for file_path in files_path:
 
 map_dict = {k: v for k, v in sorted(map_dict.items(), key=lambda item: len(item[1]) if item[1] is not None else 0, reverse=True)}
 
+
 iterated_keys = []
 new_dep_dict = {}
 for key, value in map_dict.items():
@@ -111,6 +112,8 @@ for key, value in map_dict.items():
                 else:
                     new_dep_dict[key].update({v: map_dict[v]})
                 iterated_keys.append(v)
+        else:
+            new_dep_dict[key] = ""
     else:
         new_dep_dict[key] = ""
 
