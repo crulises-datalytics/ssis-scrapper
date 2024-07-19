@@ -1,3 +1,0 @@
-name
-DWBaseIncrementalLoad_DWBaseParentPackage.csv
-StagingToEDW_StagingToEDWParentPackage.csv

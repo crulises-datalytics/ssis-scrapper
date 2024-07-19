@@ -1,7 +1,0 @@
-index,difficulty,ExecutableType
-0,0,Microsoft.Package
-1,0,STOCK:SEQUENCE
-2,1,Microsoft.ExecuteSQLTask
-3,0,STOCK:FOREACHLOOP
-4,2,Microsoft.Pipeline
-5,3,Microsoft.ExecutePackageTask
