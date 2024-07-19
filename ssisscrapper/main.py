@@ -13,14 +13,16 @@ if __name__ == '__main__':
     # EXTRACITING ALL SP FROM BING.RAR FILE
 
     path = os.getcwd()
+    
     create_directories(['dtsx', 'json', 'csv', 'analysis', 'StoreProcedures'], path)
 
 
     #--------------------------------------
     # EXTRACITING ALL .dtsx files FROM SSIS folder
     dir_path = os.path.join(path, "bing")
+    
     target_dir = os.path.join(path, "StoreProcedures")
-    valid_dirs = ['Stored Procedures']
+    valid_dirs = ['HR_Base',"HR_Landing"] # aqui podemos agregar un filtro
 
     discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".sql")
     files = discovery.get_files()
@@ -30,9 +32,10 @@ if __name__ == '__main__':
 
     #--------------------------------------
     # EXTRACITING ALL .dtsx files FROM SSIS folder
-    dir_path = os.path.join(path, "SSIS")
+    dir_path = os.path.join(path, "bing")
+    print(dir_path)
     target_dir = os.path.join(path, "dtsx")
-    valid_dirs = ['DWBaseIncrementalLoad']
+    valid_dirs = ['DataLakeHRISToBase'] # Change from "DWBaseIncrementalLoad" to ""
 
     discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".dtsx")
     files = discovery.get_files()

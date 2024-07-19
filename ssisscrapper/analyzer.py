@@ -49,9 +49,9 @@ df = df[df['SqlTaskData'].str.contains('^[" ]?Exec', case=False, na=False)]
 df.to_csv(f"{target_dir}\\total_StoreProcedures.csv", index=False)
 
 
-dir_path = os.path.join(path, "SSIS")
+dir_path = os.path.join(path, "bing")
 target_dir = os.path.join(path, "analysis")
-valid_dirs = ['StagingToEDW', 'DWBaseIncrementalLoad']
+valid_dirs = ['DataLakeHRISToBase']
 
 discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".dtsx")
 files_path = discovery.get_files()
