@@ -32,7 +32,7 @@ if __name__ == '__main__':
     # EXTRACITING ALL .dtsx files FROM SSIS folder
     dir_path = os.path.join(path, "SSIS")
     target_dir = os.path.join(path, "dtsx")
-    valid_dirs = ['DWBaseIncrementalLoad']
+    valid_dirs = ['DWBaseIncrementalLoad', 'StagingToEDW']
 
     discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".dtsx")
     files = discovery.get_files()
