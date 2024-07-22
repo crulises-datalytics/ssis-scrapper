@@ -25,10 +25,7 @@ columns=['RefId', 'SqlTaskData']
 df_grouped = df.groupby(columns, as_index=True).count().reset_index(inplace=False)
 df_grouped.to_csv(f"{target_dir}\\group_by_{'-'.join(columns)}.csv", index=True)
 
-
-columns = ['File_path', 'ExecutableType']
-df = df.groupby(columns, as_index=True).count().reset_index(inplace=False)[columns + ['RefId']]
-df.to_csv(f"{target_dir}\\group_by_{'-'.join(columns)}.csv", index=True)
+df.to_csv(f"{target_dir}\\all_joined.csv", index=True)
 
 
 #TOTAL PACKAGES BEING CALLED BY PARENT PACKAGES
@@ -49,7 +46,7 @@ df = df[df['SqlTaskData'].str.contains('^[" ]?Exec', case=False, na=False)]
 df.to_csv(f"{target_dir}\\total_StoreProcedures.csv", index=False)
 
 
-dir_path = os.path.join(path, "SSIS")
+dir_path = os.path.join(path, "bing")
 target_dir = os.path.join(path, "analysis")
 valid_dirs = ['StagingToEDW', 'DWBaseIncrementalLoad']
 
@@ -64,3 +61,14 @@ for file_path in files_path:
 
 with open(os.path.join(target_dir,'dependencies.json') , "w") as f:
     f.write(json.dumps(map_dict, indent=4))
+    
+#%%
+import pandas as pd
+import re
+
+path = os.getcwd()
+df = pd.read_csv(path+"\\analysis\\all_joined.csv")
+df = df[['File_path', 'SqlTaskData']]
+df = df[df['SqlTaskData'].str.contains('from\\s+\\w+.\\w+|update|insert', case=False, na=False)]
+df['Extracted'] = df['SqlTaskData'].str.extract('(from\s+\w+\.\w+|update|insert)', flags=re.IGNORECASE, expand=False)
+df.to_csv(path+"\\analysis\\tables_sql.csv", index=False)

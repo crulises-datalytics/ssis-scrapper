@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     #--------------------------------------
     # EXTRACITING ALL .dtsx files FROM SSIS folder
-    dir_path = os.path.join(path, "SSIS")
+    dir_path = os.path.join(path, "bing")
     target_dir = os.path.join(path, "dtsx")
     valid_dirs = ['DWBaseIncrementalLoad', 'StagingToEDW']
 
@@ -55,4 +55,3 @@ if __name__ == '__main__':
         print("Parsed Data is written out to file")
 
         df.to_csv(file_path.replace('dtsx', 'csv'), index=False)
-

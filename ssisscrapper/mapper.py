@@ -4,11 +4,12 @@ import json
 import os
 from utils import dependencies, process_map_dict, clean_dep_dict, collect_keys_values
 from SSISModule import SSISDiscovery
-
+#site to generate grapphs of dependencies from json 
+#https://jsoncrack.com/editor
 
 path = os.getcwd()
 
-dir_path = path+"\\"+"SSIS"
+dir_path = path+"\\"+"bing"
 target_dir = path+"\\"+"dtsx"
 valid_dirs = ['StagingToEDW', 'DWBaseIncrementalLoad']
 
