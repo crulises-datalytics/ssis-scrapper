@@ -1,6 +1,8 @@
 #%%
 import os
 import re
+import pandas as pd
+from lxml import etree
 
 def create_directories(dirs:list, path:str) -> None: 
     for directory in dirs:
@@ -156,7 +158,7 @@ def clean_dep_dict(new_dep_dict, iterated_keys):
         new_dep_dict.pop(key, None)  # Use pop with None as default to avoid KeyError
     return {k: v for k, v in sorted(new_dep_dict.items(), key=lambda item: len(item[1]) if item[1] is not None else 0, reverse=True)}
 
-def extract_sql_data(input_df):
+def extract_sql_data(input_df, columns_to_keep:list=['File_path', 'Extracted', 'db']):
     regex = "FROM\\s+[ _@A-Za-z0-9.\\[\\]]+|join[ _A-Za-z0-9.\\[\\]]+|insert\\s+into\\s+[ _@A-Za-z0-9.\\[\\]]+|declare[ _@A-Za-z0-9.\\[\\]]+|update\\s+[ _@A-Za-z0-9.\[\]]+"
     # Filter rows based on the presence of SQL keywords and patterns
     filtered_df = input_df[input_df['SqlTaskData'].str.contains(regex, case=False, na=False)]
@@ -174,6 +176,48 @@ def extract_sql_data(input_df):
     exploded_df['db'] = exploded_df['Extracted'].str.extract('([a-zA-Z0-9_\\[\\]]+)\\.', flags=re.IGNORECASE).fillna("No db found")
     
     # Select specific columns and remove duplicates
-    final_df = exploded_df[['File_path', 'Extracted', 'db']].drop_duplicates()
+    final_df = exploded_df[columns_to_keep].drop_duplicates()
     
     return final_df
+
+def extract_values(all_files_path, pattern, split_values=False, add_prefix:bool=False) -> pd.DataFrame:
+    """
+    Extracts values from XML files based on a given pattern. Can optionally split values and save them to a CSV file.
+
+    Parameters:
+    - all_files_path: List of paths to the XML files.
+    - pattern: XPath pattern to extract values.
+    - split_values: Boolean indicating whether to split the extracted values by ';'.
+
+    Returns:
+    - A pandas DataFrame with the extracted values.
+    """
+    results = []
+    max_split_values = 0
+
+    for file_path in all_files_path:
+        tree = etree.parse(file_path)
+        values = tree.xpath(pattern)
+
+        for value in values:
+            file_path = '_'.join(file_path.split('\\')[-2:]) if add_prefix else file_path.split('\\')[-1]
+            result_dict = {"File_path": file_path.replace('.dtsx', '')}
+            if split_values and len(value) > 0:
+                split_values_list = value.split(';')
+                # Update max_split_values if the current list is longer
+                max_split_values = max(max_split_values, len(split_values_list))
+                for i, split_value in enumerate(split_values_list):
+                    result_dict[f"value_{i+1}"] = split_value
+            else:
+                result_dict["SqlTaskData"] = value
+            results.append(result_dict)
+
+    df = pd.DataFrame(results)
+
+    # If split_values was used, ensure all expected columns are present
+    if split_values:
+        for i in range(1, max_split_values + 1):
+            if f"value_{i}" not in df.columns:
+                df[f"value_{i}"] = None
+
+    return df
