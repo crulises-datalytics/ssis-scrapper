@@ -4,3 +4,185 @@ SqlTaskData
 "Execute spEndAuditLog ?, ?, ?, ?, ?;"
 EXEC [dbo].[SpPopulateNSESupport]   @DebugMode =1
  Exec [dbo].[SpPopulateNSESupportSD]   @DebugMode =1
+EXEC dbo.spCSS_StagingToEDW_DimARAgencyType
+EXEC dbo.spCSS_StagingTransform_DimDiscountType;
+EXEC dbo.spCSS_StagingToEDW_DimFeeType;
+"Execute spBeginAuditLog ? OUTPUT, ?,?;"
+"Execute spEndAuditLog ?,?,?,?,?;"
+EXEC DBO.spCSS_StagingToEDW_DimPaymentType;
+EXEC dbo.spCSS_StagingTransform_DimProgram;
+EXEC dbo.spCSS_StagingToEDW_DimSession
+Execute [dbo].[spCSS_StagingToEDW_DimSponsor]
+EXEC dbo.spCSS_StagingToEDW_DimStudent
+EXEC dbo.spCSS_StagingToEDW_DimTier
+EXEC dbo.spCSS_StagingToEDW_DimTransactionCode;
+EXEC dbo.spCSS_StagingToEDW_DimTuitionAssistanceProvider;
+Exec [dbo].[spCSS_BatchLoad_StagingToEDW_FactFTESnapshot]
+EXEC spCSS_BatchLoad_StagingToEDW_FactLaborHourTarget
+EXEC spCSS_BatchLoad_StagingToEDW_FactLifeCycleStatusSnapshot
+EXEC spCSS_BatchLoad_StagingToEDW_FactNetRevenue
+Execute [dbo].[spGL_StagingToEDW_BridgeCompanyRollup]
+Execute [dbo].[spHR_StagingToEDW_BridgeSecurityPersonHRISGroup]
+Execute [dbo].[spHR_StagingToEDW_BridgeSecurityPersonOrg]
+"Execute spEndAuditLog ?,0,?,?,?;"
+EXEC dbo.spGL_StagingToEDW_DimAccountSubAccount
+EXEC dbo.spCMS_StagingToEDW_DimAdjustmentReason
+EXEC dbo.spCMS_StagingToEDW_DimARAgencyType
+EXEC dbo.spHR_StagingToEDW_DimAssessmentType
+EXEC dbo.spHR_StagingToEDW_DimAssignmentType
+EXEC dbo.spCMS_StagingToEDW_DimClassroom
+EXEC dbo.spCSS_StagingToEDW_DimClassroom
+EXEC spGL_StagingToEDW_DimCompany
+Execute [dbo].[spGL_StagingToEDW_DimCompanyRollup]
+EXEC [dbo].[spHR_StagingToEDW_DimComplianceItem]
+EXEC dbo.spHR_StagingToEDW_DimComplianceRating
+EXEC dbo.spGL_StagingToEDW_DimCostCenter
+EXEC dbo.spGL_StagingToEDW_DimCostCenterType
+EXEC dbo.spCMS_StagingToEDW_DimCreditMemoType
+"Execute spBeginAuditLog ? OUTPUT, ?;"
+EXEC dbo.spGL_StagingToEDW_DimDate
+EXEC dbo.spCMS_StagingToEDW_DimDiscountType
+EXEC dbo.spCMS_StagingToEDW_DimFeeType
+Exec [dbo].[spHR_StagingToEDW_DimHRUser]
+EXEC dbo.spCMS_StagingToEDW_DimInvoiceType
+EXEC dbo.spSalesForce_StagingToEDW_DimLead
+EXEC dbo.spBING_EDW_Generate_DimLeadEventType
+EXEC dbo.spSalesForce_StagingToEDW_DimLeadType
+EXEC dbo.spHR_StagingToEDW_DimLeaveReason
+EXEC [dbo].[spHR_StagingToEDW_DimLeaveType] 
+EXEC spHR_StagingToEDW_DimLocation
+"Execute dbo.spBeginAuditLog ? OUTPUT, ?,?;"
+"EXECUTE [spGL_Staging_AccountSubAccountLanding] 
+NULL, ? OUTPUT, ? OUTPUT
+GO
+"
+exec  [dbo].[spBING_EDW_Generate_DimCostCenter]
+"EXECUTE [dbo].[spDimPartnerLoad] null, null, ?, ? output;"
+"EXECUTE [dbo].[spDimSponsorLoad] null, null, ?, ? output;"
+"EXECUTE [dbo].[spDimStudentLoad] null, null, ?, ? output;"
+EXEC spHR_StagingToEDW_DimOrganization
+Exec [dbo].[spHR_StagingToEDW_DimPayBasis]
+EXEC dbo.spHR_StagingToEDW_DimPayGrade
+Execute [dbo].[spCMS_StagingToEDW_DimPaymentType];
+EXEC dbo.spHR_StagingToEDW_DimPayRateChangeReason
+EXEC dbo.spMISC_StagingToEDW_DimPayrollType
+EXEC spHR_StagingToEDW_DimPeopleGroup
+EXEC dbo.spHR_StagingToEDW_DimPerformanceRating;
+EXEC dbo.spHR_StagingToEDW_DimPerson
+EXEC dbo.spHR_StagingToEDW_DimPosition
+EXEC dbo.spCMS_StagingToEDW_DimProgram
+EXEC [dbo].[spHR_StagingToEDW_DimQualificationType]
+EXEC dbo.spMISC_StagingToEDW_DimReportProfile
+ EXEC [dbo].[spCMS_StagingToEDW_DimScheduleType]
+EXEC dbo.spCMS_StagingToEDW_DimSession
+Exec [dbo].[spHR_StagingToEDW_DimSpecialInfo]
+Execute [dbo].[spCMS_StagingToEDW_DimSponsor]
+EXEC dbo.spCMS_StagingToEDW_DimStudent
+Exec [dbo].[spCMS_StagingToEDW_DimTier];
+EXEC dbo.spCMS_StagingToEDW_DimTuitionAssistanceProvider;
+EXEC dbo.spSalesForce_StagingToEDW_DimWebCampaign;
+EXEC dbo.spCMS_StagingToEDW_FactAdjustment
+EXEC spBackupTranLog 'BING_EDW'
+EXEC spCMS_BatchLoad_StagingToEDW_FactARBalanceSnapshot
+Exec [dbo].[spCSS_BatchLoad_StagingToEDW_FactARBalanceSnapshot]
+EXEC dbo.spCMS_BatchLoad_StagingToEDW_FactBilling
+EXEC spGL_BatchLoad_StagingToEDW_FactCenterStatSnapshot
+EXEC dbo.spHR_StagingToEDW_FactEmployeeAssessment
+EXEC dbo.spHR_StagingToEDW_FactEmployeeAssignment
+EXEC dbo.spHR_StagingToEDW_FactEmployeeCompliance
+EXEC dbo.spHR_StagingToEDW_FactEmployeeLeave
+EXEC dbo.spHR_StagingToEDW_FactEmployeePayRate
+EXEC dbo.spHR_StagingToEDW_FactEmployeePerformance
+EXEC [dbo].[spHR_StagingToEDW_FactEmployeeQualification]
+EXEC spCMS_BatchLoad_StagingToEDW_FactFTESnapshot
+Exec [dbo]. spMISC_StagingToEDW_FactFTESnapshot
+Exec [dbo].[spCambridge_BatchLoad_StagingToEDW_FactFTESnapshot]
+EXEC spGL_BatchLoad_StagingToEDW_FactGLBalance
+EXEC dbo.spMISC_BatchLoad_StagingToEDW_FactGLBalancePlanAllocation
+"Exec [dbo].spMISC_StagingToEDW_FactLaborHourACQ
+NULL,
+?,
+NULL"
+EXEC spMISC_BatchLoad_StagingToEDW_FactLaborHourActual
+EXEC spMISC_BatchLoad_StagingToEDW_FactLaborHourTarget
+EXEC spMISC_BatchLoad_StagingToEDW_FactLaborHourTargetLegacy
+"EXEC 
+spCambridge_BatchLoad_StagingToEDW_FactLaborHourTarget"
+EXEC spMISC_BatchLoad_StagingToEDW_FactLaborSalary
+EXEC dbo.spSalesForce_StagingToEDW_FactLeadEvent
+EXEC dbo.spSalesForce_StagingToEDW_FactLeadPipeline;
+EXEC spCMS_BatchLoad_StagingToEDW_FactLifecycleStatusSnapshot
+EXEC spCMS_BatchLoad_StagingToEDW_FactNetRevenue
+"EXEC spMISC_StagingToEDW_FactNetRevenueACQ
+   NULL
+  ,?
+  ,NULL"
+EXEC spHOR_BatchLoad_StagingToEDW_FactNetRevenue
+EXEC spPRO_BatchLoad_StagingToEDW_FactNetRevenue
+"Execute spEndAuditLog ?,?,?,?,?"
+EXEC dbo.spCMS_BatchLoad_StagingToEDW_FactPayment
+EXEC dbo.spCMS_StagingToEDW_FactPaymentApplied
+EXEC dbo.spHR_StagingToEDW_FactPersonSpecialInfo
+EXEC dbo.spCMS_StagingToEDW_FactSessionEnrollment
+EXEC dbo.spCMS_StagingToEDW_FactTierAssignment
+EXEC dbo.spBING_EDW_Build_DimensionStaticData
+EXEC dbo.spCMS_StagingToEDW_DimAdjustmentReason;
+EXEC dbo.spCMS_StagingToEDW_DimScheduleType
+EXEC dbo.spCMS_StagingToEDW_DimARAgencyType;
+EXEC dbo.spCSS_StagingToEDW_DimARAgencyType;
+EXEC dbo.spCMS_StagingToEDW_DimClassroom;
+EXEC dbo.spCSS_StagingToEDW_DimClassroom;
+EXEC dbo.spCMS_StagingToEDW_DimCreditMemoType;
+EXEC dbo.spCSS_StagingToEDW_DimDiscountType;
+EXEC dbo.spCMS_StagingToEDW_DimPaymentType
+EXEC dbo.spCSS_StagingToEDW_DimProgram
+EXEC dbo.spCMS_StagingToEDW_DimSponsor;
+EXEC dbo.spCSS_StagingToEDW_DimSponsor;
+EXEC dbo.spCMS_StagingToEDW_DimStudent;
+EXEC dbo.spGL_StagingGenerate_HrAllOrganizationUnits
+EXEC dbo.spGL_StagingToEDW_BridgeCompanyRollup;
+EXEC dbo.spGL_StagingToEDW_DimCompany
+EXEC dbo.spGL_StagingToEDW_DimCompanyRollup;
+EXEC dbo.spHR_StagingGenerate_OrgLeaderAccess
+EXEC dbo.spHR_StagingToEDW_BridgeSecurityPersonHRISGroup;
+EXEC dbo.spHR_StagingToEDW_BridgeSecurityPersonOrg;
+EXEC dbo.spHR_StagingToEDW_DimComplianceItem
+EXEC dbo.spHR_StagingToEDW_DimComplianceRating; 
+EXEC dbo.spHR_StagingToEDW_DimHRUser;
+EXEC dbo.spHR_StagingToEDW_DimLeaveType
+EXEC dbo.spHR_StagingToEDW_DimLocation
+EXEC dbo.spHR_StagingToEDW_DimOrganization
+EXEC dbo.spHR_StagingToEDW_DimPayBasis
+EXEC dbo.spHR_StagingToEDW_DimPayGrade;
+EXEC dbo.spHR_StagingToEDW_DimPeopleGroup;
+EXEC dbo.spHR_StagingToEDW_DimPerformanceRating
+EXEC dbo.spHR_StagingToEDW_DimPerson;
+EXEC dbo.spHR_StagingToEDW_DimQualificationType;
+EXEC dbo.spHR_StagingToEDW_DimSpecialInfo
+EXEC dbo.spSalesforce_StagingToEDW_DimLead
+EXEC dbo.spSalesForce_StagingToEDW_DimWebCampaign
+EXEC dbo.spCMS_BatchLoad_StagingToEDW_FactARBalanceSnapshot;
+EXEC dbo.spCSS_BatchLoad_StagingToEDW_FactARBalanceSnapshot;
+EXEC dbo.spCMS_StagingToEDW_FactAdjustment;
+EXEC dbo.spCMS_BatchLoad_StagingToEDW_FactBilling;
+EXEC dbo.spCMS_StagingToEDW_FactSessionEnrollment;
+EXEC dbo.spCMS_StagingToEDW_FactTierAssignment;
+EXEC dbo.spGL_BatchLoad_StagingToEDW_FactCenterStatSnapshot;
+EXEC dbo.spPRO_BatchLoad_StagingToEDW_FactNetRevenue;
+EXEC dbo.spCMS_BatchLoad_StagingToEDW_FactNetRevenue;
+"EXEC [dbo].[spUpdateStatistics];
+EXEC [dbo].[spRecompile];"
+EXEC dbo.spHOR_BatchLoad_StagingToEDW_FactNetRevenue;
+EXEC dbo.spMISC_BatchLoad_StagingToEDW_FactGLBalancePlanAllocation;
+EXEC dbo.spGL_BatchLoad_StagingToEDW_FactGLBalance
+EXEC dbo.spHR_StagingToEDW_FactEmployeeAssessment;
+EXEC dbo.spHR_StagingToEDW_FactEmployeeAssignment;
+EXEC dbo.spHR_StagingToEDW_FactEmployeeCompliance;
+EXEC dbo.spHR_StagingToEDW_FactEmployeeLeave;
+EXEC dbo.spHR_StagingToEDW_FactEmployeePayRate;
+EXEC dbo.spHR_StagingToEDW_FactEmployeePerformance;
+EXEC dbo.spHR_StagingToEDW_FactEmployeeQualification;
+EXEC dbo.spHR_StagingToEDW_FactPersonSpecialInfo;
+EXEC [dbo].[spCMS_BatchLoad_StagingToEDW_FactLifecycleStatusSnapshot];
+EXEC dbo.spSalesForce_StagingToEDW_FactLeadPipeline
+EXEC dbo.spSalesForce_StagingGenerate_LookupMethodOfContact

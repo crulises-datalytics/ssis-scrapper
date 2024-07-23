@@ -2,7 +2,6 @@ import xml.etree.ElementTree as ET
 import shutil
 import pandas as pd
 import os
-import xml.etree.ElementTree as ET
 
 
 class SSISMigrator:
@@ -181,15 +180,20 @@ class SSISDiscovery:
                     final_files.append(file)
         return final_files
     
-    def extract_files(self, target_dir, files):
+    def extract_files(self, target_dir, files, add_prefix:bool=True):
         """
         Copies discovered .dtsx files to a target directory, renaming them for uniqueness.
         """
-        for file_path in files:
-            parent_dir_name = os.path.basename(os.path.dirname(file_path))
-            new_file_name = f"{parent_dir_name}_{os.path.basename(file_path)}"
-            target_path = os.path.join(target_dir, new_file_name)
-            shutil.copy(file_path, target_path)
+        if add_prefix:
+            for file_path in files:
+                parent_dir_name = os.path.basename(os.path.dirname(file_path))
+                new_file_name = f"{parent_dir_name}_{os.path.basename(file_path)}"
+                target_path = os.path.join(target_dir, new_file_name)
+                shutil.copy(file_path, target_path)
+        else:
+            for file_path in files:
+                target_path = os.path.join(target_dir, os.path.basename(file_path))
+                shutil.copy(file_path, target_path)
     
 class SSISAnalyzer(SSISDiscovery):
     """

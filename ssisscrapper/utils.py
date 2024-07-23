@@ -155,3 +155,25 @@ def clean_dep_dict(new_dep_dict, iterated_keys):
     for key in set(iterated_keys):
         new_dep_dict.pop(key, None)  # Use pop with None as default to avoid KeyError
     return {k: v for k, v in sorted(new_dep_dict.items(), key=lambda item: len(item[1]) if item[1] is not None else 0, reverse=True)}
+
+def extract_sql_data(input_df):
+    regex = "FROM\\s+[ _@A-Za-z0-9.\\[\\]]+|join[ _A-Za-z0-9.\\[\\]]+|insert\\s+into\\s+[ _@A-Za-z0-9.\\[\\]]+|declare[ _@A-Za-z0-9.\\[\\]]+|update\\s+[ _@A-Za-z0-9.\[\]]+"
+    # Filter rows based on the presence of SQL keywords and patterns
+    filtered_df = input_df[input_df['SqlTaskData'].str.contains(regex, case=False, na=False)]
+    
+    # Extract all matches of SQL keywords and patterns
+    matches_df = filtered_df['SqlTaskData'].str.extractall(f'({regex})', flags=re.IGNORECASE)
+    matches_df = matches_df.astype(str)
+    
+    # Aggregate matches and split; then explode to separate rows
+    filtered_df['Extracted'] = matches_df.groupby(level=0).agg('; '.join)
+    filtered_df['Extracted'] = filtered_df['Extracted'].str.split('; ')
+    exploded_df = filtered_df.explode('Extracted')
+    
+    # Extract database names, fill missing values with "No db found"
+    exploded_df['db'] = exploded_df['Extracted'].str.extract('([a-zA-Z0-9_\\[\\]]+)\\.', flags=re.IGNORECASE).fillna("No db found")
+    
+    # Select specific columns and remove duplicates
+    final_df = exploded_df[['File_path', 'Extracted', 'db']].drop_duplicates()
+    
+    return final_df

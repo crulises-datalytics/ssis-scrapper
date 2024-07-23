@@ -13,23 +13,35 @@ if __name__ == '__main__':
     # EXTRACITING ALL SP FROM BING.RAR FILE
 
     path = os.getcwd()
-    create_directories(['dtsx', 'json', 'csv', 'analysis', 'StoreProcedures'], path)
+    create_directories(['dtsx', 'json', 'csv', 'analysis', 'StoreProcedures', 'Sources_and_catalogs'], path)
 
+    # EXTRACTING ALL .params files From bing folder
+    dir_path = os.path.join(path, "bing")
+    target_dir = os.path.join(path, "Sources_and_catalogs")
+    valid_dirs = ['DWBaseIncrementalLoad', 'StagingToEDW', 'DataLakeHRISToBase']
 
     #--------------------------------------
-    # EXTRACITING ALL .dtsx files FROM SSIS folder
-    dir_path = os.path.join(path, "bing")
-    target_dir = os.path.join(path, "StoreProcedures")
-    valid_dirs = ['Stored Procedures']
-
-    discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".sql")
+    discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".params")
     files = discovery.get_files()
     discovery.extract_files(target_dir, files)
     #--------------------------------------
 
 
     #--------------------------------------
-    # EXTRACITING ALL .dtsx files FROM SSIS folder
+    # EXTRACITING ALL .dtsx files From bing folder
+    dir_path = os.path.join(path, "bing")
+    target_dir = os.path.join(path, "StoreProcedures")
+    valid_dirs = ['Stored Procedures']
+
+    #--------------------------------------
+    discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".sql")
+    files = discovery.get_files()
+    discovery.extract_files(target_dir, files, add_prefix=False)
+    #--------------------------------------
+
+
+    #--------------------------------------
+    # EXTRACITING ALL .dtsx files From bing folder
     dir_path = os.path.join(path, "bing")
     target_dir = os.path.join(path, "dtsx")
     valid_dirs = ['DWBaseIncrementalLoad', 'StagingToEDW']
