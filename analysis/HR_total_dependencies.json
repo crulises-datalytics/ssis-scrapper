@@ -1,0 +1,670 @@
+{
+    "BING_HRIS_WorkflowExecutionCheck_Daily": {
+        "package_name": "DataLakeHRISToBase_HRIS_Datalake_Runtime_Metadata.dtsx",
+        "depends_on": null,
+        "package_content": {
+            "HRIS_Datalake_Runtime_Metadata": [
+                {
+                    "activity_name": "Package\\Base - Data Load",
+                    "depends_on": null,
+                    "elements": []
+                }
+            ]
+        }
+    },
+    "BING_DataLakeHRIS_ToBaseB0_Load_Daily": {
+        "package_name": "DataLakeHRISToBase_DataLakeHRISToBaseParent.dtsx",
+        "depends_on": "BING_HRIS_WorkflowExecutionCheck_Daily",
+        "package_content": {
+            "DataLakeHRISToBaseParent": [
+                {
+                    "activity_name": "Package\\Parfallel Execution - I",
+                    "depends_on": null,
+                    "elements": [
+                        "FND_FLEX_VALUES_B0",
+                        "FND_FLEX_VALUES_TL_B0",
+                        "FND_FLEX_VALUE_SETS_B0",
+                        "FND_ID_FLEX_STRUCTURES_TL_B0",
+                        "HR_ALL_ORGANIZATION_UNITS_B0",
+                        "HR_LOCATIONS_ALL_B0",
+                        "PAY_GRADE_RULES_F_B0",
+                        "PAY_PEOPLE_GROUPS_B0",
+                        "PER_ASSIGNMENT_STATUS_TYPES_B0",
+                        "PER_GRADES_B0",
+                        "PER_JOBS_B0",
+                        "PER_PAY_BASES_B0",
+                        "PER_PERSON_ANALYSES_B0",
+                        "PER_PERSON_TYPES_B0",
+                        "PER_QUALIFICATION_TYPES_B0"
+                    ]
+                },
+                {
+                    "activity_name": "Package\\Parfallel Execution - II",
+                    "depends_on": "Package\\Parfallel Execution - I",
+                    "elements": [
+                        "AP_SUPPLIERS_B0",
+                        "FND_LOOKUP_VALUES_B0",
+                        "HR_ALL_POSITIONS_F_B0",
+                        "PER_ADDRESSES_B0",
+                        "PER_ANALYSIS_CRITERIA_B0",
+                        "PER_PAY_PROPOSALS_B0",
+                        "PER_PERFORMANCE_REVIEWS_B0",
+                        "PER_PERIODS_OF_PLACEMENT_B0",
+                        "PER_PERIODS_OF_SERVICE_B0",
+                        "PER_PHONES_B0",
+                        "PER_QUALIFICATIONS_B0"
+                    ]
+                },
+                {
+                    "activity_name": "Package\\Sequential Execution",
+                    "depends_on": "Package\\Parfallel Execution - II",
+                    "elements": [
+                        {
+                            "activity_name": "Package\\Sequential Execution\\Assignments",
+                            "depends_on": null,
+                            "elements": [
+                                "PER_ALL_ASSIGNMENTS_F_B0"
+                            ]
+                        },
+                        {
+                            "activity_name": "Package\\Sequential Execution\\People",
+                            "depends_on": "Package\\Sequential Execution\\Assignments",
+                            "elements": [
+                                "PER_ALL_PEOPLE_F_B0"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "BING_HRIS_BaseB0ToBN_Load_Daily": {
+        "package_name": "DataLakeHRISToBase_HRISB0toBNParent.dtsx",
+        "depends_on": "BING_DataLakeHRIS_ToBaseB0_Load_Daily",
+        "package_content": {
+            "HRISB0toBNParent": [
+                {
+                    "activity_name": "Package\\SEQ - Execute B10 tables",
+                    "depends_on": null,
+                    "elements": [
+                        "FlexValuesLookupB10",
+                        "PerPeriodsB10"
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SEQ - Execute BN tables",
+                    "depends_on": "Package\\SEQ - Execute B10 tables",
+                    "elements": [
+                        "AccreditationBN",
+                        "AgeBN",
+                        "AssessmentBN",
+                        "AssignmentBN",
+                        "EventBN",
+                        "PayGradeBN",
+                        "PersonBN",
+                        "PositionBN",
+                        "TerminationBN",
+                        "TimeBN"
+                    ]
+                }
+            ]
+        }
+    },
+    "BING_HRIS_BaseEmployeeEventBN_Load_Daily": {
+        "package_name": "DataLakeHRISToBase_BaseEmployeeEventBN.dtsx",
+        "depends_on": "BING_DataLakeHRIS_ToBaseB0_Load_Daily",
+        "package_content": {
+            "BaseEmployeeEventBN": [
+                {
+                    "activity_name": "Package\\SEQ - Anniversay Event",
+                    "depends_on": "Package\\SQL -  Get Min Date From Base B0 Tables",
+                    "elements": [
+                        {
+                            "activity_name": "Package\\SEQ - Anniversay Event\\SEQ - Base Data Load",
+                            "depends_on": "Package\\SEQ - Anniversay Event\\SEQ - Get List of FiscalDates to process",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Anniversay Event\\SEQ - Get List of FiscalDates to process",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Anniversay Event\\SEQ - Update Parent Audit Log",
+                            "depends_on": "Package\\SEQ - Anniversay Event\\SEQ - Base Data Load",
+                            "elements": []
+                        }
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SEQ - Birthday Event",
+                    "depends_on": "Package\\SQL -  Get Min Date From Base B0 Tables",
+                    "elements": [
+                        {
+                            "activity_name": "Package\\SEQ - Birthday Event\\SEQ - Base Data Load",
+                            "depends_on": "Package\\SEQ - Birthday Event\\SEQ - Get List of FiscalDates to process",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Birthday Event\\SEQ - Get List of FiscalDates to process",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Birthday Event\\SEQ - Update Parent Audit Log",
+                            "depends_on": "Package\\SEQ - Birthday Event\\SEQ - Base Data Load",
+                            "elements": []
+                        }
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SEQ - Hire Event",
+                    "depends_on": "Package\\SQL -  Get Min Date From Base B0 Tables",
+                    "elements": [
+                        {
+                            "activity_name": "Package\\SEQ - Hire Event\\SEQ - Base Data Load",
+                            "depends_on": "Package\\SEQ - Hire Event\\SEQ - Get List of FiscalDates to process",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Hire Event\\SEQ - Get List of FiscalDates to process",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Hire Event\\SEQ - Update Parent Audit Log",
+                            "depends_on": "Package\\SEQ - Hire Event\\SEQ - Base Data Load",
+                            "elements": []
+                        }
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SEQ - Job Change Event",
+                    "depends_on": "Package\\SQL -  Get Min Date From Base B0 Tables",
+                    "elements": [
+                        {
+                            "activity_name": "Package\\SEQ - Job Change Event\\SEQ - Base Data Load",
+                            "depends_on": "Package\\SEQ - Job Change Event\\SEQ - Get List of FiscalDates to process",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Job Change Event\\SEQ - Get List of FiscalDates to process",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Job Change Event\\SEQ - Update Parent Audit Log",
+                            "depends_on": "Package\\SEQ - Job Change Event\\SEQ - Base Data Load",
+                            "elements": []
+                        }
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SEQ - Org Change Event",
+                    "depends_on": "Package\\SQL -  Get Min Date From Base B0 Tables",
+                    "elements": [
+                        {
+                            "activity_name": "Package\\SEQ - Org Change Event\\SEQ - Base Data Load",
+                            "depends_on": "Package\\SEQ - Org Change Event\\SEQ - Get List of FiscalDates to process",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Org Change Event\\SEQ - Get List of FiscalDates to process",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Org Change Event\\SEQ - Update Parent Audit Log",
+                            "depends_on": "Package\\SEQ - Org Change Event\\SEQ - Base Data Load",
+                            "elements": []
+                        }
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SEQ - Position Change Event",
+                    "depends_on": "Package\\SQL -  Get Min Date From Base B0 Tables",
+                    "elements": [
+                        {
+                            "activity_name": "Package\\SEQ - Position Change Event\\SEQ - Base Data Load",
+                            "depends_on": "Package\\SEQ - Position Change Event\\SEQ - Get List of FiscalDates to process",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Position Change Event\\SEQ - Get List of FiscalDates to process",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Position Change Event\\SEQ - Update Parent Audit Log",
+                            "depends_on": "Package\\SEQ - Position Change Event\\SEQ - Base Data Load",
+                            "elements": []
+                        }
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SEQ - Rehire Event",
+                    "depends_on": "Package\\SQL -  Get Min Date From Base B0 Tables",
+                    "elements": [
+                        {
+                            "activity_name": "Package\\SEQ - Rehire Event\\SEQ - Base Data Load",
+                            "depends_on": "Package\\SEQ - Rehire Event\\SEQ - Get List of FiscalDates to process",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Rehire Event\\SEQ - Get List of FiscalDates to process",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Rehire Event\\SEQ - Update Parent Audit Log",
+                            "depends_on": "Package\\SEQ - Rehire Event\\SEQ - Base Data Load",
+                            "elements": []
+                        }
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SEQ - Termination Event",
+                    "depends_on": "Package\\SQL -  Get Min Date From Base B0 Tables",
+                    "elements": [
+                        {
+                            "activity_name": "Package\\SEQ - Termination Event\\SEQ - Base Data Load",
+                            "depends_on": "Package\\SEQ - Termination Event\\SEQ - Get List of FiscalDates to process",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Termination Event\\SEQ - Get List of FiscalDates to process",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\SEQ - Termination Event\\SEQ - Update Parent Audit Log",
+                            "depends_on": "Package\\SEQ - Termination Event\\SEQ - Base Data Load",
+                            "elements": []
+                        }
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SQL -  Get Min Date From Base B0 Tables",
+                    "depends_on": null,
+                    "elements": []
+                }
+            ]
+        }
+    },
+    "BING_HRIS_BaseEmployeeCensusBN_Load_Daily": {
+        "package_name": "DataLakeHRISToBase_BaseEmployeeCensusBN.dtsx",
+        "depends_on": "BING_DataLakeHRIS_ToBaseB0_Load_Daily",
+        "package_content": {
+            "BaseEmployeeCensusBN": [
+                {
+                    "activity_name": "Package\\SEQ - Base Data Load",
+                    "depends_on": "Package\\SEQ - Get List of FiscalDates to process",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\SEQ - Get List of FiscalDates to process",
+                    "depends_on": null,
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\SEQ - Update Parent Audit Log",
+                    "depends_on": "Package\\SEQ - Base Data Load",
+                    "elements": []
+                }
+            ]
+        }
+    },
+    "BING_HRIS_MartDimensions_Load_Daily": {
+        "package_name": "DWMartIncrementalLoad_DWMartParentPackage.dtsx",
+        "depends_on": [
+            "BING_HRIS_BaseB0ToBN_Load_Daily",
+            "BING_HRIS_BaseEmployeeEventBN_Load_Daily",
+            "BING_HRIS_MartDimensions_Load_Daily"
+        ],
+        "package_content": {
+            "DWMartParentPackage": [
+                {
+                    "activity_name": "Package\\Sequence Container",
+                    "depends_on": null,
+                    "elements": [
+                        {
+                            "activity_name": "Package\\Sequence Container\\Dimensions",
+                            "depends_on": null,
+                            "elements": [
+                                "DimCostCenter",
+                                "DimDataScenario",
+                                "DimDate",
+                                "DimMeasure",
+                                "DimTimeCalculation",
+                                "ReportMeasure"
+                            ]
+                        },
+                        {
+                            "activity_name": "Package\\Sequence Container\\Fact Load",
+                            "depends_on": "Package\\Sequence Container\\Dimensions",
+                            "elements": [
+                                "ARBalance",
+                                "FTESnapshot",
+                                "GLBalancePlanAllocation_FTE",
+                                "GLBalancePlanAllocation_LaborHours",
+                                "GLBalancePlanAllocation_LaborSalary",
+                                "GLBalancePlanAllocation_NetRevenue",
+                                "LaborHours",
+                                "LaborSalary",
+                                "LeadEvent",
+                                "LifeCycleStatus",
+                                "NetRevenue"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SQL - Package Completion",
+                    "depends_on": "Package\\Sequence Container",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\SQL - Package Duration",
+                    "depends_on": "Package\\Sequence Container",
+                    "elements": []
+                }
+            ]
+        }
+    },
+    "BING Staging To EDW Dimension Load - EBS GL and HRIS": {
+        "package_name": "StagingToEDW_StagingToEDW_Dimension_GLandHR.dtsx",
+        "depends_on": [
+            "BING Source To Staging CMS Incremental Load",
+            "BING_Source To Staging AD & Plan Allocation_Daily",
+            "BING Source to Staging EBS Incremental Load - GL",
+            "BING Source to Staging EBS Incremental Load - HR"
+        ],
+        "package_content": {
+            "StagingToEDW_Dimension_GLandHR": [
+                {
+                    "activity_name": "Package\\Change History - StagingToEDW_Dimension_GLandHR",
+                    "depends_on": null,
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\ORACLE GL and HRIS Dimensions",
+                    "depends_on": "Package\\Change History - StagingToEDW_Dimension_GLandHR",
+                    "elements": [
+                        "EPT - DimMartCostCenter",
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Excecute GL_Staging to EDW DimDate load before other Dimensions",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging HrAllOrganizationUnits load",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To DW_Mart DimAccountSubaccount",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\EPT - DimMartCostCenter",
+                            "elements": [
+                                "EPT - DimMartAccountSubaccount"
+                            ]
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW BridgeCompanyRollup load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimCompanyRollup load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimAccountSubaccount load",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimCompany load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Excecute GL_Staging to EDW DimDate load before other Dimensions",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimCompanyRollup load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimCompany load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimCostCenterType load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW BridgeCompanyRollup load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging OrgLeaderAccess load",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW BridgeSecurityPersonHRISGroup",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerson load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW BridgeSecurityPersonOrg",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerson load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimAssessmentType load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerformanceRating load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimAssignmentType load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPayGrade load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimComplianceItem load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerformanceRating load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimComplianceRating load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimComplianceItem load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimHRUser load",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimLeaveReason load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimLeaveType load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimLeaveType load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimAssignmentType load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging to EDW DimLocation load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging to EDW DimOrganization Load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging to EDW DimOrganization Load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging OrgLeaderAccess load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPayBasis load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPayGrade load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPayGrade load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPeopleGroup load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPeopleGroup load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimHRUser load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerformanceRating load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerson load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerson load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging to EDW DimOrganization Load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPosition load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimLeaveReason load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimQualificationType",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerformanceRating load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimSpecialInfo load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPosition load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW \u2022 DimPayRateChangeReason load",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute MISC_Staging To EDW DimReport Profile",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimAccountSubaccount load",
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "BING_HRIS_MartFactEmployeeCensus_Load_Daily": {
+        "package_name": "DataLakeBaseToMart_FactEmployeeCensus.dtsx",
+        "depends_on": [
+            "BING_HRIS_MartDimensions_Load_Daily",
+            "BING Staging To EDW Dimension Load - EBS GL and HRIS"
+        ],
+        "package_content": {
+            "FactEmployeeCensus": [
+                {
+                    "activity_name": "Package\\Fact - Data Load",
+                    "depends_on": "Package\\Landing - Data Load",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\Landing - Data Load",
+                    "depends_on": null,
+                    "elements": []
+                }
+            ]
+        }
+    },
+    "BING_HRIS_MartFactEmployeeEvent_Load_Daily": {
+        "package_name": "DataLakeBaseToMart_FactEmployeeEvent.dtsx",
+        "depends_on": [
+            "BING_HRIS_MartDimensions_Load_Daily",
+            "BING Staging To EDW Dimension Load - EBS GL and HRIS"
+        ],
+        "package_content": {
+            "FactEmployeeEvent": [
+                {
+                    "activity_name": "Package\\Fact - FactEmployeeEvent Assignment Keys Update",
+                    "depends_on": "Package\\Fact - FactEmployeeEvent Person Keys Update",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\Fact - FactEmployeeEvent Person Keys Update",
+                    "depends_on": null,
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\Foreach - Fiscal EndDate",
+                    "depends_on": "Package\\SEQ - FactEmployeeEvent",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\SEQ - FactEmployeeEvent",
+                    "depends_on": "Package\\SQL - Start Parent Audit Log",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\Sequence Container",
+                    "depends_on": "Package\\Foreach - Fiscal EndDate",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\SQL - Start Parent Audit Log",
+                    "depends_on": "Package\\Fact - FactEmployeeEvent Assignment Keys Update",
+                    "elements": []
+                }
+            ]
+        }
+    },
+    "BING_HRIS_MartFactEmployeeCensusArchive_Load_Daily": {
+        "package_name": "DataLakeBaseToMart_FactEmployeeCensusArchive.dtsx",
+        "depends_on": [
+            "BING_HRIS_MartDimensions_Load_Daily",
+            "BING Staging To EDW Dimension Load - EBS GL and HRIS"
+        ],
+        "package_content": {
+            "FactEmployeeCensusArchive": [
+                {
+                    "activity_name": "Package\\Fact - FactCensusArchive Assignment Keys Update",
+                    "depends_on": "Package\\Fact - FactCensusArchive Person Keys Update",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\Fact - FactCensusArchive Person Keys Update",
+                    "depends_on": "Package\\SQL - Get the LastProcessed Date",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\Foreach Loop Container",
+                    "depends_on": "Package\\SEQ - Get List of FiscalDates to process",
+                    "elements": [
+                        {
+                            "activity_name": "Package\\Foreach Loop Container\\Fact - Data Load",
+                            "depends_on": "Package\\Foreach Loop Container\\Landing - Data Load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\Foreach Loop Container\\Landing - Data Load",
+                            "depends_on": null,
+                            "elements": []
+                        }
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SEQ - Get List of FiscalDates to process",
+                    "depends_on": "Package\\Fact - FactCensusArchive Assignment Keys Update",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\SEQ - Update Parent Audit Log",
+                    "depends_on": "Package\\Foreach Loop Container",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\SQL - Get Min Fulldate from BaseBN",
+                    "depends_on": null,
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\SQL - Get the LastProcessed Date",
+                    "depends_on": "Package\\SQL - Get Min Fulldate from BaseBN",
+                    "elements": []
+                }
+            ]
+        }
+    }
+}

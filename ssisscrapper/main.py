@@ -18,7 +18,7 @@ if __name__ == '__main__':
     # EXTRACTING ALL .params files From bing folder
     dir_path = os.path.join(path, "bing")
     target_dir = os.path.join(path, "Sources_and_catalogs")
-    valid_dirs = ['DWBaseIncrementalLoad', 'StagingToEDW', 'DataLakeHRISToBase']
+    valid_dirs = ['StagingToEDW', 'DataLakeHRISToBase', 'DWMartIncrementalLoad', 'DataLakeBaseToMart']
 
     #--------------------------------------
     discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".params")
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     # EXTRACITING ALL .dtsx files From bing folder
     dir_path = os.path.join(path, "bing")
     target_dir = os.path.join(path, "dtsx")
-    valid_dirs = ['DataLakeHRISToBase']
+    valid_dirs = ['StagingToEDW', 'DataLakeHRISToBase', 'DWMartIncrementalLoad', 'DataLakeBaseToMart']
 
     discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".dtsx")
     files = discovery.get_files()

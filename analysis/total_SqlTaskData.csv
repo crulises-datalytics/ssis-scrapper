@@ -2,8 +2,1611 @@ SqlTaskData
 ""
 "EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, ?, ?
 GO"
+"EXECUTE [dbo].[spEndAuditLog] ?, ?, ?, ?, ?
+GO"
+"IF NOT EXISTS (SELECT 1 FROM dbo.DimAccreditation WHERE AccreditationKey  IN (-1,-2))
+	BEGIN
+			SET IDENTITY_INSERT dbo.DimAccreditation ON;
+			INSERT INTO [dbo].[DimAccreditation]
+			           ([AccreditationKey]
+			           ,[QualificationID]
+			           ,[Accreditation]
+			           ,[AreaOfStudy]
+			           ,[AccreditationDate]
+			           ,[Comments]
+			           ,[CreatedDate]
+			           ,[ModifiedDate]
+			           ,[InsertAuditID])
+			SELECT		-1
+						, -1
+						, 'Unknown Accredititaion'
+						, 'Unknown Area of Study'
+						, '1900-01-01'
+						, 'Unknown Comments'
+						, GETDATE()
+						, GETDATE()
+						,?
+			UNION 
+			SELECT		-2
+						, -2
+						, 'Not Applicable Accredititaion'
+						, 'Not Applicable Area of Study'
+						, '1900-01-01'
+						, 'Not Applicable Comments'
+						, GETDATE()
+						, GETDATE()
+						,?;
+SELECT @@ROWCOUNT  + ? AS InsertCount;
+SET IDENTITY_INSERT dbo.DimAccreditation OFF;
+END
+ELSE SELECT 0 as InsertCount;"
+User::vLandingCountQuery
+"UPDATE  dbo.ETLBatchControl 
+SET LastProcessedDate = GETDATE()
+, Status = 'Success'
+WHERE Tablename = ?;"
+"UPDATE dima
+   SET dima.ModifiedDate  =   GETDATE()    
+            , dima.Deleted   = source.Deleted
+            , dima.UpdateAuditID  =   ?       
+FROM dbo.DimAccreditation dima
+JOIN DW_Landing.dbo.DimAccreditationLanding source ON source.QualificationID = dima.QualificationID 
+WHERE source.Deleted <> COALESCE(dima.Deleted, 'N')
+
+SELECT @@ROWCOUNT AS DeleteCount;"
+"UPDATE dima
+   SET  dima.Accreditation  =   source.Accreditation  
+      , dima.AreaOfStudy  =   source.AreaOfStudy  
+      , dima.AccreditationDate  =   source.AccreditationDate  
+      , dima.Comments      =   source.Comments      
+      , dima.ModifiedDate  =   GETDATE()    
+      , dima.UpdateAuditID  =   ?       
+FROM dbo.DimAccreditation dima
+JOIN DW_Landing.dbo.DimAccreditationLanding source ON source.QualificationID = dima.QualificationID 
+WHERE COALESCE(source.Deleted, 'N') = COALESCE(dima.Deleted, 'N')
+
+SELECT @@ROWCOUNT AS UpdateCount ;"
+"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+	BEGIN
+		INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
+	END
+
+DECLARE @LastProcessedDate DATETIME = (SELECT LastProcessedDate FROM dbo.ETLBatchControl WHERE TableName = ?);
+DECLARE @CreatedDate DATETIME = (SELECT MAX(CreatedDate) FROM DW_MART.dbo.DimAccreditation);
+
+IF @LastProcessedDate IS NULL OR @CreatedDate IS NULL
+SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
+
+SELECT @LastProcessedDate AS LastProcessedDate;"
+User::vLandingTruncateQuery
+"DECLARE @InsertAuditID BIGINT = ?
+DECLARE @CurDate datetime = GETDATE()
+
+IF NOT EXISTS (SELECT 1 FROM dbo.DimAge WHERE MinimumDays = -1)
+	BEGIN
+                  SET IDENTITY_INSERT dbo.DimAge ON;
+		INSERT INTO dbo.DimAge
+		(
+			AgeKey,
+                                                      AgeID,
+			MinimumDays,
+			MaximumDays,
+			AgeGrouping,
+			CreatedDate,
+			ModifiedDate,
+			InsertAuditID
+		)
+		VALUES
+		(
+			-1,
+                                                      -1,
+			-1,
+			-1,
+			'Unknown',
+			@CurDate,
+			@CurDate,
+			@InsertAuditID
+		)
+	END
+
+IF NOT EXISTS (SELECT 1 FROM dbo.DimAge WHERE MinimumDays = -2)
+	BEGIN
+		INSERT INTO dbo.DimAge
+		(
+			AgeKey,
+                                                      AgeID,
+			MinimumDays,
+			MaximumDays,
+			AgeGrouping,
+			CreatedDate,
+			ModifiedDate,
+			InsertAuditID
+		)
+		VALUES
+		(
+			-2,
+                                                      -2,
+			-2,
+			-2,
+			'N/A',
+			@CurDate,
+			@CurDate,
+			@InsertAuditID
+		)
+SET IDENTITY_INSERT dbo.DimAge OFF;
+	END"
+"IF NOT EXISTS (SELECT 1 FROM dbo.DimAssessment WHERE AssessmentKey  IN (-1,-2))
+	BEGIN
+			SET IDENTITY_INSERT dbo.DimAssessment ON;
+			INSERT INTO [dbo].[DimAssessment]
+			           ([AssessmentKey]
+			           ,[AssessmentID]
+                       ,[AssessmentType]
+                       ,[AssessmentBand]
+                       ,[CreatedDate]
+                       ,[ModifiedDate]
+			           ,[InsertAuditID])
+			SELECT		-1
+						, 'Unknown Assessment ID'
+						, 'Unknown Assessment Type'
+						, 'Unknown Assessment Band'
+						, GETDATE()
+						, GETDATE()
+						,?
+			UNION 
+			SELECT		-2
+						, 'Not Applicable'
+						, 'Not Applicable'
+						, 'Not Applicable'
+						, GETDATE()
+						, GETDATE()
+						,?;
+SELECT @@ROWCOUNT  + ? AS InsertCount;
+SET IDENTITY_INSERT dbo.DimAssessment OFF;
+END
+ELSE SELECT ? as InsertCount;"
+"UPDATE tgt
+   SET tgt.ModifiedDate = GETDATE()    
+       ,tgt.Deleted   = src.Deleted
+       ,tgt.UpdateAuditID  =   ?     
+FROM dbo.DimAssessment tgt
+JOIN DW_Landing.dbo.DimAssessmentLanding src ON src.AssessmentID = tgt.AssessmentID 
+WHERE src.Deleted <> COALESCE(tgt.Deleted, 'N')
+
+SELECT @@ROWCOUNT AS DeleteCount"
+"UPDATE tgt
+   SET tgt.AssessmentType = src.AssessmentType
+      ,tgt.AssessmentBand = src.AssessmentBand
+      ,tgt.ModifiedDate = GETDATE()    
+      ,tgt.UpdateAuditID = ?
+FROM	 dbo.DimAssessment tgt
+JOIN  DW_Landing.dbo.DimAssessmentLanding src ON src.AssessmentID = tgt.AssessmentID
+WHERE COALESCE(src.Deleted, 'N') = COALESCE(tgt.Deleted, 'N')
+
+SELECT @@ROWCOUNT AS UpdateCount ;"
+"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+	BEGIN
+		INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
+	END
+
+DECLARE @LastProcessedDate DATETIME = (SELECT LastProcessedDate FROM dbo.ETLBatchControl WHERE TableName = ?);
+DECLARE @CreatedDate DATETIME = (SELECT MAX(CreatedDate) FROM DW_MART.dbo.DimTermination);
+
+IF @LastProcessedDate IS NULL OR @CreatedDate IS NULL
+SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
+
+SELECT @LastProcessedDate AS LastProcessedDate;"
+"DECLARE @LastProcessedDate DATETIME = ?
+DELETE p
+FROM dbo.DimAssignment p 
+JOIN (SELECT *
+FROM DW_Landing.dbo.DimAssignmentLanding dpl
+WHERE (dpl.BaseCreatedDate > @LastProcessedDate  OR dpl.BaseModifiedDate > @LastProcessedDate )
+AND EXISTS
+(
+    SELECT 1
+    FROM dbo.DimAssignment dp
+    WHERE dp.AssignmentID = dpl.AssignmentID
+ AND dp.EffectiveStartDate = dpl.EffectiveStartDate
+    AND dp.EffectiveFrom = dpl.BaseEffectiveDate
+)
+)a ON p.AssignmentID = a.AssignmentID AND p.EffectiveStartDate = a.EffectiveStartDate AND p.EffectiveFrom = a.BaseEffectiveDate
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"DELETE dp
+FROM dbo.DimAssignment dp
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM DW_Landing.dbo.DimAssignmentLanding dpl
+    WHERE dp.AssignmentID = dpl.AssignmentID
+	AND dp.EffectiveStartDate = dpl.EffectiveStartDate
+    AND dp.EffectiveFrom = dpl.BaseEffectiveDate
+)
+AND dp.AssignmentKey > 0
+
+SELECT @@ROWCOUNT + ? AS DeleteCount ;"
+"IF NOT EXISTS (SELECT 1 FROM dbo.DimAssignment WHERE AssignmentID  IN (-1,-2))
+	BEGIN
+		SET IDENTITY_INSERT dbo.DimAssignment ON;
+
+		INSERT INTO dbo.DimAssignment
+		(
+			AssignmentKey,
+			AssignmentID,
+			PersonID,
+			AssignmentNumber,
+			AssignmentType,
+			AssignmentStatusType,
+			WorkAtHomeIndicator,
+			NormalWorkingHours,
+			NDQCFlag,
+			BonusPercent,
+			ChangeReason,
+			AssignmentSubType,
+			IVRCode,
+			Title,
+			ExecutiveAssistant,
+			CAWaiverIndicator,
+			EmploymentCategory,
+			EmployeePayBasis,
+			SpecialInfoTypeName,
+			SecondaryRateStartDate,
+			SecondaryRateEndDate,
+			SecondaryJobName,
+			SecondaryPayRate,
+                                                      SecondaryHoursType,
+			Vendor,
+			PeopleGroup,
+			KLCLineOfBusiness,
+			KLCPeopleGroup,
+			KCLOTLLink,
+			ProjectedAssignmentEndDate,
+			PayGradeID,
+			PositionID,
+			LocationID,
+			OrganizationID,
+			EffectiveStartDate,
+			ExpirationDate,
+			EffectiveFrom,
+			EffectiveTo,
+			Deleted,
+			RowStatus,
+			CreatedDate,
+			ModifiedDate,
+			InsertAuditID,
+			UpdateAuditID,
+                                                      SourceUpdateDate
+		)
+		SELECT
+			-1,
+			-1,
+			-1,
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			-1,
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'1900-01-01',
+			'4712-12-31',
+			'Unknown',
+			-1,
+                                                      'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'Unknown',
+			'4712-12-31',
+			-1,
+			-1,
+			-1,
+			-1,
+			'1900-01-01',
+			'4712-12-31',
+			'1900-01-01',
+			'9999-12-31',
+			NULL,
+			'A',
+			GETDATE(),
+			GETDATE(),
+			?,
+			NULL,
+                                                      '1900-01-01'
+		UNION
+		SELECT
+			-2,
+			-2,
+			-2,
+			'Not Applicable',
+			'Not Applicable',
+			'Not Applicable',
+			'N/A',
+			-2,
+			'N/A',
+			'N/A',
+			'Not Applicable',
+			'Not Applicable',
+			'Not Applicable',
+			'Not Applicable',
+			'Not Applicable',
+			'N/A',
+			'Not Applicable',
+			'Not Applicable',
+			'Not Applicable',
+			'1900-01-01',
+			'4712-12-31',
+			'Not Applicable',
+	  		-2,
+            'Not Applicable',
+			'Not Applicable',
+			'Not Applicable',
+			'Not Applicable',
+			'Not Applicable',
+			'Not Applicable',
+			'4712-12-31',
+			-2,
+			-2,
+			-2,
+			-2,
+			'1900-01-01',
+			'4712-12-31',
+			'1900-01-01',
+			'9999-12-31',
+			NULL,
+			'A',
+			GETDATE(),
+			GETDATE(),
+			?,
+			NULL,
+                                                      '1900-01-01'
+
+		SELECT @@ROWCOUNT + ? AS InsertCount;
+
+		SET IDENTITY_INSERT dbo.DimAssignment OFF;
+	END
+ELSE
+	BEGIN
+		SELECT 0 + ? AS InsertCount;
+	END"
+"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+	BEGIN
+		INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
+	END
+
+DECLARE @LastProcessedDate DATETIME = (SELECT LastProcessedDate FROM dbo.ETLBatchControl WHERE TableName = ?);
+DECLARE @CreatedDate DATETIME = (SELECT MAX(CreatedDate) FROM DW_MART.dbo.DimAssignment);
+
+IF @LastProcessedDate IS NULL OR @CreatedDate IS NULL
+SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
+
+SELECT @LastProcessedDate AS LastProcessedDate;"
+"DECLARE @InsertAuditID bigint = ?
+DECLARE @CurDate datetime = GETDATE()
+
+IF NOT EXISTS (SELECT 1 FROM dbo.DimEvent WHERE EventID = -1)
+	BEGIN
+                 SET IDENTITY_INSERT dbo.DimEvent ON;
+		INSERT INTO dbo.DimEvent
+		(
+			EventKey,
+                                                      EventID,
+			EventName,
+			CreatedDate,
+			ModifiedDate,
+			InsertAuditID
+		)
+		VALUES
+		(
+                                                     -1,
+			-1,
+			'Unknown',
+			@CurDate,
+			@CurDate,
+			@InsertAuditID
+		)
+	END
+
+IF NOT EXISTS (SELECT 1 FROM dbo.DimEvent WHERE EventID = -2)
+	BEGIN
+		INSERT INTO dbo.DimEvent
+		(
+			EventKey,
+                                                      EventID,
+			EventName,
+			CreatedDate,
+			ModifiedDate,
+			InsertAuditID
+		)
+		VALUES
+		(
+                                                      -2,
+			-2,
+			'N/A',
+			@CurDate,
+			@CurDate,
+			@InsertAuditID
+		)
+   SET IDENTITY_INSERT dbo.DimEvent OFF;
+	END"
+"IF NOT EXISTS (SELECT 1 FROM dbo.DimPayGrade WHERE PayGradeKey  IN (-1,-2))
+ BEGIN
+   SET IDENTITY_INSERT dbo.DimPayGrade ON;
+INSERT INTO [dbo].[DimPayGrade]
+           ([PayGradeKey]
+           ,[GradeID]
+           ,[PayGrade]
+           ,[Status]
+           ,[MaximumPayRate]
+           ,[MedianPayRate]
+           ,[MinimumPayRate]
+           ,[GradeRuleID]
+           ,[EffectiveStartDate]
+           ,[ExpirationDate]
+           ,[EffectiveFrom]
+           ,[EffectiveTo]
+           ,[RowStatus]
+           ,[CreatedDate]
+           ,[ModifiedDate]
+           ,[InsertAuditID]
+		   )
+   SELECT  -1
+      , -1
+      , 'Unknown'
+      , 'Unknown'
+	  , 0
+	  , 0
+	  , 0
+      , -1
+      , '1900-01-01'
+	  , '4712-12-31'
+      , '1900-01-01'
+	  , '9999-12-31'
+	  , 'A'
+      , GETDATE()
+      , GETDATE()
+      , ?
+   UNION 
+   SELECT  -2
+      , -2
+      , 'Not Applicable'
+      , 'N/A'
+	  , 0
+	  , 0
+	  , 0
+      , -2
+      , '1900-01-01'
+	  , '4712-12-31'
+      , '1900-01-01'
+	  , '9999-12-31'
+	  , 'A'
+      , GETDATE()
+      , GETDATE()
+      , ?;
+SELECT @@ROWCOUNT  + ? AS InsertCount;
+SET IDENTITY_INSERT dbo.DimPayGrade OFF;
+END
+ELSE SELECT 0 + ? AS InsertCount;"
+"UPDATE dimpg
+   SET dimpg.Deleted			= source.Deleted
+       , dimpg.ModifiedDate		= GETDATE()    
+       , dimpg.UpdateAuditID	=   ?   
+FROM dbo.DimPayGrade dimpg
+JOIN DW_Landing.dbo.DimPayGradeLanding source ON source.GradeID = dimpg.GradeID AND source.EffectiveStartDate = dimpg.EffectiveStartDate
+	AND source.Deleted != COALESCE(dimpg.Deleted, 'N')
+
+SELECT @@ROWCOUNT AS DeleteCount;"
+"UPDATE dimpg
+   SET dimpg.PayGrade               = source.PayGrade
+	   , dimpg.Status				= source.Status
+	   , dimpg.MaximumPayRate		= source.MaximumPayRate
+	   , dimpg.MedianPayRate		= source.MedianPayRate
+	   , dimpg.MinimumPayRate		= source.MinimumPayRate
+	   , dimpg.GradeRuleID			= source.GradeRuleID
+	   , dimpg.EffectiveStartDate	= source.EffectiveStartDate
+	   , dimpg.ExpirationDate		= source.ExpirationDate
+	   , dimpg.EffectiveFrom		= source.BaseEffectiveDate
+	   , dimpg.EffectiveTo			= source.BaseEndDate
+	   , dimpg.RowStatus			= source.RowStatus
+       , dimpg.ModifiedDate			= GETDATE()    
+       , dimpg.UpdateAuditID		=   ?   
+FROM dbo.DimPayGrade dimpg
+JOIN DW_Landing.dbo.DimPayGradeLanding source ON source.GradeID = dimpg.GradeID AND source.EffectiveStartDate = dimpg.EffectiveStartDate
+	AND source.RowStatus != dimpg.RowStatus AND source.RowStatus = 'H' AND COALESCE(source.Deleted, 'N') = COALESCE(dimpg.Deleted, 'N')
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+ BEGIN
+  INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
+ END
+
+DECLARE @LastProcessedDate DATETIME = (SELECT LastProcessedDate FROM dbo.ETLBatchControl WHERE TableName = ?);
+DECLARE @CreatedDate DATETIME =  (SELECT MAX(CreatedDate) FROM DW_MART.dbo.DimPayGrade);
+
+IF @LastProcessedDate IS NULL OR @CreatedDate IS NULL
+SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
+
+SELECT @LastProcessedDate AS LastProcessedDate;"
+"DECLARE @LastProcessedDate DATETIME = ?
+DELETE p
+FROM dbo.DimPerson p 
+JOIN (SELECT *
+FROM DW_Landing.dbo.DimPersonLanding dpl
+WHERE (dpl.BaseCreatedDate > @LastProcessedDate  OR dpl.BaseModifiedDate > @LastProcessedDate )
+AND EXISTS
+(
+    SELECT 1
+    FROM dbo.DimPerson dp
+    WHERE dp.PersonID = dpl.PersonID
+ AND dp.EffectiveStartDate = dpl.EffectiveStartDate
+    AND dp.EffectiveFrom = dpl.BaseEffectiveDate
+)
+)a ON p.PersonID = a.PersonID AND p.EffectiveStartDate = a.EffectiveStartDate AND p.EffectiveFrom = a.BaseEffectiveDate
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"DELETE dp
+FROM dbo.DimPerson dp
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM DW_Landing.dbo.DimPersonLanding dpl
+    WHERE dp.PersonID = dpl.PersonID
+	AND dp.EffectiveStartDate = dpl.EffectiveStartDate
+    AND dp.EffectiveFrom = dpl.BaseEffectiveDate
+)
+AND dp.PersonKey > 0
+
+SELECT @@ROWCOUNT + ? AS DeleteCount ;"
+"IF NOT EXISTS (SELECT 1 FROM dbo.DimPerson WHERE PersonKey  IN (-1,-2))
+ BEGIN
+   SET IDENTITY_INSERT dbo.DimPerson ON;
+INSERT INTO [dbo].[DimPerson]
+           ([PersonKey]
+           ,[PersonID]
+           ,[PersonType]
+           ,[PersonName]
+           ,[Title]
+           ,[PersonFirstName]
+           ,[PersonMiddleName]
+           ,[PersonLastName]
+           ,[PersonSuffix]
+           ,[PersonPreferredName]
+           ,[SocialSecurityNumber]
+           ,[BirthDate]
+           ,[EmployeeNumber]
+           ,[MaritalStatus]
+           ,[Gender]
+           ,[Ethnicity]
+           ,[VeteranStatus]
+           ,[EmailAddressKinderCare]
+           ,[EmailAddressPersonal]
+           ,[OriginalHireDate]
+           ,[StartDate]
+           ,[TerminationDate]
+           ,[AdjustedServiceDate]
+           ,[DeathDate]
+           ,[PreviousEmployeeNumber]
+           ,[PreviousEmployeeSource]
+           ,[WOTCNotifiedIndicator]
+           ,[WOTCNumber]
+           ,[CheckSendToLocationID]
+           ,[VestingDate]
+           ,[MealPeriodWaived]
+           ,[AlaskaWaiveDailyOTIndicator]
+           ,[PersonAcquisitionDate]
+           ,[TaleoCandidateID]
+           ,[ContingentWorkerEmployeeID]
+           ,[ContingentWorkerEmployeeNumber]
+           ,[I9ReceivedIndicator]
+           ,[WorkSchedule]
+           ,[EmployeePerformanceRating]
+           ,[EffectiveStartDate]
+           ,[ExpirationDate]
+           ,[EffectiveFrom]
+           ,[EffectiveTo]
+           ,[RowStatus]
+           ,[CreatedDate]
+           ,[ModifiedDate]
+           ,[InsertAuditID]
+            )  
+   SELECT -1
+      , -1
+      , 'Unknown'    
+	  , 'Unknown'
+      , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  ,  '1900-01-01'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , '1900-01-01'
+	  , '1900-01-01'
+	  , '1900-01-01'
+	  , '1900-01-01'
+	  , '1900-01-01'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'UNK'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'UNK'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , '1900-01-01'
+	  , '4712-12-31'
+      , '1900-01-01'
+	  , '9999-12-31'
+	  , 'A'
+      , GETDATE()
+      , GETDATE()
+      , ?
+  
+   UNION 
+   SELECT  -2
+      , -2
+      , 'Not Applicable'
+	  , 'Not Applicable'
+      , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  ,  '1900-01-01'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , '1900-01-01'
+	  , '1900-01-01'
+	  , '1900-01-01'
+	  , '1900-01-01'
+	  , '1900-01-01'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'N/A'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'N/A'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , '1900-01-01'
+	  , '4712-12-31'
+      , '1900-01-01'
+	  , '9999-12-31'
+	  , 'A'
+      , GETDATE()
+      , GETDATE()
+      , ?;
+	
+SELECT @@ROWCOUNT  + ?  AS InsertCount;
+SET IDENTITY_INSERT dbo.DimPerson OFF;
+END
+ELSE SELECT 0 + ?  AS InsertCount;"
+"EXECUTE [dbo].[spDimPersonSupervisorLoad]
+GO"
+"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+	BEGIN
+		INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
+	END
+
+DECLARE @LastProcessedDate DATETIME = (SELECT LastProcessedDate FROM dbo.ETLBatchControl WHERE TableName = ?);
+DECLARE @CreatedDate DATETIME = (SELECT MAX(CreatedDate) FROM DW_MART.dbo.DimPerson);
+
+IF @LastProcessedDate IS NULL OR @CreatedDate IS NULL
+SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
+
+SELECT @LastProcessedDate AS LastProcessedDate;"
+"IF NOT EXISTS (SELECT 1 FROM dbo.DimPosition WHERE PositionKey  IN (-1,-2))
+ BEGIN
+   SET IDENTITY_INSERT dbo.DimPosition ON;
+INSERT INTO [dbo].[DimPosition]
+           (PositionKey
+	   ,[PositionID]
+      ,[JobID]
+      ,[Position]
+      ,[Job]
+      ,[PositionPayBasis]
+      ,[PayBasisAnnualizationFactor]
+      ,[PositionStatus]
+      ,[PermTempIndicator]
+      ,[PeopleGroup]
+      ,[JobCategory]
+      ,[JobLevel]
+      ,[ManagerIndicator]
+      ,[PurchaseApprovalLevel]
+      ,[ADPJobActivity]
+      ,[PcardApprovalIndicator]
+      ,[JobGroup]
+      ,[EEOCategory]
+      ,[LaborType]
+      ,[FSLAClassification]
+      ,[KLCJobGroup]
+      ,[PositionCode]
+      ,[FunctionalArea]
+      ,[SubFunctionalArea]
+      ,[CorporateOverheadValue]
+      ,[JobLevelCode]
+      ,[BonusEligibleIndicator]
+      ,[BonusPlan]
+      ,[BonusTargetPercent]
+      ,[LTIPEligibleIndicator]
+      ,[JobType]
+      ,[JobFamily]
+      ,[PositionRollup]
+      ,[LTPPercent]
+      ,[PositionType]
+      ,[PayFrequency]
+      ,[OriginalEffectiveDate]
+      ,[LocationID]
+      ,[GradeID]
+      ,[EffectiveStartDate]
+      ,[ExpirationDate]
+      ,[EffectiveFrom]
+      ,[EffectiveTo]
+      ,[RowStatus]
+      ,[CreatedDate]
+      ,[ModifiedDate]
+      ,[InsertAuditID]
+	)   
+   SELECT  -1
+      , -1
+      , -1
+      , 'Unknown'
+	  , 'Unknown'
+      , 'Unknown'
+	  ,  -1
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'UNK'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'Unknown'
+	  , 'UNK'
+      , '1900-01-01'
+	  , -1
+	  , -1
+	  , '1900-01-01'
+	  , '4712-12-31'
+      , '1900-01-01'
+	  , '9999-12-31'
+	  , 'A'
+      , GETDATE()
+      , GETDATE()
+      , ?
+  
+   UNION 
+   SELECT  -2
+      , -2
+      , -2
+      , 'Not Applicable'
+	  , 'Not Applicable'
+      , 'Not Applicable'
+	  ,  -2
+	  , 'Not Applicable'
+	  , 'N/A'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'N/A'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'Not Applicable'
+	  , 'N/A'
+      , '1900-01-01'
+	  , -2
+	  , -2
+	  , '1900-01-01'
+	  , '4712-12-31'
+      , '1900-01-01'
+	  , '9999-12-31'
+	  , 'A'
+      , GETDATE()
+      , GETDATE()
+      , ?;
+	
+SELECT @@ROWCOUNT  + ?  AS InsertCount;
+SET IDENTITY_INSERT dbo.DimPosition OFF;
+END
+ELSE SELECT 0 + ? AS InsertCount;"
+"UPDATE dimp
+   SET dimp.Deleted			= source.Deleted
+       , dimp.ModifiedDate		= GETDATE()    
+       , dimp.UpdateAuditID	=   ?   
+FROM dbo.DimPosition dimp
+JOIN DW_Landing.dbo.DimPositionLanding source ON source.PositionID = dimp.PositionID AND source.EffectiveStartDate = dimp.EffectiveStartDate
+	AND source.Deleted != COALESCE(dimp.Deleted, 'N')
+
+SELECT @@ROWCOUNT AS DeleteCount;
+"
+"UPDATE dimp
+   SET dimp.PositionID = source.PositionID
+      ,dimp.JobID = source.JobID
+      ,dimp.Position = source.Position
+      ,dimp.Job = source.Job
+      ,dimp.PositionPayBasis = source.PositionPayBasis
+      ,dimp.PayBasisAnnualizationFactor = source.PayBasisAnnualizationFactor
+      ,dimp.PositionStatus = source.PositionStatus
+      ,dimp.PermTempIndicator = source.PermTempIndicator
+      ,dimp.PeopleGroup = source.PeopleGroup
+      ,dimp.JobCategory = source.JobCategory
+      ,dimp.JobLevel = source.JobLevel
+      ,dimp.ManagerIndicator = source.ManagerIndicator
+      ,dimp.PurchaseApprovalLevel = source.PurchaseApprovalLevel
+      ,dimp.ADPJobActivity = source.ADPJobActivity
+      ,dimp.PcardApprovalIndicator = source.PcardApprovalIndicator
+      ,dimp.JobGroup = source.JobGroup
+      ,dimp.EEOCategory = source.EEOCategory
+      ,dimp.LaborType = source.LaborType
+      ,dimp.FSLAClassification = source.FSLAClassification
+      ,dimp.KLCJobGroup = source.KLCJobGroup
+      ,dimp.PositionCode = source.PositionCode
+      ,dimp.FunctionalArea = source.FunctionalArea
+      ,dimp.SubFunctionalArea = source.SubFunctionalArea
+      ,dimp.CorporateOverheadValue = source.CorporateOverheadValue
+      ,dimp.JobLevelCode = source.JobLevelCode
+      ,dimp.BonusEligibleIndicator = source.BonusEligibleIndicator
+      ,dimp.BonusPlan = source.BonusPlan
+      ,dimp.BonusTargetPercent = source.BonusTargetPercent
+      ,dimp.LTIPEligibleIndicator = source.LTIPEligibleIndicator
+      ,dimp.JobType = source.JobType
+      ,dimp.JobFamily = source.JobFamily
+      ,dimp.PositionRollup = source.PositionRollup
+      ,dimp.LTPPercent = source.LTPPercent
+      ,dimp.PositionType = source.PositionType
+      ,dimp.PayFrequency = source.PayFrequency
+      ,dimp.OriginalEffectiveDate = source.OriginalEffectiveDate
+      ,dimp.LocationID = source.LocationID
+      ,dimp.GradeID = source.GradeID
+      , dimp.EffectiveStartDate	= source.EffectiveStartDate
+	   , dimp.ExpirationDate		= source.ExpirationDate
+	   , dimp.EffectiveFrom		= source.BaseEffectiveDate
+	   , dimp.EffectiveTo			= source.BaseEndDate
+	   , dimp.RowStatus			= source.RowStatus
+       , dimp.ModifiedDate			= GETDATE()    
+       , dimp.UpdateAuditID		=   ?   
+FROM  dbo.DimPosition dimp
+ JOIN DW_Landing.dbo.DimPositionLanding source ON source.PositionID = dimp.PositionID AND source.EffectiveStartDate = dimp.EffectiveStartDate
+	--AND source.RowStatus != dimp.RowStatus AND COALESCE(source.Deleted, 'N') = COALESCE(dimp.Deleted, 'N')
+	AND source.RowStatus != dimp.RowStatus AND source.RowStatus = 'H' AND COALESCE(source.Deleted, 'N') = COALESCE(dimp.Deleted, 'N')
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+ BEGIN
+  INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
+ END
+
+DECLARE @LastProcessedDate DATETIME = (SELECT LastProcessedDate FROM dbo.ETLBatchControl WHERE TableName = ?);
+DECLARE @CreatedDate DATETIME =  (SELECT MAX(CreatedDate) FROM DW_MART.dbo.DimPosition);
+
+IF @LastProcessedDate IS NULL OR @CreatedDate IS NULL
+SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
+
+SELECT @LastProcessedDate AS LastProcessedDate;"
+"IF NOT EXISTS (SELECT 1 FROM dbo.DimTermination WHERE TerminationKey  IN (-1,-2))
+	BEGIN
+			SET IDENTITY_INSERT dbo.DimTermination ON;
+			INSERT INTO [dbo].[DimTermination]
+			           ([TerminationKey]
+			           ,[PeriodofServiceID]
+                          ,[TerminationReason]
+                          ,[TerminationType]
+                          ,[EligibleforRehireIndicator]
+                          ,[TwoWeekNoticeIndicator]
+                          ,[RegrettableTerminationIndicator]
+                          ,[TerminationComments]
+                          ,[TerminationNotifiedDate]
+                          ,[LastWorkedDate]
+                          ,[CreatedDate]
+                          ,[ModifiedDate]
+			           ,[InsertAuditID])
+			SELECT		-1
+						, -1
+						, 'Unknown Termination Reason'
+						, 'Unknown'
+						, 'Unknown'
+						, 'Unknown'
+						, 'Unknown'
+						, 'Unknown Termination Comments'
+						, '1900-01-01'
+						, '1900-01-01'
+						, GETDATE()
+						, GETDATE()
+						,?
+			UNION 
+			SELECT		-2
+						, -2
+						, 'Not Applicable Termination Reason'
+						, 'Not Applicable'
+						, 'Not Applicable'
+						, 'Not Applicable'
+						, 'Not Applicable'
+						, 'Not Applicable Termination Comments'
+						, '1900-01-01'
+						, '1900-01-01'
+						, GETDATE()
+						, GETDATE()
+						,?;
+SELECT @@ROWCOUNT  + ? AS InsertCount;
+SET IDENTITY_INSERT dbo.DimTermination OFF;
+END
+ELSE SELECT 0 as InsertCount;"
+"
+UPDATE dmt
+   SET dmt.ModifiedDate = GETDATE()    
+       ,dmt.Deleted   = source.Deleted
+            , dmt.UpdateAuditID  =   ?     
+FROM dbo.DimTermination dmt
+JOIN DW_Landing.dbo.DimTerminationLanding source ON source.PeriodofServiceID = dmt.PeriodofServiceID 
+WHERE source.Deleted <> COALESCE(dmt.Deleted, 'N')
+
+SELECT @@ROWCOUNT AS DeleteCount
+"
+"UPDATE dmt
+   SET dmt.TerminationReason = Source.TerminationReason
+      ,dmt.TerminationType = Source.TerminationType
+      ,dmt.EligibleforRehireIndicator = Source.EligibleforRehireIndicator
+      ,dmt.TwoWeekNoticeIndicator = Source.TwoWeekNoticeIndicator
+      ,dmt.RegrettableTerminationIndicator = Source.RegrettableTerminationIndicator
+      ,dmt.TerminationComments = Source.TerminationComments
+      ,dmt.TerminationNotifiedDate = Source.TerminationNotifiedDate
+      ,dmt.LastWorkedDate = Source.LastWorkedDate
+      ,dmt.ModifiedDate = GETDATE()    
+      ,dmt.UpdateAuditID = ?
+FROM	 dbo.DimTermination dmt
+JOIN  DW_Landing.dbo.DimTerminationLanding Source ON Source.PeriodofServiceID=dmt.PeriodofServiceID
+WHERE COALESCE(source.Deleted, 'N') = COALESCE(dmt.Deleted, 'N')
+
+SELECT @@ROWCOUNT AS UpdateCount ;"
+"DECLARE @InsertAuditID BIGINT = ?
+DECLARE @CurDate datetime = GETDATE()
+
+IF NOT EXISTS (SELECT 1 FROM dbo.DimTimeIn WHERE MinimumDays = -1)
+	BEGIN
+   SET IDENTITY_INSERT dbo.DimTimeIn ON;
+		INSERT INTO dbo.DimTimeIn
+		(
+			TimeInKey,
+                                                     TimeInID,
+			MinimumDays,
+			MaximumDays,
+			TimeInGrouping,
+			CreatedDate,
+			ModifiedDate,
+			InsertAuditID
+		)
+		VALUES
+		(
+                                                      -1,
+			-1,
+			-1,
+			-1,
+			'Unknown',
+			@CurDate,
+			@CurDate,
+			@InsertAuditID
+		)
+	END
+
+IF NOT EXISTS (SELECT 1 FROM dbo.DimTimeIn WHERE MinimumDays = -2)
+	BEGIN
+		INSERT INTO dbo.DimTimeIn
+		(
+			TimeInKey,
+                                                    TimeInID,
+			MinimumDays,
+			MaximumDays,
+			TimeInGrouping,
+			CreatedDate,
+			ModifiedDate,
+			InsertAuditID
+		)
+		VALUES
+		(
+                                                      -2,
+			-2,
+			-2,
+			-2,
+			'N/A',
+			@CurDate,
+			@CurDate,
+			@InsertAuditID
+		)
+ SET IDENTITY_INSERT dbo.DimTimeIn OFF;
+	END"
+Select GetDate() AS RowInsertDate ;
+"DECLARE @BatchSplitByName VARCHAR(10) = 'FiscalDate';
+
+EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, ?, ?, @BatchSplitByName, ?
+GO"
+"DELETE FROM [dbo].[FactCosting] WHERE [FiscalWeekEndDateKey] = ?;
+
+
+SELECT @@ROWCOUNT AS Deleted"
+"Execute spEndAuditLog ?,?,?,?,?"
+"exec [dbo].[spFactCostingLoad] ? OUTPUT, ?, ?"
+" EXEC [dbo].[spFactCostingUpdateKeys]  ?,?"
+"SELECT Distinct [FiscalWeekStartDate], [FiscalWeekEndDate], [FiscalWeekEndDateKey]
+FROM [dbo].[DimDate]
+WHERE [FullDate] >= ?
+AND [FullDate] <= GETDATE()"
+"IF EXISTS
+(SELECT 1
+FROM ETLBatchControl(NOLOCK)
+WHERE TableName = ? )
+
+BEGIN
+ (SELECT COALESCE(LastProcessedDate,'1900-01-01') AS  LastProcessedDate 
+ FROM ETLBatchControl(NOLOCK)
+ WHERE TableName = ? )
+
+END
+
+ELSE 
+
+BEGIN
+ INSERT INTO ETLBatchControl(TableName, LastProcessedDate, Status) VALUES
+  (?, NULL, NULL);
+
+SELECT '1900-01-01' AS  LastProcessedDate;
+END"
+"SELECT COALESCE(MIN([PayPeriodEndFullDate]), GETDATE()) AS PayPeriodEndFullDate FROM [dbo].[FactADPCostingBN] WHERE [InsertedDate] > ?"
+"TRUNCATE TABLE [dbo].[FactPersonJobEntryDateRank];
+
+INSERT INTO [dbo].[FactPersonJobEntryDateRank] (
+	[PersonID], [JobEntryDate], [JobEntryDateRank]
+)
+SELECT
+	[PersonID],
+	[JobEntryDate],
+	DENSE_RANK() OVER (PARTITION BY [PersonID] ORDER BY [JobEntryDate]) AS [Job Entry Date Rank]
+FROM (
+	SELECT DISTINCT [PersonID], [JobEntryDate] FROM [DW_Mart].[dbo].[FactCosting] (NOLOCK)
+) AS [Rank];"
+"DECLARE @PackageName VARCHAR(30) = ?;
+DECLARE @ExecutionID VARCHAR(300) = ?;
+DECLARE @CurrentDate DATE = CAST(GETDATE() AS DATE);
+DECLARE @AuditID BIGINT;
+
+IF ((SELECT MAX([avg_fragmentation_in_percent]) FROM [sys].[dm_db_index_physical_stats](DB_ID('DW_Mart'), OBJECT_ID('[dbo].[FactCosting]'), NULL, NULL, 'LIMITED')) > 10.00)
+	BEGIN
+		EXEC [dbo].[spBeginAuditLog]
+			@AuditId = @AuditID OUTPUT,
+			@SourceName = @PackageName,
+			@ExecutionID = @ExecutionID,
+			@BatchSplitByName = 'RebuildIndex',
+			@BatchSplitByValue = @CurrentDate,
+			@IsOverride = 0;
+
+		ALTER INDEX [XAK1FactCosting] ON [dbo].[FactCosting] REBUILD PARTITION = ALL WITH (DATA_COMPRESSION = COLUMNSTORE);
+
+		EXEC [dbo].[spEndAuditLog] 
+			@InsertCount = 0,
+			@UpdateCount = 0,
+			@DeleteCount = 0,
+			@SourceCount = 0,
+			@AuditId = @AuditID,
+			@IsOverride = 0;
+	END;"
+"UPDATE [dbo].[ETLBatchControl]
+SET [LastProcessedDate] = GETDATE(),
+[Status] = 'Success'
+WHERE [TableName] = ?"
+exec [dbo].[spFactEarningLoad] ? OUTPUT
+"DELETE FROM [dbo].[FactEarning] WHERE [FiscalWeekEndDateKey] = ?;
+
+
+SELECT @@ROWCOUNT AS Deleted"
+"exec [dbo].[spFactEarningUpdateKeys] ?,?"
+"SELECT COALESCE(MIN([PayPeriodEndFullDate]), GETDATE()) AS PayPeriodEndFullDate FROM [dbo].[FactADPEarningBN] WHERE [InsertedDate] > ?"
+"DECLARE @PackageName VARCHAR(30) = ?;
+DECLARE @ExecutionID VARCHAR(300) = ?;
+DECLARE @CurrentDate DATE = CAST(GETDATE() AS DATE);
+DECLARE @AuditID BIGINT;
+
+IF ((SELECT MAX([avg_fragmentation_in_percent]) FROM [sys].[dm_db_index_physical_stats](DB_ID('DW_Mart'), OBJECT_ID('[dbo].[FactEarning]'), NULL, NULL, 'LIMITED')) > 10.00)
+	BEGIN
+		EXEC [dbo].[spBeginAuditLog]
+			@AuditId = @AuditID OUTPUT,
+			@SourceName = @PackageName,
+			@ExecutionID = @ExecutionID,
+			@BatchSplitByName = 'RebuildIndex',
+			@BatchSplitByValue = @CurrentDate,
+			@IsOverride = 0;
+
+		ALTER INDEX [XAK1FactEarning] ON [dbo].[FactEarning] REBUILD PARTITION = ALL WITH (DATA_COMPRESSION = COLUMNSTORE);
+
+		EXEC [dbo].[spEndAuditLog] 
+			@InsertCount = 0,
+			@UpdateCount = 0,
+			@DeleteCount = 0,
+			@SourceCount = 0,
+			@AuditId = @AuditID,
+			@IsOverride = 0;
+	END;"
+SELECT COUNT(1) AS DeleteCount FROM dbo.FactEmployeeCensus(NOLOCK)
+TRUNCATE TABLE dbo.FactEmployeeCensus
+SELECT COUNT(1) AS DeleteCount FROM dbo.FactEmployeeCensusLanding(NOLOCK)
+SELECT MAX(FullDate) AS FullDate FROM BaseEmployeeCensusBN(NOLOCK)
+"UPDATE f
+ SET f.AssignmentKey = p.AssignmentKey
+, DateTimeModified = GETDATE()
+, UpdateAuditID = ?
+FROM dbo.FactEmployeeCensusArchive f
+JOIN dbo.DimDate d ON f.DateKey = d.DateKey
+LEFT JOIN dbo.DimAssignment p ON f.AssignmentID = p.AssignmentID AND (d.FullDate BETWEEN p.EffectiveFrom AND p.EffectiveTo) AND p.Deleted IS NULL AND  CreatedDate > ?
+WHERE p.AssignmentKey <> f.AssignmentKey 
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE f
+ SET f.PersonKey = p.PersonKey
+, DateTimeModified = GETDATE()
+, UpdateAuditID = ?
+FROM dbo.FactEmployeeCensusArchive f
+JOIN dbo.DimDate d ON f.DateKey = d.DateKey
+LEFT JOIN dbo.DimPerson p ON f.PersonID = p.PersonID AND (d.FullDate BETWEEN p.EffectiveFrom AND p.EffectiveTo) AND p.Deleted IS NULL AND  CreatedDate > ?
+WHERE p.PersonKey <> f.PersonKey 
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DECLARE @BatchSplitByName VARCHAR(10) = 'FiscalWeekDate';
+
+EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, ?, ?, @BatchSplitByName, ?
+GO"
+"DECLARE @FiscalDate DATE = ?;
+
+/* Delete if data exists before loading during the reload */
+		
+DELETE f
+FROM dbo.FactEmployeeCensusArchive f
+JOIN  dbo.DimDate d ON f.DateKey = d.DateKey 
+WHERE FullDate =  @FiscalDate;
+
+SELECT @@ROWCOUNT AS DeleteCount;
+"
 "EXECUTE [dbo].[spEndAuditLog] ?, ?, ?, ?, ?, ?
 GO"
+"DECLARE @BatchSplitByName VARCHAR(10) = 'FiscalWeek';
+
+EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, ?, ?, @BatchSplitByName, ?
+GO"
+"/* Get Last Fiscal Date processed successfully from AuditLog */
+
+DECLARE @LastSuccessfulFiscalDate DATE;
+
+DECLARE @DateKey INT = (SELECT MAX(DateKey) FROM dbo.FactEmployeeCensusArchive(NOLOCK));
+
+WITH LatestJobAuditByTaskName AS (
+   SELECT TaskName, MAX(AuditId) AS LatestJobAudit
+      FROM dbo.AuditLog (NOLOCK)
+      WHERE (StatusCode = 1) AND (TaskName = ?) AND IsOverride = 0
+      GROUP BY TaskName)
+
+SELECT @LastSuccessfulFiscalDate = CAST(ja.BatchSplitByValue  AS DATE) 
+   FROM dbo.AuditLog (NOLOCK) AS ja 
+      INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId ;
+
+SELECT CASE WHEN @DateKey IS NULL THEN ?
+  ELSE ISNULL(@LastSuccessfulFiscalDate, '1900-01-01') 
+    END AS LastSuccessfulFiscalDate;  "
+"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
+
+DECLARE @BatchOverrideID BIGINT = ?;
+DECLARE @NewExecutionID VARCHAR(300) = ?;
+DECLARE @ExecutionIDS TABLE (ExecutionID VARCHAR(300));
+DECLARE @LastSuccessfulFiscalDate DATE;
+
+/*If there are no ExecutionID's for the BatchOverride then Insert into the table*/
+IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchOverrideExecutions WHERE BatchOverrideID = @BatchOverrideID)
+BEGIN 
+ INSERT INTO dbo.ETLBatchOverrideExecutions (BatchOverrideID, ExecutionID) VALUES(@BatchOverrideID, @NewExecutionID )
+END 
+ELSE
+ INSERT INTO @ExecutionIDS 
+SELECT COALESCE(ExecutionID, '' )ExecutionID FROM dbo.ETLBatchOverrideExecutions WHERE BatchOverrideID = @BatchOverrideID;
+
+/*If there are ExecutionID's for the BatchOverride then join on ExecutionID to get the Last fiscal date loaded successfully*/
+WITH LatestJobAuditByTaskName AS (
+SELECT TaskName, MAX(AuditId) AS LatestJobAudit
+FROM dbo.AuditLog (NOLOCK)a
+JOIN @ExecutionIDS e ON a.ExecutionID = e.ExecutionID
+WHERE (StatusCode = 1) AND (TaskName = ?) AND IsOverride = 1 
+      GROUP BY TaskName)
+
+
+SELECT @LastSuccessfulFiscalDate = CAST(ja.BatchSplitByValue  AS DATE) 
+   FROM dbo.AuditLog (NOLOCK) AS ja 
+      INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId ;
+
+SELECT ISNULL(@LastSuccessfulFiscalDate, '1900-01-01') AS LastSuccessfulFiscalDate"
+"DECLARE @StartDate DATETIME = ?;
+DECLARE @CurrentDate DATE = CAST(GETDATE() AS DATE);
+DECLARE @LastSuccessfulFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE);
+DECLARE @FiscalDatesToProcess TABLE (FullDate DATE);
+
+IF (@LastSuccessfulFiscalDate IS NULL)
+BEGIN
+	INSERT INTO @FiscalDatesToProcess
+	SELECT DISTINCT FullDate
+	FROM dbo.BaseEmployeeCensusBN
+	WHERE FullDate BETWEEN  @StartDate AND @CurrentDate
+	ORDER BY FullDate
+END 
+ELSE 
+BEGIN
+	INSERT INTO @FiscalDatesToProcess
+	SELECT DISTINCT FullDate
+	FROM dbo.BaseEmployeeCensusBN
+	WHERE BaseCreatedDate > @StartDate
+	UNION
+	SELECT DISTINCT FullDate
+	FROM dbo.BaseEmployeeCensusBN
+	WHERE FullDate > @LastSuccessfulFiscalDate
+	ORDER BY FullDate
+END
+
+SELECT FullDate
+FROM @FiscalDatesToProcess
+WHERE DATENAME(WEEKDAY, FullDate) = 'Sunday'
+ORDER BY FullDate;"
+"DECLARE @OverrideStartDate DATE = ?;
+DECLARE @OverrideEndDate DATE = ?;
+DECLARE @LastSuccessfulFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE); 
+DECLARE @FiscalDatesToProcess TABLE (FullDate DATE);
+
+IF (@LastSuccessfulFiscalDate IS NULL)
+BEGIN
+	INSERT INTO @FiscalDatesToProcess
+	SELECT DISTINCT FullDate
+	FROM dbo.BaseEmployeeCensusBN
+	WHERE FullDate BETWEEN  @OverrideStartDate AND @OverrideEndDate
+	ORDER BY FullDate
+END 
+ELSE 
+BEGIN
+	INSERT INTO @FiscalDatesToProcess
+	SELECT DISTINCT FullDate
+	FROM dbo.BaseEmployeeCensusBN
+	WHERE FullDate > @LastSuccessfulFiscalDate AND FullDate<= @OverrideEndDate
+	ORDER BY FullDate
+END
+
+SELECT FullDate
+FROM @FiscalDatesToProcess
+WHERE DATENAME(WEEKDAY, FullDate) = 'Sunday'
+ORDER BY FullDate;
+"
+SELECT MIN(FullDate) AS FullDate FROM BaseEmployeeCensusBN(NOLOCK)
+"DECLARE @OverrideStartDate DATE;
+DECLARE @OverrideEndDate DATE;
+DECLARE @BatchOverrideID BIGINT;
+DECLARE @IsOverride BIT;
+DECLARE @PackageName VARCHAR(50) = ?;
+
+IF EXISTS
+(
+    SELECT 1
+    FROM dbo.ETLBatchOverride
+    WHERE TaskName = @PackageName
+          AND IsActive = 1
+)
+BEGIN
+    SELECT TOP 1
+           @BatchOverrideID = BatchOverrideID,
+           @OverrideStartDate = OverrideStartDate,
+           @OverrideEndDate = OverrideEndDate
+    FROM dbo.ETLBatchOverride
+    WHERE TaskName = @PackageName
+          AND IsActive = 1
+    ORDER BY CreatedDate DESC;
+    SET @IsOverride = 1;
+END;
+ELSE
+BEGIN
+    SET @OverrideStartDate =
+    (
+        SELECT COALESCE(LastProcessedDate, ?)
+        FROM DW_Landing.dbo.ETLBatchControl
+        WHERE TableName = @PackageName
+    );
+    SET @OverrideEndDate = GETDATE();
+    SET @IsOverride = 0;
+END;
+SELECT @BatchOverrideID AS BatchOverrideID,
+       @OverrideStartDate AS OverrideStartDate,
+       @OverrideEndDate AS OverrideEndDate,
+       @IsOverride AS IsOverride;
+"
+"DECLARE @PackageName VARCHAR(MAX) = ?;
+DECLARE @MinFullDate DATE = CAST(? AS DATE);
+
+
+IF (NOT EXISTS ( SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = @PackageName ))
+ BEGIN
+  INSERT INTO dbo.ETLBatchControl (TableName, LastProcessedDate) VALUES (@PackageName, @MinFullDate);
+ END
+ELSE IF (SELECT LastProcessedDate FROM dbo.ETLBatchControl WHERE TableName = @PackageName) = NULL
+ BEGIN
+  UPDATE dbo.ETLBatchControl
+  SET LastProcessedDate = @MinFullDate
+  WHERE TableName = @PackageName
+ END
+ELSE IF (NOT EXISTS (SELECT 1 FROM DW_MART.dbo.FactEmployeeCensusArchive ))
+ BEGIN
+  UPDATE dbo.ETLBatchControl
+  SET LastProcessedDate = @MinFullDate
+  WHERE TableName = @PackageName
+ END
+
+SELECT LastProcessedDate 
+FROM dbo.ETLBatchControl WHERE TableName = @PackageName;  "
+"DECLARE @CurrentDate DATE = ?;
+DECLARE @YearBackDate DATE = (SELECT DATEADD(DAY, -365, @CurrentDate));
+DECLARE @DeleteCount INT;
+
+
+/*Delete records more than one year */
+
+DELETE f 
+FROM dbo.FactEmployeeCensusArchive f
+JOIN dbo.DimDate d on f.DateKey = d.DateKey
+WHERE FullDate < @YearBackDate;
+  
+  SET @DeleteCount = (SELECT @@ROWCOUNT);
+
+
+SELECT @DeleteCount AS DeleteCount;
+"
+"DECLARE @PreviousDeleteCount INT = ?;
+DECLARE @DeleteCount INT = @PreviousDeleteCount;
+
+
+SET @DeleteCount = @DeleteCount + (SELECT COALESCE(SUM(DeleteCount), 0) 
+FROM dbo.AuditLog(NOLOCK)
+WHERE ExecutionID = ? AND TaskName = ?)
+
+
+SELECT ? = @DeleteCount;"
+"SELECT SUM(SourceCount) AS SourceCount, SUM(InsertCount) AS InsertCount, SUM(UpdateCount) AS UpdateCount
+FROM dbo.AuditLog(NOLOCK)
+WHERE ExecutionID = ? AND TaskName = ?"
+"UPDATE dbo.ETLBatchOverride
+SET IsActive = 0
+         , LastProcessedDate = ?
+WHERE TaskName = ?
+AND IsActive = 1"
+"UPDATE dbo.ETLBatchControl 
+SET LastProcessedDate = ?
+, Status = 'Success'
+WHERE TableName = ?;"
+"DECLARE @TableName VARCHAR(100) = ?
+
+SELECT COALESCE(LastProcessedDate, '2016-01-01') AS LastProcessedDate
+FROM dbo.ETLBatchControl
+WHERE TableName = @TableName"
+"UPDATE f 
+SET f.AssignmentKey = p.AssignmentKey
+, DateTimeModified = GETDATE()
+, UpdateAuditID = ?
+FROM dbo.FactEmployeeEvent f
+JOIN dbo.DimDate d ON f.DateKey = d.DateKey
+LEFT JOIN dbo.DimAssignment p ON f.AssignmentID = p.AssignmentID AND (d.FullDate BETWEEN p.EffectiveFrom AND p.EffectiveTo) AND p.Deleted IS NULL AND CreatedDate > ?
+WHERE p.AssignmentKey <> f.AssignmentKey 
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE f 
+SET f.PersonKey = p.PersonKey
+, DateTimeModified = GETDATE()
+, UpdateAuditID = ?
+FROM dbo.FactEmployeeEvent f
+JOIN dbo.DimDate d ON f.DateKey = d.DateKey
+LEFT JOIN dbo.DimPerson p ON f.PersonID = p.PersonID AND (d.FullDate BETWEEN p.EffectiveFrom AND p.EffectiveTo) AND p.Deleted IS NULL AND CreatedDate > ?
+WHERE p.PersonKey <> f.PersonKey 
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DECLARE @FiscalDate DATE = ?;
+
+/* Delete if data exists before loading during the reload */
+  
+DELETE f
+FROM dbo.FactEmployeeEvent f
+JOIN  dbo.DimDate d ON f.DateKey = d.DateKey 
+WHERE FullDate =  @FiscalDate;
+
+SELECT @@ROWCOUNT AS DeleteCount;
+"
+"Execute spBeginAuditLog ? OUTPUT, ?,?,?,?;"
+TRUNCATE TABLE FactEmployeeEventLanding;
+"DECLARE @StartDate DATETIME = ?;
+DECLARE @CurrentDate DATE = CAST(GETDATE() AS DATE);
+DECLARE @LastProcessedDate DATETIME = cast(? as date);
+
+
+IF (@LastProcessedDate='2001-01-01')
+BEGIN
+	SELECT DISTINCT fulldate as vFiscalEndDate
+FROM hr_base.dbo.BaseEmployeeEventBN (NOLOCK) AS b
+WHERE fulldate >=cast(@StartDate as date) and fulldate is not null 
+order by fulldate asc
+END
+ELSE 
+BEGIN
+SELECT DISTINCT fulldate as vFiscalEndDate
+FROM hr_base.dbo.BaseEmployeeEventBN (NOLOCK) AS b
+WHERE fulldate >=cast(@StartDate as date) and fulldate is not null 
+UNION 
+SELECT DISTINCT fulldate as vFiscalEndDate
+FROM hr_base.dbo.BaseEmployeeEventBN (NOLOCK) AS b
+WHERE BaseCreatedDate  BETWEEN  ?  AND getdate() and fulldate is not null order by fulldate asc	
+END
+
+
+"
+"
+
+DECLARE @LastProcessFiscalWeekEndDate datetime, @LastProcessDate datetime, @LastsuccessfulDate DateTime;
+WITH LatestJobAuditByTaskName AS (
+   SELECT TaskName, MAX(BatchSplitByValue) AS LatestJobAudit
+      FROM dbo.AuditLog (NOLOCK)
+      WHERE (StatusCode = 1) AND (TaskName = ?)
+      GROUP BY TaskName)
+SELECT @LastProcessFiscalWeekEndDate = 
+ja.BatchSplitByValue, @LastProcessDate = ja.StartTime
+   FROM dbo.AuditLog (NOLOCK) AS ja 
+      INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.BatchSplitByValue;
+
+WITH LatestJobAuditBySuccessfulRun AS (
+   SELECT TaskName, MAX(BatchSplitByValue) AS LatestJobAudit
+      FROM dbo.AuditLog (NOLOCK)
+      WHERE (StatusCode = 1) AND (TaskName = ?)
+      GROUP BY TaskName)
+SELECT @LastsuccessfulDate = ja.StartTime
+   FROM dbo.AuditLog (NOLOCK) AS ja 
+      INNER JOIN LatestJobAuditBySuccessfulRun AS lja ON lja.LatestJobAudit = ja.BatchSplitByValue;
+
+
+SELECT ISNULL(@LastProcessFiscalWeekEndDate, '2001-01-01') AS LastProcessFiscalWeekEndDate
+
+"
+"DECLARE @OverrideStartDate DATE = ?;
+DECLARE @OverrideEndDate DATE = ?;
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE); 
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @Weekday VARCHAR(15) = (SELECT DATENAME(WEEKDAY, @OverrideEndDate));
+DECLARE @FiscalWeekStartDate DATE = (SELECT FiscalWeekStartDate FROM dbo.DimDate WHERE FullDate = @CurrentDate)
+
+IF (@Weekday <> 'Sunday' AND @OverrideEndDate > @FiscalWeekStartDate)
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate as vFiscalEndDate
+    FROM dbo.DimDate
+    WHERE FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate
+    UNION 
+    SELECT @CurrentDate AS vFiscalEndDate
+    ORDER BY FullDate 
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate as vFiscalEndDate
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    UNION 
+    SELECT @CurrentDate AS vFiscalEndDate
+    ORDER BY FullDate 
+   END
+ END 
+ELSE 
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate as vFiscalEndDate
+    FROM dbo.DimDate
+    WHERE FullDate BETWEEN @OverrideStartDate AND @OverrideEndDate
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate as vFiscalEndDate
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    ORDER BY FullDate 
+   END
+ END "
+"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+ BEGIN
+  INSERT INTO dbo.ETLBatchControl (TableName,LastProcessedDate) VALUES (?,'2001-01-01')
+ END
+
+DECLARE @LastProcessedDate DATETIME = (SELECT LastProcessedDate FROM dbo.ETLBatchControl WHERE TableName = ?);
+
+
+
+SELECT @LastProcessedDate AS LastProcessedDate;"
+"SELECT SUM(SourceCount) AS TotalSourceCount, SUM(InsertCount) AS TotalInsertCount, SUM(UpdateCount) AS TotalUpdateCount, SUM(DeleteCount) AS TotalDeleteCount
+FROM AuditLog(NOLOCK)
+WHERE ExecutionID = ?
+"
+"Execute spBeginAuditLog ? OUTPUT, ?, ?;"
 "IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
 	BEGIN
 		INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
@@ -39,10 +1642,6 @@ WHERE NOT EXISTS
 AND abn.Deleted IS NULL;
 
 SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE  dbo.ETLBatchControl 
-SET LastProcessedDate = GETDATE()
-, Status = 'Success'
-WHERE Tablename = ?;"
 "WITH PerQualifications AS 
 (
 SELECT 
@@ -95,7 +1694,6 @@ WHERE NOT EXISTS
 );
 
 SELECT @@ROWCOUNT AS DeleteCount;"
-User::vLandingCountQuery
 "UPDATE base SET 
 	base.last_update_date = landing.last_update_date,
 	base.last_updated_by = landing.last_updated_by,
@@ -286,7 +1884,6 @@ JOIN [HR_Landing].dbo.[AP_SUPPLIERS_B0Landing] landing
 WHERE base.RowHash != landing.RowHash;
 
 SELECT @@ROWCOUNT AS UpdateCount;"
-User::vLandingTruncateQuery
 "UPDATE target SET 
 	target.RowHash = src.RowHash
 FROM 
@@ -931,11 +2528,6 @@ SELECT @BatchOverrideID AS BatchOverrideID,
 "SELECT SUM(SourceCount) AS SourceCount, SUM(InsertCount) AS InsertCount, SUM(UpdateCount) AS UpdateCount, SUM(DeleteCount) AS DeleteCount, SUM(RejectCount) AS RejectCount
 FROM dbo.AuditLog(NOLOCK)
 WHERE ExecutionID = ?"
-"UPDATE dbo.ETLBatchOverride
-SET IsActive = 0
-         , LastProcessedDate = ?
-WHERE TaskName = ?
-AND IsActive = 1"
 "UPDATE dbo.ETLBatchControl
 SET LastProcessedDate = ?
 , Status = 'Success'
@@ -3891,8 +5483,6 @@ FROM [dbo].HR_LOCATIONS_ALL_B0Landing l)src
 JOIN [dbo].HR_LOCATIONS_ALL_B0Landing TARGET ON src.[location_id] = TARGET.[location_id]
 
 SELECT @@ROWCOUNT AS UpdateCount;"
-"EXECUTE [dbo].[spEndAuditLog] ?, ?, ?, ?, ?
-GO"
 "DELETE FROM base
 FROM dbo.HR_LOCATION_EXTRA_INFO_B0 BASE
 WHERE NOT EXISTS
@@ -6273,299 +7863,2250 @@ WHERE NOT EXISTS
     WHERE base.job_id = landing.job_id
 );
 
-Select @@ROWCOUNT as DeleteCount "
-"SELECT COUNT(1) AS vPreCount FROM BaseWeeklyMeasure(NOLOCK)
-WHERE MeasureName = 'Total Labor Hours'
-AND DataScenarioName = ('Plan')"
-"SELECT COUNT(1) AS vPostCount FROM BaseWeeklyMeasure(NOLOCK)
-WHERE MeasureName = 'Total Labor Hours'
-AND DataScenarioName = ('Plan')"
-"UPDATE BaseETLBatchControl
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+SET BASE.[job_id]  =  Landing.[job_id]
+,BASE.[business_group_id]  =  Landing.[business_group_id]
+,BASE.[job_definition_id]  =  Landing.[job_definition_id]
+,BASE.[date_from]  =  Landing.[date_from]
+,BASE.[date_to]  =  Landing.[date_to]
+,BASE.[name]  =  Landing.[name]
+,BASE.[request_id]  =  Landing.[request_id]
+,BASE.[program_application_id]  =  Landing.[program_application_id]
+,BASE.[program_id]  =  Landing.[program_id]
+,BASE.[program_update_date]  =  Landing.[program_update_date]
+,BASE.[attribute_category]  =  Landing.[attribute_category]
+,BASE.[attribute1]  =  Landing.[attribute1]
+,BASE.[attribute2]  =  Landing.[attribute2]
+,BASE.[attribute3]  =  Landing.[attribute3]
+,BASE.[attribute4]  =  Landing.[attribute4]
+,BASE.[attribute5]  =  Landing.[attribute5]
+,BASE.[attribute6]  =  Landing.[attribute6]
+,BASE.[attribute7]  =  Landing.[attribute7]
+,BASE.[attribute8]  =  Landing.[attribute8]
+,BASE.[attribute9]  =  Landing.[attribute9]
+,BASE.[attribute10]  =  Landing.[attribute10]
+,BASE.[attribute11]  =  Landing.[attribute11]
+,BASE.[attribute12]  =  Landing.[attribute12]
+,BASE.[attribute13]  =  Landing.[attribute13]
+,BASE.[attribute14]  =  Landing.[attribute14]
+,BASE.[attribute15]  =  Landing.[attribute15]
+,BASE.[attribute16]  =  Landing.[attribute16]
+,BASE.[attribute17]  =  Landing.[attribute17]
+,BASE.[attribute18]  =  Landing.[attribute18]
+,BASE.[attribute19]  =  Landing.[attribute19]
+,BASE.[attribute20]  =  Landing.[attribute20]
+,BASE.[last_update_date]  =  Landing.[last_update_date]
+,BASE.[last_updated_by]  =  Landing.[last_updated_by]
+,BASE.[last_update_login]  =  Landing.[last_update_login]
+,BASE.[created_by]  =  Landing.[created_by]
+,BASE.[creation_date]  =  Landing.[creation_date]
+,BASE.[job_information_category]  =  Landing.[job_information_category]
+,BASE.[job_information1]  =  Landing.[job_information1]
+,BASE.[job_information2]  =  Landing.[job_information2]
+,BASE.[job_information3]  =  Landing.[job_information3]
+,BASE.[job_information4]  =  Landing.[job_information4]
+,BASE.[job_information5]  =  Landing.[job_information5]
+,BASE.[job_information6]  =  Landing.[job_information6]
+,BASE.[job_information7]  =  Landing.[job_information7]
+,BASE.[job_information8]  =  Landing.[job_information8]
+,BASE.[job_information9]  =  Landing.[job_information9]
+,BASE.[job_information10]  =  Landing.[job_information10]
+,BASE.[job_information11]  =  Landing.[job_information11]
+,BASE.[job_information12]  =  Landing.[job_information12]
+,BASE.[job_information13]  =  Landing.[job_information13]
+,BASE.[job_information14]  =  Landing.[job_information14]
+,BASE.[job_information15]  =  Landing.[job_information15]
+,BASE.[object_version_number]  =  Landing.[object_version_number]
+,BASE.[job_information16]  =  Landing.[job_information16]
+,BASE.[job_information17]  =  Landing.[job_information17]
+,BASE.[job_information18]  =  Landing.[job_information18]
+,BASE.[job_information19]  =  Landing.[job_information19]
+,BASE.[job_information20]  =  Landing.[job_information20]
+,BASE.[benchmark_job_flag]  =  Landing.[benchmark_job_flag]
+,BASE.[benchmark_job_id]  =  Landing.[benchmark_job_id]
+,BASE.[emp_rights_flag]  =  Landing.[emp_rights_flag]
+,BASE.[job_group_id]  =  Landing.[job_group_id]
+,BASE.[approval_authority]  =  Landing.[approval_authority]
+,BASE.[comments]  =  Landing.[comments]
+,BASE.[datalakeinserttime]  =  Landing.[datalakeinserttime]
+
+   , base.[RowHash] = landing.[RowHash],
+    base.[BaseCreatedDate] = GETDATE(),
+    base.[BaseCreatedBy] = SUSER_SNAME()
+FROM [HR_Base].dbo.[PER_JOBS_B0] base
+    JOIN [HR_Landing].dbo.[PER_JOBS_B0Landing] landing
+        ON base.job_id = landing.job_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE TARGET 
+SET target.RowHash=SRC.RowHash
+FROM 
+(SELECT Job_id,
+HASHBYTES('MD5',
+
+
+(SELECT  [job_id]
+      ,[business_group_id]
+      ,[job_definition_id]
+      ,[date_from]
+      ,[date_to]
+      ,[name]
+      ,[request_id]
+      ,[program_application_id]
+      ,[program_id]
+      ,[program_update_date]
+      ,[attribute_category]
+      ,[attribute1]
+      ,[attribute2]
+      ,[attribute3]
+      ,[attribute4]
+      ,[attribute5]
+      ,[attribute6]
+      ,[attribute7]
+      ,[attribute8]
+      ,[attribute9]
+      ,[attribute10]
+      ,[attribute11]
+      ,[attribute12]
+      ,[attribute13]
+      ,[attribute14]
+      ,[attribute15]
+      ,[attribute16]
+      ,[attribute17]
+      ,[attribute18]
+      ,[attribute19]
+      ,[attribute20]
+      ,[job_information_category]
+      ,[job_information1]
+      ,[job_information2]
+      ,[job_information3]
+      ,[job_information4]
+      ,[job_information5]
+      ,[job_information6]
+      ,[job_information7]
+      ,[job_information8]
+      ,[job_information9]
+      ,[job_information10]
+      ,[job_information11]
+      ,[job_information12]
+      ,[job_information13]
+      ,[job_information14]
+      ,[job_information15]
+      ,[object_version_number]
+      ,[job_information16]
+      ,[job_information17]
+      ,[job_information18]
+      ,[job_information19]
+      ,[job_information20]
+      ,[benchmark_job_flag]
+      ,[benchmark_job_id]
+      ,[emp_rights_flag]
+      ,[job_group_id]
+      ,[approval_authority]
+      ,[comments] FOR XML RAW)) AS RowHash
+
+  FROM [HR_Landing].[dbo].[PER_JOBS_B0Landing]) SRC
+  JOIN [HR_Landing].[dbo].[PER_JOBS_B0Landing] Target ON SRC.Job_id=Target.Job_id
+
+
+   SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.[PER_JOB_GROUPS_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_JOB_GROUPS_B0Landing] landing
+    WHERE base.job_group_id = landing.job_group_id
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+   SET  base.job_group_id = landing.job_group_id
+      , base.business_group_id = landing.business_group_id
+      , base.legislation_code = landing.legislation_code
+      , base.internal_name = landing.internal_name
+      , base.displayed_name = landing.displayed_name
+      , base.id_flex_num = landing.id_flex_num
+      , base.master_flag = landing.master_flag
+      , base.object_version_number = landing.object_version_number
+      , base.[last_update_date] = landing.last_update_date
+      , base.[last_updated_by] = landing.last_updated_by
+      , base.[last_update_login] = landing.last_update_login
+      , base.[created_by] = landing.created_by
+      , base.[creation_date] = landing.creation_date
+      , base.[datalakeinserttime] = landing.datalakeinserttime
+      , base.[RowHash] = landing.RowHash
+      , base.[BaseCreatedDate] = GETDATE()
+      , base.[BaseCreatedBy] = suser_sname()
+FROM [HR_Base].dbo.[PER_JOB_GROUPS_B0] base
+JOIN [HR_Landing].dbo.[PER_JOB_GROUPS_B0Landing] landing ON base.job_group_id = landing.job_group_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [job_group_id],
+HASHBYTES('MD5',
+(SELECT [job_group_id]
+      ,[business_group_id]
+      ,[legislation_code]
+      ,[internal_name]
+      ,[displayed_name]
+      ,[id_flex_num]
+      ,[master_flag]
+      ,[object_version_number]
+FOR XML RAW)) AS RowHash
+FROM [dbo].PER_JOB_GROUPS_B0Landing l)src
+JOIN [dbo].PER_JOB_GROUPS_B0Landing TARGET ON src.[job_group_id] = TARGET.[job_group_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.[PER_ORGANIZATION_STRUCTURES_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_ORGANIZATION_STRUCTURES_B0Landing] landing
+    WHERE base.organization_structure_id = landing.organization_structure_id
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+   SET  base.[organization_structure_id]		=   landing.[organization_structure_id]
+      , base.[business_group_id]				=   landing.[business_group_id]
+      , base.[name]								=   landing.[name]
+      , base.[primary_structure_flag]			=   landing.[primary_structure_flag]
+      , base.[request_id]						=   landing.[request_id]
+      , base.[program_application_id]			=   landing.[program_application_id]
+      , base.[program_id]						=   landing.[program_id]
+      , base.[program_update_date]				=   landing.[program_update_date]
+      , base.[attribute_category]				=   landing.[attribute_category]
+      , base.[attribute1]						=   landing.[attribute1]
+      , base.[attribute2]						=   landing.[attribute2]
+      , base.[attribute3]						=   landing.[attribute3]
+      , base.[attribute4]						=   landing.[attribute4]
+      , base.[attribute5]						=   landing.[attribute5]
+      , base.[attribute6]						=   landing.[attribute6]
+      , base.[attribute7]						=   landing.[attribute7]
+      , base.[attribute8]						=   landing.[attribute8]
+      , base.[attribute9]						=   landing.[attribute9]
+      , base.[attribute10]						=   landing.[attribute10]
+      , base.[attribute11]						=   landing.[attribute11]
+      , base.[attribute12]						=   landing.[attribute12]
+      , base.[attribute13]						=   landing.[attribute13]
+      , base.[attribute14]						=   landing.[attribute14]
+      , base.[attribute15]						=   landing.[attribute15]
+      , base.[attribute16]						=   landing.[attribute16]
+      , base.[attribute17]						=   landing.[attribute17]
+      , base.[attribute18]						=   landing.[attribute18]
+      , base.[attribute19]						=   landing.[attribute19]
+      , base.[attribute20]						=   landing.[attribute20]
+      , base.[last_update_date]					=   landing.[last_update_date]
+      , base.[last_updated_by]					=   landing.[last_updated_by]
+      , base.[last_update_login]				=   landing.[last_update_login]
+      , base.[created_by]						=   landing.[created_by]
+      , base.[creation_date]					=   landing.[creation_date]
+      , base.[position_control_structure_flg]	=   landing.[position_control_structure_flg]
+      , base.[object_version_number]			=   landing.[object_version_number]
+      , base.[comments]							=   landing.[comments]
+      , base.[datalakeinserttime]				=   landing.datalakeinserttime
+      , base.[RowHash]							=   landing.RowHash
+      , base.[BaseCreatedDate]					=   GETDATE()
+      , base.[BaseCreatedBy]					=   SUSER_SNAME()
+FROM [PER_ORGANIZATION_STRUCTURES_B0] base
+JOIN [HR_Landing].dbo.[PER_ORGANIZATION_STRUCTURES_B0Landing] landing ON base.organization_structure_id = landing.organization_structure_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [organization_structure_id],
+HASHBYTES('MD5',
+(SELECT [organization_structure_id]
+      ,[business_group_id]
+      ,[name]
+      ,[primary_structure_flag]
+      ,[request_id]
+      ,[program_application_id]
+      ,[program_id]
+      ,[program_update_date]
+      ,[attribute_category]
+      ,[attribute1]
+      ,[attribute2]
+      ,[attribute3]
+      ,[attribute4]
+      ,[attribute5]
+      ,[attribute6]
+      ,[attribute7]
+      ,[attribute8]
+      ,[attribute9]
+      ,[attribute10]
+      ,[attribute11]
+      ,[attribute12]
+      ,[attribute13]
+      ,[attribute14]
+      ,[attribute15]
+      ,[attribute16]
+      ,[attribute17]
+      ,[attribute18]
+      ,[attribute19]
+      ,[attribute20]
+      ,[position_control_structure_flg]
+      ,[object_version_number]
+      ,[comments] FOR XML RAW)) AS RowHash
+FROM [dbo].PER_ORGANIZATION_STRUCTURES_B0Landing l)src
+JOIN [dbo].PER_ORGANIZATION_STRUCTURES_B0Landing TARGET ON src.[organization_structure_id] = TARGET.[organization_structure_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.Per_Org_Structure_Elements_B0 BASE
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.Per_Org_Structure_Elements_B0Landing landing
+    WHERE base.  [org_structure_element_id]  = landing.  [org_structure_element_id] 
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+SET base.[org_structure_element_id] = landing.[org_structure_element_id],
+    base.[business_group_id] = landing.[business_group_id],
+    base.[organization_id_parent] = landing.[organization_id_parent],
+    base.[org_structure_version_id] = landing.[org_structure_version_id],
+    base.[organization_id_child] = landing.[organization_id_child],
+    base.[request_id] = landing.[request_id],
+    base.[program_application_id] = landing.[program_application_id],
+    base.[program_id] = landing.[program_id],
+    base.[program_update_date] = landing.[program_update_date],
+    base.[last_update_date] = landing.[last_update_date],
+    base.[last_updated_by] = landing.[last_updated_by],
+    base.[last_update_login] = landing.[last_update_login],
+    base.[created_by] = landing.[created_by],
+    base.[creation_date] = landing.[creation_date],
+    base.[object_version_number] = landing.[object_version_number],
+    base.[position_control_enabled_flag] = landing.[position_control_enabled_flag],
+    base.[party_id] = landing.[party_id],
+    base.[datalakeinserttime] = landing.[datalakeinserttime],
+    base.[RowHash] = landing.[RowHash],
+    base.[BaseCreatedDate] = GETDATE(),
+    base.[BaseCreatedBy] = SUSER_SNAME()
+FROM [HR_Base].dbo.[Per_Org_Structure_Elements_B0] base
+    JOIN [HR_Landing].dbo.[Per_Org_Structure_Elements_B0Landing] landing
+        ON base.[org_structure_element_id] = landing.[org_structure_element_id]
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE TARGET 
+SET target.RowHash=SRC.RowHash
+FROM 
+(SELECT [org_structure_element_id],
+HASHBYTES('MD5',
+(SELECT [org_structure_element_id]
+      ,[business_group_id]
+      ,[organization_id_parent]
+      ,[org_structure_version_id]
+      ,[organization_id_child]
+      ,[request_id]
+      ,[program_application_id]
+      ,[program_id]
+      ,[program_update_date]
+      ,[last_update_date]
+      ,[last_updated_by]
+      ,[last_update_login]
+      ,[created_by]
+      ,[creation_date]
+      ,[object_version_number]
+      ,[position_control_enabled_flag]
+      ,[party_id] FOR XML RAW)) AS RowHash
+      
+  FROM [dbo].[Per_Org_Structure_Elements_B0Landing]) SRC 
+ JOIN [dbo].[Per_Org_Structure_Elements_B0Landing] TARGET ON SRC.[org_structure_element_id]=Target.[org_structure_element_id]
+
+ SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.PER_ORG_STRUCTURE_VERSIONS_B0 BASE
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.PER_ORG_STRUCTURE_VERSIONS_B0Landing landing
+    WHERE base.  [org_structure_version_id]  = landing.  [org_structure_version_id] 
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"
+UPDATE base SET 
+      base.[org_structure_version_id] = landing.org_structure_version_id
+      ,base.[business_group_id] = landing.business_group_id
+      ,base.[organization_structure_id] = landing.organization_structure_id
+      ,base.[date_from] = landing.date_from
+      ,base.[version_number] = landing.version_number
+      ,base.[copy_structure_version_id] = landing.copy_structure_version_id
+      ,base.[date_to] = landing.date_to
+      ,base.[request_id] = landing.request_id
+      ,base.[program_application_id] = landing.program_application_id
+      ,base.[program_id] = landing.program_id
+      ,base.[program_update_date] = landing.program_update_date
+      ,base.[last_update_date] = landing.last_update_date
+      ,base.[last_updated_by] = landing.last_updated_by
+      ,base.[last_update_login] = landing.last_update_login
+      ,base.[created_by] = landing.created_by
+      ,base.[creation_date] = landing.creation_date
+      ,base.[object_version_number] = landing.object_version_number
+      ,base.[topnode_pos_ctrl_enabled_flag] = landing.topnode_pos_ctrl_enabled_flag
+      ,base.datalakeinserttime = landing.datalakeinserttime
+      ,base.RowHash = landing.RowHash
+      ,base.[BaseCreatedDate] = GETDATE()
+      ,base.[BaseCreatedBy] = SUSER_SNAME()
+FROM [HR_Base].dbo.[PER_ORG_STRUCTURE_VERSIONS_B0] base
+JOIN [HR_Landing].dbo.[PER_ORG_STRUCTURE_VERSIONS_B0Landing] landing 
+	ON base.org_structure_version_id = landing.org_structure_version_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target SET 
+	target.RowHash = src.RowHash
+FROM 
+(SELECT 
+	org_structure_version_id,
+	HASHBYTES('MD5',
+(SELECT
+	   [org_structure_version_id]
+      ,[business_group_id]
+      ,[organization_structure_id]
+      ,[date_from]
+      ,[version_number]
+      ,[copy_structure_version_id]
+      ,[date_to]
+      ,[request_id]
+      ,[program_application_id]
+      ,[program_id]
+      ,[program_update_date]
+      ,[object_version_number]
+      ,[topnode_pos_ctrl_enabled_flag]
+	FOR XML RAW)) AS RowHash
+FROM dbo.PER_ORG_STRUCTURE_VERSIONS_B0Landing l) src
+JOIN dbo.PER_ORG_STRUCTURE_VERSIONS_B0Landing target ON src.[org_structure_version_id] = target.[org_structure_version_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.[PER_PAY_BASES_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_PAY_BASES_B0Landing] landing
+    WHERE base.pay_basis_id = landing.pay_basis_id
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+   SET base.[pay_basis_id]				     =  landing.[pay_basis_id]				
+	   , base.[input_value_id]				 =  landing.[input_value_id]			
+	   , base.[rate_id]					     =  landing.[rate_id]					
+	   , base.[business_group_id]			 =  landing.[business_group_id]			
+	   , base.[name]						 =  landing.[name]						
+	   , base.[pay_basis]					 =  landing.[pay_basis]					
+	   , base.[rate_basis]					 =  landing.[rate_basis]				
+	   , base.[annualized_hours]			 =  landing.[annualized_hours]			
+	   , base.[pay_annualization_factor]	 =  landing.[pay_annualization_factor]	
+	   , base.[grade_annualization_factor]	 =  landing.[grade_annualization_factor]
+	   , base.[attribute_category]			 =  landing.[attribute_category]		
+	   , base.[attribute1]					 =  landing.[attribute1]				
+	   , base.[attribute2]					 =  landing.[attribute2]				
+	   , base.[attribute3]					 =  landing.[attribute3]				
+	   , base.[attribute4]					 =  landing.[attribute4]				
+	   , base.[attribute5]					 =  landing.[attribute5]				
+	   , base.[attribute6]					 =  landing.[attribute6]				
+	   , base.[attribute7]					 =  landing.[attribute7]				
+	   , base.[attribute8]					 =  landing.[attribute8]				
+	   , base.[attribute9]					 =  landing.[attribute9]				
+	   , base.[attribute10]				     =  landing.[attribute10]				
+	   , base.[attribute11]				     =  landing.[attribute11]				
+	   , base.[attribute12]				     =  landing.[attribute12]				
+	   , base.[attribute13]				     =  landing.[attribute13]				
+	   , base.[attribute14]				     =  landing.[attribute14]				
+	   , base.[attribute15]				     =  landing.[attribute15]				
+	   , base.[attribute16]				     =  landing.[attribute16]				
+	   , base.[attribute17]				     =  landing.[attribute17]				
+	   , base.[attribute18]				     =  landing.[attribute18]				
+	   , base.[attribute19]				     =  landing.[attribute19]				
+	   , base.[attribute20]				     =  landing.[attribute20]				
+	   , base.[last_update_date]			 =  landing.[last_update_date]			
+	   , base.[last_updated_by]			     =  landing.[last_updated_by]			
+	   , base.[last_update_login]			 =  landing.[last_update_login]			
+	   , base.[created_by]				   	 =  landing.[created_by]				
+	   , base.[creation_date]				 =  landing.[creation_date]				
+	   , base.[information_category]		 =  landing.[information_category]		
+	   , base.[information1]				 =  landing.[information1]				
+	   , base.[information2]				 =  landing.[information2]				
+	   , base.[information3]				 =  landing.[information3]				
+	   , base.[information4]				 =  landing.[information4]				
+	   , base.[information5]				 =  landing.[information5]				
+	   , base.[information6]				 =  landing.[information6]				
+	   , base.[information7]				 =  landing.[information7]				
+	   , base.[information8]				 =  landing.[information8]				
+	   , base.[information9]				 =  landing.[information9]				
+	   , base.[information10]				 =  landing.[information10]				
+	   , base.[information11]				 =  landing.[information11]				
+	   , base.[information12]				 =  landing.[information12]				
+	   , base.[information13]				 =  landing.[information13]				
+	   , base.[information14]				 =  landing.[information14]				
+	   , base.[information15]				 =  landing.[information15]				
+	   , base.[information16]				 =  landing.[information16]				
+	   , base.[information17]				 =  landing.[information17]				
+	   , base.[information18]				 =  landing.[information18]				
+	   , base.[information19]				 =  landing.[information19]				
+	   , base.[information20]				 =  landing.[information20]				
+	   , base.[object_version_number]		 =  landing.[object_version_number]		
+	   , base.[comments]					 =  landing.[comments]					
+       , base.[datalakeinserttime]           =  landing.datalakeinserttime
+       , base.[RowHash]                      =  landing.RowHash
+       , base.[BaseCreatedDate]              =  GETDATE()
+       , base.[BaseCreatedBy]               =  suser_sname()
+FROM [HR_Base].dbo.[PER_PAY_BASES_B0] base
+JOIN [HR_Landing].dbo.[PER_PAY_BASES_B0Landing] landing ON base.pay_basis_id = landing.pay_basis_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [pay_basis_id],
+HASHBYTES('MD5',
+(SELECT  [pay_basis_id]				
+       , [input_value_id]			
+       , [rate_id]					
+       , [business_group_id]			
+       , [name]						
+       , [pay_basis]					
+       , [rate_basis]				
+       , [annualized_hours]			
+       , [pay_annualization_factor]	
+       , [grade_annualization_factor]
+       , [attribute_category]		
+       , [attribute1]				
+       , [attribute2]				
+       , [attribute3]				
+       , [attribute4]				
+       , [attribute5]				
+       , [attribute6]				
+       , [attribute7]				
+       , [attribute8]				
+       , [attribute9]				
+       , [attribute10]				
+       , [attribute11]				
+       , [attribute12]				
+       , [attribute13]				
+       , [attribute14]				
+       , [attribute15]				
+       , [attribute16]				
+       , [attribute17]				
+       , [attribute18]				
+       , [attribute19]				
+       , [attribute20]								
+       , [information_category]		
+       , [information1]				
+       , [information2]				
+       , [information3]				
+       , [information4]				
+       , [information5]				
+       , [information6]				
+       , [information7]				
+       , [information8]				
+       , [information9]				
+       , [information10]				
+       , [information11]				
+       , [information12]				
+       , [information13]				
+       , [information14]				
+       , [information15]				
+       , [information16]				
+       , [information17]				
+       , [information18]				
+       , [information19]				
+       , [information20]				
+       , [object_version_number]		
+       , [comments] FOR XML RAW)) AS RowHash
+FROM [dbo].PER_PAY_BASES_B0Landing l)src
+JOIN [dbo].PER_PAY_BASES_B0Landing TARGET ON src.[pay_basis_id] = TARGET.[pay_basis_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"
+DELETE FROM base
+FROM dbo.[PER_PAY_PROPOSALS_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_PAY_PROPOSALS_B0Landing] landing
+    WHERE base.pay_proposal_id = landing.pay_proposal_id
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+   SET base.pay_proposal_id = landing.pay_proposal_id
+      ,base.object_version_number = landing.object_version_number
+      ,base.assignment_id = landing.assignment_id
+      ,base.event_id = landing.event_id
+      ,base.business_group_id = landing.business_group_id
+      ,base.change_date = landing.change_date
+      ,base.last_change_date = landing.last_change_date
+      ,base.next_perf_review_date = landing.next_perf_review_date
+      ,base.next_sal_review_date = landing.next_sal_review_date
+      ,base.performance_rating = landing.performance_rating
+      ,base.proposal_reason = landing.proposal_reason
+      ,base.proposed_salary_n = landing.proposed_salary_n
+      ,base.review_date = landing.review_date
+      ,base.approved = landing.approved
+      ,base.multiple_components = landing.multiple_components
+      ,base.forced_ranking = landing.forced_ranking
+      ,base.performance_review_id = landing.performance_review_id
+      ,base.attribute_category = landing.attribute_category
+      ,base.attribute1 = landing.attribute1
+      ,base.attribute2 = landing.attribute2
+      ,base.attribute3 = landing.attribute3
+      ,base.attribute4 = landing.attribute4
+      ,base.attribute5 = landing.attribute5
+      ,base.attribute6 = landing.attribute6
+      ,base.attribute7 = landing.attribute7
+      ,base.attribute8 = landing.attribute8
+      ,base.attribute9 = landing.attribute9
+      ,base.attribute10 = landing.attribute10
+      ,base.attribute11 = landing.attribute11
+      ,base.attribute12 = landing.attribute12
+      ,base.attribute13 = landing.attribute13
+      ,base.attribute14 = landing.attribute14
+      ,base.attribute15 = landing.attribute15
+      ,base.attribute16 = landing.attribute16
+      ,base.attribute17 = landing.attribute17
+      ,base.attribute18 = landing.attribute18
+      ,base.attribute19 = landing.attribute19
+      ,base.attribute20 = landing.attribute20
+      ,base.last_update_date = landing.last_update_date
+      ,base.last_updated_by = landing.last_updated_by
+      ,base.last_update_login = landing.last_update_login
+      ,base.created_by = landing.created_by
+      ,base.creation_date = landing.creation_date
+      ,base.proposed_salary = landing.proposed_salary
+      ,base.comments = landing.comments
+      ,base.date_to = landing.date_to
+      , base.[datalakeinserttime]           =  landing.datalakeinserttime
+      , base.[RowHash]                      =  landing.RowHash
+      , base.[BaseCreatedDate]              =  GETDATE()
+      , base.[BaseCreatedBy]               =  suser_sname()
+FROM [HR_Base].dbo.[PER_PAY_PROPOSALS_B0] base
+JOIN [HR_Landing].dbo.[PER_PAY_PROPOSALS_B0Landing] landing ON base.pay_proposal_id = landing.pay_proposal_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [pay_proposal_id],
+HASHBYTES('MD5',
+(SELECT  [pay_proposal_id]
+      ,[object_version_number]
+      ,[assignment_id]
+      ,[event_id]
+      ,[business_group_id]
+      ,[change_date]
+      ,[last_change_date]
+      ,[next_perf_review_date]
+      ,[next_sal_review_date]
+      ,[performance_rating]
+      ,[proposal_reason]
+      ,[proposed_salary_n]
+      ,[review_date]
+      ,[approved]
+      ,[multiple_components]
+      ,[forced_ranking]
+      ,[performance_review_id]
+      ,[attribute_category]
+      ,[attribute1]
+      ,[attribute2]
+      ,[attribute3]
+      ,[attribute4]
+      ,[attribute5]
+      ,[attribute6]
+      ,[attribute7]
+      ,[attribute8]
+      ,[attribute9]
+      ,[attribute10]
+      ,[attribute11]
+      ,[attribute12]
+      ,[attribute13]
+      ,[attribute14]
+      ,[attribute15]
+      ,[attribute16]
+      ,[attribute17]
+      ,[attribute18]
+      ,[attribute19]
+      ,[attribute20]
+      ,[proposed_salary]
+      ,[comments]
+      ,[date_to]  FOR XML RAW)) AS RowHash
+FROM [dbo].PER_PAY_PROPOSALS_B0Landing l)src
+JOIN [dbo].PER_PAY_PROPOSALS_B0Landing TARGET ON src.[pay_proposal_id] = TARGET.pay_proposal_id
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.[PER_PERFORMANCE_REVIEWS_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_PERFORMANCE_REVIEWS_B0Landing] landing
+    WHERE base.performance_review_id = landing.performance_review_id
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+   SET base.[performance_review_id] = landing.performance_review_id,
+      base.[event_id] = landing.event_id,
+      base.[review_date] = landing.review_date,
+      base.[performance_rating] = landing.performance_rating,
+      base.[next_perf_review_date] = landing.next_perf_review_date,
+      base.[attribute_category] = landing.attribute_category,
+      base.[attribute1] = landing.attribute1,
+      base.[attribute2] = landing.attribute2,
+      base.[attribute3] = landing.attribute3,
+      base.[attribute4] = landing.attribute4,
+      base.[attribute5] = landing.attribute5,
+      base.[attribute6] = landing.attribute6,
+      base.[attribute7] = landing.attribute7,
+      base.[attribute8] = landing.attribute8,
+      base.[attribute9] = landing.attribute9,
+      base.[attribute10] = landing.attribute10,
+      base.[attribute11] = landing.attribute11,
+      base.[attribute12] = landing.attribute12,
+      base.[attribute13] = landing.attribute13,
+      base.[attribute14] = landing.attribute14,
+      base.[attribute15] = landing.attribute15,
+      base.[attribute16] = landing.attribute16,
+      base.[attribute17] = landing.attribute17,
+      base.[attribute18] = landing.attribute18,
+      base.[attribute19] = landing.attribute19,
+      base.[attribute20] = landing.attribute20,
+      base.[attribute21] = landing.attribute21,
+      base.[attribute22] = landing.attribute22,
+      base.[attribute23] = landing.attribute23,
+      base.[attribute24] = landing.attribute24,
+      base.[attribute25] = landing.attribute25,
+      base.[attribute26] = landing.attribute26,
+      base.[attribute27] = landing.attribute27,
+      base.[attribute28] = landing.attribute28,
+      base.[attribute29] = landing.attribute29,
+      base.[attribute30] = landing.attribute30,
+      base.[object_version_number] = landing.object_version_number,
+      base.[last_update_date] = landing.last_update_date,
+      base.[last_updated_by] = landing.last_updated_by,
+      base.[last_update_login] = landing.last_update_login,
+      base.[created_by] = landing.created_by,
+      base.[creation_date] = landing.creation_date,
+      base.[datalakeinserttime] = landing.datalakeinserttime,
+      base.[RowHash] = landing.RowHash,
+      base.[BaseCreatedDate] = GETDATE(),
+      base.[BaseCreatedBy] = suser_sname()
+FROM [HR_Base].dbo.[PER_PERFORMANCE_REVIEWS_B0] base
+JOIN [HR_Landing].dbo.[PER_PERFORMANCE_REVIEWS_B0Landing] landing ON base.performance_review_id = landing.performance_review_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [performance_review_id],
+HASHBYTES('MD5',
+(SELECT [performance_review_id]
+      ,[person_id]
+      ,[event_id]
+      ,[review_date]
+      ,[performance_rating]
+      ,[next_perf_review_date]
+      ,[attribute_category]
+      ,[attribute1]
+      ,[attribute2]
+      ,[attribute3]
+      ,[attribute4]
+      ,[attribute5]
+      ,[attribute6]
+      ,[attribute7]
+      ,[attribute8]
+      ,[attribute9]
+      ,[attribute10]
+      ,[attribute11]
+      ,[attribute12]
+      ,[attribute13]
+      ,[attribute14]
+      ,[attribute15]
+      ,[attribute16]
+      ,[attribute17]
+      ,[attribute18]
+      ,[attribute19]
+      ,[attribute20]
+      ,[attribute21]
+      ,[attribute22]
+      ,[attribute23]
+      ,[attribute24]
+      ,[attribute25]
+      ,[attribute26]
+      ,[attribute27]
+      ,[attribute28]
+      ,[attribute29]
+      ,[attribute30]
+      ,[object_version_number]
+      FOR XML RAW)) AS RowHash
+FROM [dbo].PER_PERFORMANCE_REVIEWS_B0Landing l)src
+JOIN [dbo].PER_PERFORMANCE_REVIEWS_B0Landing TARGET ON src.[performance_review_id] = TARGET.[performance_review_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.[PER_PERIODS_OF_PLACEMENT_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_PERIODS_OF_PLACEMENT_B0Landing] landing
+    WHERE base.period_of_placement_id = landing.period_of_placement_id
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"
+
+
+
+UPDATE base
+   SET
+       base.period_of_placement_id = landing.period_of_placement_id
+      ,base.object_version_number = landing.object_version_number
+      ,base.business_group_id = landing.business_group_id
+      ,base.person_id = landing.person_id
+      ,base.date_start = landing.date_start
+      ,base.actual_termination_date = landing.actual_termination_date
+      ,base.projected_termination_date = landing.projected_termination_date
+      ,base.termination_reason = landing.termination_reason
+      ,base.attribute_category = landing.attribute_category
+      ,base.attribute1 = landing.attribute1
+      ,base.attribute2 = landing.attribute2
+      ,base.attribute3 = landing.attribute3
+      ,base.attribute4 = landing.attribute4
+      ,base.attribute5 = landing.attribute5
+      ,base.attribute6 = landing.attribute6
+      ,base.attribute7 = landing.attribute7
+      ,base.attribute8 = landing.attribute8
+      ,base.attribute9 = landing.attribute9
+      ,base.attribute10 = landing.attribute10
+      ,base.attribute11 = landing.attribute11
+      ,base.attribute12 = landing.attribute12
+      ,base.attribute13 = landing.attribute13
+      ,base.attribute14 = landing.attribute14
+      ,base.attribute15 = landing.attribute15
+      ,base.attribute16 = landing.attribute16
+      ,base.attribute17 = landing.attribute17
+      ,base.attribute18 = landing.attribute18
+      ,base.attribute19 = landing.attribute19
+      ,base.attribute20 = landing.attribute20
+      ,base.attribute21 = landing.attribute21
+      ,base.attribute22 = landing.attribute22
+      ,base.attribute23 = landing.attribute23
+      ,base.attribute24 = landing.attribute24
+      ,base.attribute25 = landing.attribute25
+      ,base.attribute26 = landing.attribute26
+      ,base.attribute27 = landing.attribute27
+      ,base.attribute28 = landing.attribute28
+      ,base.attribute29 = landing.attribute29
+      ,base.attribute30 = landing.attribute30
+      ,base.information_category = landing.information_category
+      ,base.information1 = landing.information1
+      ,base.information2 = landing.information2
+      ,base.information3 = landing.information3
+      ,base.information4 = landing.information4
+      ,base.information5 = landing.information5
+      ,base.information6 = landing.information6
+      ,base.information7 = landing.information7
+      ,base.information8 = landing.information8
+      ,base.information9 = landing.information9
+      ,base.information10 = landing.information10
+      ,base.information11 = landing.information11
+      ,base.information12 = landing.information12
+      ,base.information13 = landing.information13
+      ,base.information14 = landing.information14
+      ,base.information15 = landing.information15
+      ,base.information16 = landing.information16
+      ,base.information17 = landing.information17
+      ,base.information18 = landing.information18
+      ,base.information19 = landing.information19
+      ,base.information20 = landing.information20
+      ,base.information21 = landing.information21
+      ,base.information22 = landing.information22
+      ,base.information23 = landing.information23
+      ,base.information24 = landing.information24
+      ,base.information25 = landing.information25
+      ,base.information26 = landing.information26
+      ,base.information27 = landing.information27
+      ,base.information28 = landing.information28
+      ,base.information29 = landing.information29
+      ,base.information30 = landing.information30
+      ,base.created_by = landing.created_by
+      ,base.creation_date = landing.creation_date
+      ,base.last_updated_by = landing.last_updated_by
+      ,base.last_update_date = landing.last_update_date
+      ,base.last_update_login = landing.last_update_login
+      ,base.final_process_date = landing.final_process_date
+      ,base.last_standard_process_date = landing.last_standard_process_date
+      ,base.[datalakeinserttime] = landing.datalakeinserttime
+      ,base.[RowHash] = landing.RowHash
+      ,base.[BaseCreatedDate] = GETDATE()
+      ,base.[BaseCreatedBy] = suser_sname()
+FROM [HR_Base].dbo.[PER_PERIODS_OF_PLACEMENT_B0] base
+JOIN [HR_Landing].dbo.[PER_PERIODS_OF_PLACEMENT_B0Landing] landing ON base.period_of_placement_id = landing.period_of_placement_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [period_of_placement_id],
+HASHBYTES('MD5',
+(SELECT [period_of_placement_id]
+      ,[object_version_number]
+      ,[business_group_id]
+      ,[person_id]
+      ,[date_start]
+      ,[actual_termination_date]
+      ,[projected_termination_date]
+      ,[termination_reason]
+      ,[attribute_category]
+      ,[attribute1]
+      ,[attribute2]
+      ,[attribute3]
+      ,[attribute4]
+      ,[attribute5]
+      ,[attribute6]
+      ,[attribute7]
+      ,[attribute8]
+      ,[attribute9]
+      ,[attribute10]
+      ,[attribute11]
+      ,[attribute12]
+      ,[attribute13]
+      ,[attribute14]
+      ,[attribute15]
+      ,[attribute16]
+      ,[attribute17]
+      ,[attribute18]
+      ,[attribute19]
+      ,[attribute20]
+      ,[attribute21]
+      ,[attribute22]
+      ,[attribute23]
+      ,[attribute24]
+      ,[attribute25]
+      ,[attribute26]
+      ,[attribute27]
+      ,[attribute28]
+      ,[attribute29]
+      ,[attribute30]
+      ,[information_category]
+      ,[information1]
+      ,[information2]
+      ,[information3]
+      ,[information4]
+      ,[information5]
+      ,[information6]
+      ,[information7]
+      ,[information8]
+      ,[information9]
+      ,[information10]
+      ,[information11]
+      ,[information12]
+      ,[information13]
+      ,[information14]
+      ,[information15]
+      ,[information16]
+      ,[information17]
+      ,[information18]
+      ,[information19]
+      ,[information20]
+      ,[information21]
+      ,[information22]
+      ,[information23]
+      ,[information24]
+      ,[information25]
+      ,[information26]
+      ,[information27]
+      ,[information28]
+      ,[information29]
+      ,[information30]
+      ,[final_process_date]
+      ,[last_standard_process_date]
+      FOR XML RAW)) AS RowHash
+FROM [dbo].[PER_PERIODS_OF_PLACEMENT_B0Landing] l)src
+JOIN [dbo].[PER_PERIODS_OF_PLACEMENT_B0Landing] TARGET ON src.[period_of_placement_id] = TARGET.[period_of_placement_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.[PER_PERIODS_OF_SERVICE_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_PERIODS_OF_SERVICE_B0Landing] landing
+    WHERE base.period_of_service_id = landing.period_of_service_id
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+   SET base.period_of_service_id = landing.period_of_service_id
+      ,base.business_group_id = landing.business_group_id
+      ,base.termination_accepted_person_id = landing.termination_accepted_person_id
+      ,base.person_id = landing.person_id
+      ,base.date_start = landing.date_start
+      ,base.accepted_termination_date = landing.accepted_termination_date
+      ,base.actual_termination_date = landing.actual_termination_date
+      ,base.final_process_date = landing.final_process_date
+      ,base.last_standard_process_date = landing.last_standard_process_date
+      ,base.leaving_reason = landing.leaving_reason
+      ,base.notified_termination_date = landing.notified_termination_date
+      ,base.projected_termination_date = landing.projected_termination_date
+      ,base.adjusted_svc_date = landing.adjusted_svc_date
+      ,base.request_id = landing.request_id
+      ,base.program_application_id = landing.program_application_id
+      ,base.program_id = landing.program_id
+      ,base.program_update_date = landing.program_update_date
+      ,base.attribute_category = landing.attribute_category
+      ,base.attribute1 = landing.attribute1
+      ,base.attribute2 = landing.attribute2
+      ,base.attribute3 = landing.attribute3
+      ,base.attribute4 = landing.attribute4
+      ,base.attribute5 = landing.attribute5
+      ,base.attribute6 = landing.attribute6
+      ,base.attribute7 = landing.attribute7
+      ,base.attribute8 = landing.attribute8
+      ,base.attribute9 = landing.attribute9
+      ,base.attribute10 = landing.attribute10
+      ,base.attribute11 = landing.attribute11
+      ,base.attribute12 = landing.attribute12
+      ,base.attribute13 = landing.attribute13
+      ,base.attribute14 = landing.attribute14
+      ,base.attribute15 = landing.attribute15
+      ,base.attribute16 = landing.attribute16
+      ,base.attribute17 = landing.attribute17
+      ,base.attribute18 = landing.attribute18
+      ,base.attribute19 = landing.attribute19
+      ,base.attribute20 = landing.attribute20
+      ,base.last_update_date = landing.last_update_date
+      ,base.last_updated_by = landing.last_updated_by
+      ,base.last_update_login = landing.last_update_login
+      ,base.created_by = landing.created_by
+      ,base.creation_date = landing.creation_date
+      ,base.object_version_number = landing.object_version_number
+      ,base.prior_employment_ssp_paid_to = landing.prior_employment_ssp_paid_to
+      ,base.prior_employment_ssp_weeks = landing.prior_employment_ssp_weeks
+      ,base.pds_information_category = landing.pds_information_category
+      ,base.pds_information1 = landing.pds_information1
+      ,base.pds_information2 = landing.pds_information2
+      ,base.pds_information3 = landing.pds_information3
+      ,base.pds_information4 = landing.pds_information4
+      ,base.pds_information5 = landing.pds_information5
+      ,base.pds_information6 = landing.pds_information6
+      ,base.pds_information7 = landing.pds_information7
+      ,base.pds_information8 = landing.pds_information8
+      ,base.pds_information9 = landing.pds_information9
+      ,base.pds_information10 = landing.pds_information10
+      ,base.pds_information11 = landing.pds_information11
+      ,base.pds_information12 = landing.pds_information12
+      ,base.pds_information13 = landing.pds_information13
+      ,base.pds_information14 = landing.pds_information14
+      ,base.pds_information15 = landing.pds_information15
+      ,base.pds_information16 = landing.pds_information16
+      ,base.pds_information17 = landing.pds_information17
+      ,base.pds_information18 = landing.pds_information18
+      ,base.pds_information19 = landing.pds_information19
+      ,base.pds_information20 = landing.pds_information20
+      ,base.pds_information21 = landing.pds_information21
+      ,base.pds_information22 = landing.pds_information22
+      ,base.pds_information23 = landing.pds_information23
+      ,base.pds_information24 = landing.pds_information24
+      ,base.pds_information25 = landing.pds_information25
+      ,base.pds_information26 = landing.pds_information26
+      ,base.pds_information27 = landing.pds_information27
+      ,base.pds_information28 = landing.pds_information28
+      ,base.pds_information29 = landing.pds_information29
+      ,base.pds_information30 = landing.pds_information30
+      ,base.comments = landing.comments
+      ,base.[datalakeinserttime] = landing.datalakeinserttime
+      ,base.[RowHash] = landing.RowHash
+      ,base.[BaseCreatedDate] = GETDATE()
+      ,base.[BaseCreatedBy] = suser_sname()
+FROM [HR_Base].dbo.[PER_PERIODS_OF_SERVICE_B0] base
+JOIN [HR_Landing].dbo.[PER_PERIODS_OF_SERVICE_B0Landing] landing ON base.period_of_service_id = landing.period_of_service_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [period_of_service_id],
+HASHBYTES('MD5',
+(SELECT [period_of_service_id]
+      ,[business_group_id]
+      ,[termination_accepted_person_id]
+      ,[person_id]
+      ,[date_start]
+      ,[accepted_termination_date]
+      ,[actual_termination_date]
+      ,[final_process_date]
+      ,[last_standard_process_date]
+      ,[leaving_reason]
+      ,[notified_termination_date]
+      ,[projected_termination_date]
+      ,[adjusted_svc_date]
+      ,[request_id]
+      ,[program_application_id]
+      ,[program_id]
+      ,[program_update_date]
+      ,[attribute_category]
+      ,[attribute1]
+      ,[attribute2]
+      ,[attribute3]
+      ,[attribute4]
+      ,[attribute5]
+      ,[attribute6]
+      ,[attribute7]
+      ,[attribute8]
+      ,[attribute9]
+      ,[attribute10]
+      ,[attribute11]
+      ,[attribute12]
+      ,[attribute13]
+      ,[attribute14]
+      ,[attribute15]
+      ,[attribute16]
+      ,[attribute17]
+      ,[attribute18]
+      ,[attribute19]
+      ,[attribute20]
+      ,[object_version_number]
+      ,[prior_employment_ssp_paid_to]
+      ,[prior_employment_ssp_weeks]
+      ,[pds_information_category]
+      ,[pds_information1]
+      ,[pds_information2]
+      ,[pds_information3]
+      ,[pds_information4]
+      ,[pds_information5]
+      ,[pds_information6]
+      ,[pds_information7]
+      ,[pds_information8]
+      ,[pds_information9]
+      ,[pds_information10]
+      ,[pds_information11]
+      ,[pds_information12]
+      ,[pds_information13]
+      ,[pds_information14]
+      ,[pds_information15]
+      ,[pds_information16]
+      ,[pds_information17]
+      ,[pds_information18]
+      ,[pds_information19]
+      ,[pds_information20]
+      ,[pds_information21]
+      ,[pds_information22]
+      ,[pds_information23]
+      ,[pds_information24]
+      ,[pds_information25]
+      ,[pds_information26]
+      ,[pds_information27]
+      ,[pds_information28]
+      ,[pds_information29]
+      ,[pds_information30]
+      ,[comments]
+      FOR XML RAW)) AS RowHash
+FROM [dbo].PER_PERIODS_OF_SERVICE_B0Landing l)src
+JOIN [dbo].PER_PERIODS_OF_SERVICE_B0Landing TARGET ON src.[period_of_service_id] = TARGET.[period_of_service_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.[PER_PERSON_ANALYSES_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_PERSON_ANALYSES_B0Landing] landing
+    WHERE base.person_analysis_id = landing.person_analysis_id
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+   SET base.[person_analysis_id]      = landing.person_analysis_id
+      , base.[business_group_id]	  =   landing.[business_group_id]		
+      , base.[analysis_criteria_id]	  =   landing.[analysis_criteria_id]	
+      , base.[person_id]			  =   landing.[person_id]				
+      , base.[date_from]			  =   landing.[date_from]				
+      , base.[date_to]				  =   landing.[date_to]				
+      , base.[id_flex_num]			  =   landing.[id_flex_num]			
+      , base.[request_id]			  =   landing.[request_id]				
+      , base.[program_application_id] =   landing.[program_application_id]	
+      , base.[program_id]			  =   landing.[program_id]				
+      , base.[program_update_date]	  =   landing.[program_update_date]	
+      , base.[attribute_category]	  =   landing.[attribute_category] 		
+      , base.[attribute1]			  =   landing.[attribute1]				
+      , base.[attribute2]			  =   landing.[attribute2]				
+      , base.[attribute3]			  =   landing.[attribute3]				
+      , base.[attribute4]			  =   landing.[attribute4]				
+      , base.[attribute5]			  =   landing.[attribute5]				
+      , base.[attribute6]			  =   landing.[attribute6]				
+      , base.[attribute7]			  =   landing.[attribute7]				
+      , base.[attribute8]			  =   landing.[attribute8]				
+      , base.[attribute9]			  =   landing.[attribute9]				
+      , base.[attribute10]			  =   landing.[attribute10]			
+      , base.[attribute11]			  =   landing.[attribute11]			
+      , base.[attribute12]			  =   landing.[attribute12]			
+      , base.[attribute13]			  =   landing.[attribute13]			
+      , base.[attribute14]			  =   landing.[attribute14]			
+      , base.[attribute15]			  =   landing.[attribute15]			
+      , base.[attribute16]			  =   landing.[attribute16]			
+      , base.[attribute17]			  =   landing.[attribute17]			
+      , base.[attribute18]			  =   landing.[attribute18]			
+      , base.[attribute19]			  =   landing.[attribute19]			
+      , base.[attribute20]			  =   landing.[attribute20]			
+      , base.[last_update_date]		  =   landing.[last_update_date]		
+      , base.[last_updated_by]		  =   landing.[last_updated_by]		
+      , base.[last_update_login]	  =   landing.[last_update_login]		
+      , base.[created_by]			  =   landing.[created_by]				
+      , base.[creation_date]		  =   landing.[creation_date]			
+      , base.[object_version_number]  =   landing.[object_version_number]	
+      , base.[party_id]				  =   landing.[party_id]				
+      , base.[comments]				  =   landing.[comments]				
+      , base.[datalakeinserttime]	  =   landing.[datalakeinserttime]		
+      , base.[RowHash]				  =   landing.[RowHash]				
+      , base.[BaseCreatedDate]		  =   GETDATE()			
+      , base.[BaseCreatedBy]		  =   suser_sname()	
+FROM [dbo].[PER_PERSON_ANALYSES_B0] base
+JOIN [HR_Landing].dbo.[PER_PERSON_ANALYSES_B0Landing] landing ON base.person_analysis_id = landing.person_analysis_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [person_analysis_id],
+HASHBYTES('MD5',
+(SELECT [person_analysis_id]
+      ,[business_group_id]
+      ,[analysis_criteria_id]
+      ,[person_id]
+      ,[date_from]
+      ,[date_to]
+      ,[id_flex_num]
+      ,[request_id]
+      ,[program_application_id]
+      ,[program_id]
+      ,[program_update_date]
+      ,[attribute_category]
+      ,[attribute1]
+      ,[attribute2]
+      ,[attribute3]
+      ,[attribute4]
+      ,[attribute5]
+      ,[attribute6]
+      ,[attribute7]
+      ,[attribute8]
+      ,[attribute9]
+      ,[attribute10]
+      ,[attribute11]
+      ,[attribute12]
+      ,[attribute13]
+      ,[attribute14]
+      ,[attribute15]
+      ,[attribute16]
+      ,[attribute17]
+      ,[attribute18]
+      ,[attribute19]
+      ,[attribute20]
+      ,[object_version_number]
+      ,[party_id]
+      ,[comments]
+  FOR XML RAW)) AS RowHash
+FROM [dbo].PER_PERSON_ANALYSES_B0Landing l)src
+JOIN [dbo].PER_PERSON_ANALYSES_B0Landing TARGET ON src.[person_analysis_id] = TARGET.[person_analysis_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.[PER_PERSON_TYPES_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_PERSON_TYPES_B0Landing] landing
+    WHERE base.person_type_id = landing.person_type_id
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+   SET base.[person_type_id] = landing.person_type_id
+      , base.[business_group_id] = landing.business_group_id
+      , base.[active_flag] = landing.active_flag
+      , base.[default_flag] = landing.default_flag
+      , base.[system_person_type] = landing.system_person_type
+      , base.[user_person_type] = landing.user_person_type
+      , base.[last_update_date] = landing.last_update_date
+      , base.[last_updated_by] = landing.last_updated_by
+      , base.[last_update_login] = landing.last_update_login
+      , base.[created_by] = landing.created_by
+      , base.[creation_date] = landing.creation_date
+      , base.[seeded_person_type_key] = landing.seeded_person_type_key
+      , base.[zd_edition_name] = landing.zd_edition_name
+      , base.[datalakeinserttime] = landing.datalakeinserttime
+      , base.[RowHash] = landing.RowHash
+      , base.[BaseCreatedDate] = GETDATE()
+      , base.[BaseCreatedBy] = suser_sname()
+FROM [dbo].[PER_PERSON_TYPES_B0] base
+JOIN [HR_Landing].dbo.[PER_PERSON_TYPES_B0Landing] landing ON base.person_type_id = landing.person_type_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [person_type_id],
+HASHBYTES('MD5',
+(SELECT [person_type_id]
+      ,[business_group_id]
+      ,[active_flag]
+      ,[default_flag]
+      ,[system_person_type]
+      ,[user_person_type]
+      ,[seeded_person_type_key]
+      ,[zd_edition_name]
+ FOR XML RAW)) AS RowHash
+FROM [dbo].PER_PERSON_TYPES_B0Landing l)src
+JOIN [dbo].PER_PERSON_TYPES_B0Landing TARGET ON src.[person_type_id] = TARGET.[person_type_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.[PER_PHONES_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_PHONES_B0Landing] landing
+    WHERE base.phone_id = landing.phone_id
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+   SET base.[phone_id] =			 landing.phone_id,
+      base.[date_from] =			 landing.date_from,
+      base.[date_to] =				 landing.date_to, 
+      base.[phone_type] =			 landing.phone_type, 
+      base.[phone_number] =			 landing.phone_number, 
+      base.[parent_id] =			 landing.parent_id, 
+      base.[parent_table] =			 landing.parent_table,
+      base.[attribute_category] =	 landing.attribute_category,
+      base.[attribute1] =			 landing.attribute1,
+      base.[attribute2] =			 landing.attribute2,
+      base.[attribute3] =			 landing.attribute3,
+      base.[attribute4] =			 landing.attribute4,
+      base.[attribute5] =			 landing.attribute5,
+      base.[attribute6] =			 landing.attribute6,
+      base.[attribute7] =			 landing.attribute7,
+      base.[attribute8] =			 landing.attribute8,
+      base.[attribute9] =			 landing.attribute9,
+      base.[attribute10] =			 landing.attribute10,
+      base.[attribute11] =			 landing.attribute11,
+      base.[attribute12] =			 landing.attribute12,
+      base.[attribute13] =			 landing.attribute13,
+      base.[attribute14] =			 landing.attribute14,
+      base.[attribute15] =			 landing.attribute15,
+      base.[attribute16] =			 landing.attribute16,
+      base.[attribute17] =			 landing.attribute17,
+      base.[attribute18] =			 landing.attribute18,
+      base.[attribute19] =			 landing.attribute19,
+      base.[attribute20] =			 landing.attribute20,
+      base.[attribute21] =			 landing.attribute21,
+      base.[attribute22] =			 landing.attribute22,
+      base.[attribute23] =			 landing.attribute23,
+      base.[attribute24] =			 landing.attribute24,
+      base.[attribute25] =			 landing.attribute25,
+      base.[attribute26] =			 landing.attribute26,
+      base.[attribute27] =			 landing.attribute27,
+      base.[attribute28] =			 landing.attribute28,
+      base.[attribute29] =			 landing.attribute29,
+      base.[attribute30] =			 landing.attribute30,
+      base.[created_by] =			 landing.created_by, 
+      base.[creation_date] =		 landing.creation_date,
+      base.[last_updated_by] =		 landing.last_updated_by,
+      base.[last_update_date] =		 landing.last_update_date,
+      base.[last_update_login] =	 landing.last_update_login,
+      base.[object_version_number] = landing.object_version_number,
+      base.[party_id] =				 landing.party_id, 
+      base.[validity] =				 landing.validity, 
+      base.[datalakeinserttime] =	 landing.datalakeinserttime,
+      base.[RowHash] =				 landing.RowHash,
+      base.[BaseCreatedDate] =		 GETDATE(),
+      base.[BaseCreatedBy] =		 suser_sname()
+FROM [HR_Base].dbo.[PER_PHONES_B0] base
+JOIN [HR_Landing].dbo.[PER_PHONES_B0Landing] landing ON base.phone_id = landing.phone_id
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [phone_id],
+HASHBYTES('MD5',
+(SELECT  [phone_id]
+		, [date_from]
+		, [date_to]
+		, [phone_type]
+		, [phone_number]
+		, [parent_id]
+		, [parent_table]
+		, [attribute_category]
+		, [attribute1]
+		, [attribute2]
+		, [attribute3]
+		, [attribute4]
+		, [attribute5]
+		, [attribute6]
+		, [attribute7]
+		, [attribute8]
+		, [attribute9]
+		, [attribute10]
+		, [attribute11]
+		, [attribute12]
+		, [attribute13]
+		, [attribute14]
+		, [attribute15]
+		, [attribute16]
+		, [attribute17]
+		, [attribute18]
+		, [attribute19]
+		, [attribute20]
+		, [attribute21]
+		, [attribute22]
+		, [attribute23]
+		, [attribute24]
+		, [attribute25]
+		, [attribute26]
+		, [attribute27]
+		, [attribute28]
+		, [attribute29]
+		, [attribute30]
+		, [object_version_number]
+		, [party_id]
+		, [validity] FOR XML RAW)) AS RowHash
+FROM [dbo].PER_PHONES_B0Landing l)src
+JOIN [dbo].PER_PHONES_B0Landing TARGET ON src.[phone_id] = TARGET.[phone_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.[PER_QUALIFICATIONS_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_QUALIFICATIONS_B0Landing] landing
+    WHERE base.[qualification_id] = landing.[qualification_id]
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+   SET base.[qualification_id]				= landing.qualification_id
+      ,base.[business_group_id]				= landing.business_group_id
+      ,base.[object_version_number]			= landing.object_version_number
+      ,base.[person_id]						= landing.person_id
+      ,base.[title]							= landing.title
+      ,base.[grade_attained]				= landing.grade_attained
+      ,base.[status]						= landing.status
+      ,base.[awarded_date]					= landing.awarded_date
+      ,base.[fee]							= landing.fee
+      ,base.[fee_currency]					= landing.fee_currency
+      ,base.[training_completed_amount]		= landing.training_completed_amount
+      ,base.[reimbursement_arrangements]	= landing.reimbursement_arrangements
+      ,base.[training_completed_units]		= landing.training_completed_units
+      ,base.[total_training_amount]			= landing.total_training_amount
+      ,base.[start_date]					= landing.start_date
+      ,base.[end_date]						= landing.end_date
+      ,base.[license_number]				= landing.license_number
+      ,base.[expiry_date]					= landing.expiry_date
+      ,base.[license_restrictions]			= landing.license_restrictions
+      ,base.[projected_completion_date]		= landing.projected_completion_date
+      ,base.[awarding_body]					= landing.awarding_body
+      ,base.[tuition_method]				= landing.tuition_method
+      ,base.[group_ranking]					= landing.group_ranking
+      ,base.[comments]						= landing.comments
+      ,base.[qualification_type_id]			= landing.qualification_type_id
+      ,base.[attendance_id]					= landing.attendance_id
+      ,base.[attribute_category]			= landing.attribute_category
+      ,base.[attribute1]					= landing.attribute1
+      ,base.[attribute2]					= landing.attribute2
+      ,base.[attribute3]					= landing.attribute3
+      ,base.[attribute4]					= landing.attribute4
+      ,base.[attribute5]					= landing.attribute5
+      ,base.[attribute6]					= landing.attribute6
+      ,base.[attribute7]					= landing.attribute7
+      ,base.[attribute8]					= landing.attribute8
+      ,base.[attribute9]					= landing.attribute9
+      ,base.[attribute10]					= landing.attribute10
+      ,base.[attribute11]					= landing.attribute11
+      ,base.[attribute12]					= landing.attribute12
+      ,base.[attribute13]					= landing.attribute13
+      ,base.[attribute14]					= landing.attribute14
+      ,base.[attribute15]					= landing.attribute15
+      ,base.[attribute16]					= landing.attribute16
+      ,base.[attribute17]					= landing.attribute17
+      ,base.[attribute18]					= landing.attribute18
+      ,base.[attribute19]					= landing.attribute19
+      ,base.[attribute20]					= landing.attribute20
+      ,base.[last_update_date]				= landing.last_update_date
+      ,base.[last_updated_by]				= landing.last_updated_by
+      ,base.[last_update_login]				= landing.last_update_login
+      ,base.[created_by]					= landing.created_by
+      ,base.[creation_date]					= landing.creation_date
+      ,base.[party_id]						= landing.party_id
+      ,base.[professional_body_name]		= landing.professional_body_name
+      ,base.[membership_number]				= landing.membership_number
+      ,base.[membership_category]			= landing.membership_category
+      ,base.[subscription_payment_method]	= landing.subscription_payment_method
+      ,base.[qua_information_category]		= landing.qua_information_category
+      ,base.[qua_information1]				= landing.qua_information1
+      ,base.[qua_information2]				= landing.qua_information2
+      ,base.[qua_information3]				= landing.qua_information3
+      ,base.[qua_information4]				= landing.qua_information4
+      ,base.[qua_information5]				= landing.qua_information5
+      ,base.[qua_information6]				= landing.qua_information6
+      ,base.[qua_information7]				= landing.qua_information7
+      ,base.[qua_information8]				= landing.qua_information8
+      ,base.[qua_information9]				= landing.qua_information9
+      ,base.[qua_information10]				= landing.qua_information10
+      ,base.[qua_information11]				= landing.qua_information11
+      ,base.[qua_information12]				= landing.qua_information12
+      ,base.[qua_information13]				= landing.qua_information13
+      ,base.[qua_information14]				= landing.qua_information14
+      ,base.[qua_information15]				= landing.qua_information15
+      ,base.[qua_information16]				= landing.qua_information16
+      ,base.[qua_information17]				= landing.qua_information17
+      ,base.[qua_information18]				= landing.qua_information18
+      ,base.[qua_information19]				= landing.qua_information19
+      ,base.[qua_information20]				= landing.qua_information20
+      ,base.[datalakeinserttime]			= landing.[datalakeinserttime]
+      ,base.[RowHash]						= landing.[RowHash]
+      ,base.[BaseCreatedDate]				= GETDATE()
+      ,base.[BaseCreatedBy]					= suser_sname()
+FROM [HR_Base].dbo.[PER_QUALIFICATIONS_B0] base
+JOIN [HR_Landing].dbo.[PER_QUALIFICATIONS_B0Landing] landing ON base.[qualification_id] = landing.[qualification_id]
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [qualification_id],
+HASHBYTES('MD5',
+(SELECT [qualification_id]
+      ,[business_group_id]
+      ,[object_version_number]
+      ,[person_id]
+      ,[title]
+      ,[grade_attained]
+      ,[status]
+      ,[awarded_date]
+      ,[fee]
+      ,[fee_currency]
+      ,[training_completed_amount]
+      ,[reimbursement_arrangements]
+      ,[training_completed_units]
+      ,[total_training_amount]
+      ,[start_date]
+      ,[end_date]
+      ,[license_number]
+      ,[expiry_date]
+      ,[license_restrictions]
+      ,[projected_completion_date]
+      ,[awarding_body]
+      ,[tuition_method]
+      ,[group_ranking]
+      ,[comments]
+      ,[qualification_type_id]
+      ,[attendance_id]
+      ,[attribute_category]
+      ,[attribute1]
+      ,[attribute2]
+      ,[attribute3]
+      ,[attribute4]
+      ,[attribute5]
+      ,[attribute6]
+      ,[attribute7]
+      ,[attribute8]
+      ,[attribute9]
+      ,[attribute10]
+      ,[attribute11]
+      ,[attribute12]
+      ,[attribute13]
+      ,[attribute14]
+      ,[attribute15]
+      ,[attribute16]
+      ,[attribute17]
+      ,[attribute18]
+      ,[attribute19]
+      ,[attribute20]
+      ,[last_update_date]
+      ,[last_updated_by]
+      ,[last_update_login]
+      ,[created_by]
+      ,[creation_date]
+      ,[party_id]
+      ,[professional_body_name]
+      ,[membership_number]
+      ,[membership_category]
+      ,[subscription_payment_method]
+      ,[qua_information_category]
+      ,[qua_information1]
+      ,[qua_information2]
+      ,[qua_information3]
+      ,[qua_information4]
+      ,[qua_information5]
+      ,[qua_information6]
+      ,[qua_information7]
+      ,[qua_information8]
+      ,[qua_information9]
+      ,[qua_information10]
+      ,[qua_information11]
+      ,[qua_information12]
+      ,[qua_information13]
+      ,[qua_information14]
+      ,[qua_information15]
+      ,[qua_information16]
+      ,[qua_information17]
+      ,[qua_information18]
+      ,[qua_information19]
+      ,[qua_information20] FOR XML RAW)) AS RowHash
+FROM [dbo].PER_QUALIFICATIONS_B0Landing l)src
+JOIN [dbo].PER_QUALIFICATIONS_B0Landing TARGET ON src.[qualification_id] = TARGET.[qualification_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"DELETE FROM base
+FROM dbo.[PER_QUALIFICATION_TYPES_B0] base
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [HR_Landing].dbo.[PER_QUALIFICATION_TYPES_B0Landing] landing
+    WHERE base.[qualification_type_id] = landing.[qualification_type_id]
+);
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE base
+   SET base.qualification_type_id = landing.qualification_type_id
+      ,base.name = landing.name
+      ,base.category = landing.category
+      ,base.rank = landing.rank
+      ,base.object_version_number = landing.object_version_number
+      ,base.attribute_category = landing.attribute_category
+      ,base.attribute1 = landing.attribute1
+      ,base.attribute2 = landing.attribute2
+      ,base.attribute3 = landing.attribute3
+      ,base.attribute4 = landing.attribute4
+      ,base.attribute5 = landing.attribute5
+      ,base.attribute6 = landing.attribute6
+      ,base.attribute7 = landing.attribute7
+      ,base.attribute8 = landing.attribute8
+      ,base.attribute9 = landing.attribute9
+      ,base.attribute10 = landing.attribute10
+      ,base.attribute11 = landing.attribute11
+      ,base.attribute12 = landing.attribute12
+      ,base.attribute13 = landing.attribute13
+      ,base.attribute14 = landing.attribute14
+      ,base.attribute15 = landing.attribute15
+      ,base.attribute16 = landing.attribute16
+      ,base.attribute17 = landing.attribute17
+      ,base.attribute18 = landing.attribute18
+      ,base.attribute19 = landing.attribute19
+      ,base.attribute20 = landing.attribute20
+      ,base.last_update_date = landing.last_update_date
+      ,base.last_updated_by = landing.last_updated_by
+      ,base.last_update_login = landing.last_update_login
+      ,base.created_by = landing.created_by
+      ,base.creation_date = landing.creation_date
+      ,base.information1 = landing.information1
+      ,base.information2 = landing.information2
+      ,base.information3 = landing.information3
+      ,base.information4 = landing.information4
+      ,base.information5 = landing.information5
+      ,base.information6 = landing.information6
+      ,base.information7 = landing.information7
+      ,base.information8 = landing.information8
+      ,base.information9 = landing.information9
+      ,base.information10 = landing.information10
+      ,base.information11 = landing.information11
+      ,base.information12 = landing.information12
+      ,base.information13 = landing.information13
+      ,base.information14 = landing.information14
+      ,base.information15 = landing.information15
+      ,base.information16 = landing.information16
+      ,base.information17 = landing.information17
+      ,base.information18 = landing.information18
+      ,base.information19 = landing.information19
+      ,base.information20 = landing.information20
+      ,base.information21 = landing.information21
+      ,base.information22 = landing.information22
+      ,base.information23 = landing.information23
+      ,base.information24 = landing.information24
+      ,base.information25 = landing.information25
+      ,base.information26 = landing.information26
+      ,base.information27 = landing.information27
+      ,base.information28 = landing.information28
+      ,base.information29 = landing.information29
+      ,base.information30 = landing.information30
+      ,base.information_category = landing.information_category
+      ,base.qual_framework_id = landing.qual_framework_id
+      ,base.qualification_type = landing.qualification_type
+      ,base.credit_type = landing.credit_type
+      ,base.credits = landing.credits
+      ,base.level_type = landing.level_type
+      ,base.level_number = landing.level_number
+      ,base.field = landing.field
+      ,base.sub_field = landing.sub_field
+      ,base.provider = landing.provider
+      ,base.qa_organization = landing.qa_organization
+      ,base.zd_edition_name = landing.zd_edition_name
+      ,base.[datalakeinserttime] = landing.[datalakeinserttime]
+      ,base.[RowHash] = landing.[RowHash]
+      ,base.[BaseCreatedDate]	= GETDATE()
+      ,base.[BaseCreatedBy] = suser_sname()
+FROM [HR_Base].dbo.[PER_QUALIFICATION_TYPES_B0] base
+JOIN [HR_Landing].dbo.[PER_QUALIFICATION_TYPES_B0Landing] landing ON base.[qualification_type_id] = landing.[qualification_type_id]
+WHERE base.RowHash != landing.RowHash;
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"UPDATE target
+SET target.RowHash = src.RowHash
+FROM 
+(SELECT [qualification_type_id],
+HASHBYTES('MD5',
+(SELECT [qualification_type_id]
+      ,[name]
+      ,[category]
+      ,[rank]
+      ,[object_version_number]
+      ,[attribute_category]
+      ,[attribute1]
+      ,[attribute2]
+      ,[attribute3]
+      ,[attribute4]
+      ,[attribute5]
+      ,[attribute6]
+      ,[attribute7]
+      ,[attribute8]
+      ,[attribute9]
+      ,[attribute10]
+      ,[attribute11]
+      ,[attribute12]
+      ,[attribute13]
+      ,[attribute14]
+      ,[attribute15]
+      ,[attribute16]
+      ,[attribute17]
+      ,[attribute18]
+      ,[attribute19]
+      ,[attribute20]
+      ,[information1]
+      ,[information2]
+      ,[information3]
+      ,[information4]
+      ,[information5]
+      ,[information6]
+      ,[information7]
+      ,[information8]
+      ,[information9]
+      ,[information10]
+      ,[information11]
+      ,[information12]
+      ,[information13]
+      ,[information14]
+      ,[information15]
+      ,[information16]
+      ,[information17]
+      ,[information18]
+      ,[information19]
+      ,[information20]
+      ,[information21]
+      ,[information22]
+      ,[information23]
+      ,[information24]
+      ,[information25]
+      ,[information26]
+      ,[information27]
+      ,[information28]
+      ,[information29]
+      ,[information30]
+      ,[information_category]
+      ,[qual_framework_id]
+      ,[qualification_type]
+      ,[credit_type]
+      ,[credits]
+      ,[level_type]
+      ,[level_number]
+      ,[field]
+      ,[sub_field]
+      ,[provider]
+      ,[qa_organization]
+      ,[zd_edition_name]
+      FOR XML RAW)) AS RowHash
+FROM [dbo].PER_QUALIFICATION_TYPES_B0Landing l)src
+JOIN [dbo].PER_QUALIFICATION_TYPES_B0Landing TARGET ON src.[qualification_type_id] = TARGET.[qualification_type_id]
+
+SELECT @@ROWCOUNT AS UpdateCount;"
+"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+	BEGIN
+		INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
+	END
+
+DECLARE @LastProcessedDate DATETIME = (SELECT LastProcessedDate FROM dbo.ETLBatchControl WHERE TableName = ?);
+DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.PositionBN);
+
+IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
+SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
+
+SELECT @LastProcessedDate AS LastProcessedDate;
+
+"
+"UPDATE pbn 
+SET pbn.Deleted = 'Y',
+pbn.BaseModifiedDate = GETDATE(),
+pbn.UpdateAuditID = ?
+FROM dbo.PositionBN pbn
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM dbo.vPositionBN vpbn
+    WHERE pbn.PositionID = vpbn.PositionID
+AND pbn.EffectiveStartDate = vpbn.EffectiveStartDate 
+
+)
+AND pbn.Deleted IS NULL;
+
+SELECT @@ROWCOUNT AS DeleteCount ;"
+"UPDATE dbo.PositionBN 
+SET RowStatus = 'H'
+, BaseModifiedDate = GETDATE()
+, UpdateAuditID = ?
+WHERE
+	CAST(BaseEndDate AS DATE)< CAST(GETDATE() AS DATE) 
+	AND RowStatus <> 'H'
+
+SELECT @@ROWCOUNT + ? AS UpdateCount;"
+"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+ BEGIN
+  INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
+ END
+
+DECLARE @LastProcessedDate DATETIME = (SELECT LastProcessedDate FROM dbo.ETLBatchControl WHERE TableName = ?);
+DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.AccreditationBN);
+
+IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
+SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
+
+SELECT @LastProcessedDate AS LastProcessedDate;"
+"DECLARE @InsertAuditID bigint = ?
+
+;WITH PerPeriodOfService AS
+(
+	SELECT
+		Pps.PerPeriodsID AS period_of_service_id
+	FROM
+		dbo.PerPeriodsB10 AS Pps WITH (NOLOCK)
+		LEFT JOIN
+		dbo.FND_LOOKUP_VALUES_B0 AS Lkp WITH (NOLOCK)
+			ON Pps.LeavingReason = Lkp.lookup_code
+	WHERE
+		Pps.PersonID IS NOT NULL
+		AND Pps.ActualTerminationDate IS NOT NULL
+)
+UPDATE Trmn SET
+	Trmn.Deleted = 'Y',
+	Trmn.BaseModifiedDate = GETDATE(),
+	Trmn.UpdateAuditID = @InsertAuditID
+FROM
+	dbo.TerminationBN AS Trmn
+	WHERE NOT EXISTS
+	(
+		SELECT 1
+		FROM dbo.PerPeriodsB10 AS pps WITH (NOLOCK)
+		WHERE pps.PerPeriodsID = Trmn.PeriodofServiceID
+	)
+	AND Trmn.Deleted IS NULL;
+
+SELECT @@RowCount AS DeleteCount;"
+"DECLARE @InsertAuditID bigint = ?
+DECLARE @LastProcessedDate datetime = ?
+
+;WITH B0Query AS
+(
+	SELECT
+		Pps.PerPeriodsID AS period_of_service_id,
+		CASE
+			WHEN Lkp.meaning IS NULL THEN 'Unknown (' + ISNULL(Pps.LeavingReason, 'N/A') + ')'
+			ELSE Lkp.meaning
+		END AS [Termination Reason],
+		CASE
+			WHEN Lkp.attribute2 IS NULL THEN 'Unknown (' + ISNULL(Pps.LeavingReason, 'N/A') + ')'
+			ELSE Lkp.attribute2
+		END AS [Termination Type],
+		CASE
+			WHEN Pps.EligibleForRehireInd IS NULL THEN 'Unknown'
+			ELSE Pps.EligibleForRehireInd
+		END AS [Eligible FOR Rehire Indicator],
+		CASE
+			WHEN Pps.TwoWeekNoticeInd = 'Y' THEN 'Yes'
+			WHEN Pps.TwoWeekNoticeInd = 'N' THEN 'No'
+			WHEN Pps.TwoWeekNoticeInd IS NULL THEN 'Unknown'
+			ELSE Pps.TwoWeekNoticeInd
+		END AS [Two Week Notice Indicator],
+		CASE
+			WHEN Pps.RegrettableTerminationInd = 'Y' THEN 'Yes'
+			WHEN Pps.RegrettableTerminationInd = 'N' THEN 'No'
+			WHEN Pps.RegrettableTerminationInd IS NULL THEN 'Unknown'
+			ELSE Pps.RegrettableTerminationInd
+		END AS [Regrettable Termination Indicator],
+		CASE
+			WHEN Pps.TerminationComments IS NULL THEN 'N/A'
+			ELSE Pps.TerminationComments
+		END AS [Termination Comments],
+		Pps.NotifiedTerminationDate AS [Termination Notified Date],
+		Pps.LastWorkedDate AS [Last Worked Date]
+	FROM
+		dbo.PerPeriodsB10 AS Pps WITH (NOLOCK)
+		LEFT JOIN
+		dbo.FND_LOOKUP_VALUES_B0 AS Lkp WITH (NOLOCK)
+			ON Pps.LeavingReason = Lkp.lookup_code AND
+			Lkp.lookup_type = 'LEAV_REAS' AND
+			Lkp.deleted = 'N' AND
+			Lkp.view_application_id = 3
+	WHERE
+		--(Lkp.BaseCreatedDate > @LastProcessedDate OR Pps.BaseCreatedDate > @LastProcessedDate)
+		(Lkp.BaseCreatedDate > @LastProcessedDate OR Pps.BaseModifiedDate > @LastProcessedDate)
+		AND Pps.ActualTerminationDate IS NOT NULL
+),
+RowHashtoB0 AS
+(
+	SELECT
+		A.period_of_service_id,
+		A.[Termination Reason],
+		A.[Termination Type],
+		A.[Eligible FOR Rehire Indicator],
+		A.[Two Week Notice Indicator],
+		A.[Regrettable Termination Indicator],
+		A.[Termination Comments],
+		A.[Termination Notified Date],
+		A.[Last Worked Date],
+		CAST(HASHBYTES('MD5',
+			(SELECT
+				A.period_of_service_id,
+				A.[Termination Reason],
+				A.[Termination Type],
+				A.[Eligible FOR Rehire Indicator],
+				A.[Two Week Notice Indicator],
+				A.[Regrettable Termination Indicator],
+				A.[Termination Comments],
+				A.[Termination Notified Date],
+				A.[Last Worked Date] FOR XML RAW)) AS BINARY(16)
+			) AS RowHash
+			--GETDATE() AS BaseCreatedDate,
+			--GETDATE() AS BaseModifiedDate
+	FROM
+		B0Query AS A 
+),
+TerminationBNUpdate AS
+(
+	SELECT
+		*
+	FROM
+		RowHashtoB0 AS B0
+	WHERE
+		EXISTS 
+		(
+			SELECT 1 
+			FROM dbo.TerminationBN WITH (NOLOCK)
+			WHERE
+				PeriodofServiceID = B0.period_of_service_id
+				AND RowHash <> B0.RowHash
+		)
+)
+UPDATE BN SET
+	[TerminationReason]				= Upd.[Termination Reason],
+	[TerminationType]				= Upd.[Termination Type],
+	[EligibleforRehireIndicator]			= Upd.[Eligible FOR Rehire Indicator],
+	[TwoWeekNoticeIndicator]			= Upd.[Two Week Notice Indicator],           
+	[RegrettableTerminationIndicator]		= Upd.[Regrettable Termination Indicator],
+	[TerminationComments]			= Upd.[Termination Comments],
+	[TerminationNotifiedDate]			= Upd.[Termination Notified Date],
+	[LastWorkedDate]				= Upd.[Last Worked Date],       
+	[BaseModifiedDate]				= GETDATE(),
+	[UpdateAuditID]				= @InsertAuditID,
+	[RowHash]				= upd.RowHash
+FROM
+	dbo.TerminationBN AS BN 
+	INNER JOIN
+	TerminationBNUpdate AS Upd
+		ON BN.PeriodofServiceID = Upd.period_of_service_id
+	
+SELECT @@ROWCOUNT AS UpdateCount"
+"DELETE   f 
+FROM FactWeeklyMeasure f
+WHERE FiscalWeekKey = ? AND SourceSystem = ?
+
+SELECT @@ROWCOUNT AS Deleted"
+"SELECT DISTINCT DateKey AS DateKey
+FROM  dbo.DimDate(NOLOCK)
+WHERE FullDate = ?;
+"
+" SELECT COALESCE(MIN(FiscalWeekEndDate),'9999-12-31') FROM dbo.BaseWeeklyMeasure(NOLOCK) WHERE BaseCreatedDate > ? AND SourceSystem = ?"
+"SELECT FiscalWeekEndDate AS FiscalWeekEndDateRange 
+FROM DimDate(NOLOCK)
+WHERE FiscalWeekEndDate >= ?
+AND FiscalWeekStartDate < ?
+GROUP BY FiscalWeekEndDate
+ORDER BY FiscalWeekEndDate"
+"IF EXISTS
+(SELECT 1
+FROM ETLBatchControl(NOLOCK)
+WHERE EventName = ?)
+
+BEGIN
+ (SELECT COALESCE(LastProcessedDate,'19000101') AS  LastProcessedDate 
+ FROM ETLBatchControl(NOLOCK)
+ WHERE EventName = ?)
+
+END
+
+ELSE 
+
+BEGIN
+ INSERT INTO ETLBatchControl(EventName, LastProcessedDate, Status) VALUES
+  (?, NULL, NULL);
+
+SELECT '1900-01-01' AS  LastProcessedDate;
+END"
+"UPDATE ETLBatchControl
 SET LastProcessedDate = ?,
 Status = 'Success'
-WHERE EventName = 'GLPlanAllocation_LaborHours'"
-"SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactLaborHour(NOLOCK) AS f
-      JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [f].[EDWCreatedDate] > ?
-   GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-UNION
-SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactLaborHour(NOLOCK) AS f
-         JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [d].[FiscalWeekNumber] > ?
-      GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-   ORDER BY DataScenarioFiscalWeekNumber"
-"SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactLaborSalary(NOLOCK) AS f
-      JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [f].[EDWCreatedDate] > ?
-   GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-UNION
-SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactLaborSalary(NOLOCK) AS f
-         JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [d].[FiscalWeekNumber] > ?
-      GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-   ORDER BY DataScenarioFiscalWeekNumber"
-"SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactLeadEvent(NOLOCK) AS f
-      JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [f].[EDWCreatedDate] > ?
-   GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-UNION
-SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactLeadEvent(NOLOCK) AS f
-         JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [d].[FiscalWeekNumber] > ?
-      GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-   ORDER BY DataScenarioFiscalWeekNumber"
-"SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactLeadEvent (NOLOCK) AS f
-      JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [f].[EDWCreatedDate] > ?
-   GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-UNION
-SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactLeadEvent (NOLOCK) AS f
-         JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [d].[FiscalWeekNumber] > ?
-      GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-   ORDER BY DataScenarioFiscalWeekNumber"
-"SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactLifeCycleStatusSnapshot(NOLOCK) AS f
-      JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [f].[EDWCreatedDate] > ?
-   GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-UNION
-SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactLifeCycleStatusSnapshot(NOLOCK) AS f
-         JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [d].[FiscalWeekNumber] > ?
-      GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-   ORDER BY DataScenarioFiscalWeekNumber"
-"SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactNetRevenue(NOLOCK) AS f
-      JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [f].[EDWCreatedDate] > ?
-   GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-UNION
-SELECT d.[FiscalWeekNumber] AS DataScenarioFiscalWeekNumber
-     , d.[FiscalWeekEndDate] AS DataScenarioFiscalWeekEndDate
-     , ISNULL(d_nyr.[FiscalWeekNumber], d.[FiscalWeekNumber] + 100) AS LYFiscalWeekNumber
-     , ISNULL(d_nyr.[FiscalWeekEndDate], DATEADD(week, DATEDIFF(week, d.FiscalWeekEndDate, d.FiscalYearEndDate) + d.FiscalWeekOfYearNumber, d.[FiscalWeekEndDate])) AS LYFiscalWeekEndDate
-   FROM FactNetRevenue(NOLOCK) AS f
-         JOIN DimDate(NOLOCK) AS d
-        ON f.DateKey = d.DateKey
-      LEFT JOIN DimDate(NOLOCK) AS d_nyr 
-        ON d.FiscalWeekOfYearNumber = d_nyr.FiscalWeekOfYearNumber
-           AND d.FiscalYearNumber = d_nyr.FiscalYearNumber - 1
-           AND d_nyr.FullDate = d_nyr.FiscalWeekEndDate
-   WHERE [d].[FiscalWeekNumber] > ?
-      GROUP BY d.[FiscalWeekNumber]
-     , d.[FiscalWeekEndDate]
-  , d.[FiscalYearEndDate]
-  , d.[FiscalWeekOfYearNumber]
-     , d_nyr.[FiscalWeekNumber]
-     , d_nyr.[FiscalWeekEndDate]
-   ORDER BY DataScenarioFiscalWeekNumber"
-EXEC dbo.spCSS_StagingToEDW_DimARAgencyType
-EXEC dbo.spCSS_StagingTransform_DimDiscountType;
-EXEC dbo.spCSS_StagingToEDW_DimFeeType;
-"Execute spBeginAuditLog ? OUTPUT, ?,?;"
-"Execute spEndAuditLog ?,?,?,?,?;"
-"SELECT COUNT(*) AS vInsertCount
-FROM dbo.DimSponsor
-WHERE ETLJobID = ?"
-"SELECT COUNT(*) AS vInsertCount
-FROM dbo.DimStudent 
-WHERE ETLJobID = ?"
-SELECT COUNT(1) AS IC FROM  [dbo].[DimTuitionAssistanceProvider] WHERE SourceSystem ='CSS'
-EXEC DBO.spCSS_StagingToEDW_DimPaymentType;
-EXEC dbo.spCSS_StagingTransform_DimProgram;
-EXEC dbo.spCSS_StagingToEDW_DimSession
-Execute [dbo].[spCSS_StagingToEDW_DimSponsor]
-EXEC dbo.spCSS_StagingToEDW_DimStudent
-EXEC dbo.spCSS_StagingToEDW_DimTier
-EXEC dbo.spCSS_StagingToEDW_DimTransactionCode;
-EXEC dbo.spCSS_StagingToEDW_DimTuitionAssistanceProvider;
-Exec [dbo].[spCSS_BatchLoad_StagingToEDW_FactFTESnapshot]
-EXEC spCSS_BatchLoad_StagingToEDW_FactLaborHourTarget
-EXEC spCSS_BatchLoad_StagingToEDW_FactLifeCycleStatusSnapshot
-EXEC spCSS_BatchLoad_StagingToEDW_FactNetRevenue
-Execute [dbo].[spGL_StagingToEDW_BridgeCompanyRollup]
-Execute [dbo].[spHR_StagingToEDW_BridgeSecurityPersonHRISGroup]
-Execute [dbo].[spHR_StagingToEDW_BridgeSecurityPersonOrg]
-"DELETE FROM CompNonCompStatus
+WHERE EventName = ?"
+"SELECT SUM(SourceCount) AS TotalSourceCount, SUM(InsertCount) AS TotalInsertCount, SUM(UpdateCount) AS TotalUpdateCount, SUM(DeleteCount) AS TotalDeleteCount
+FROM AuditLog(NOLOCK)
+WHERE ExecutionID = ?"
+"SELECT DISTINCT (CASE
+           WHEN FiscalWeekOfPeriodNumber = 1
+           THEN 1
+           ELSE 0
+       END) AS IsFirstWeekOfPeriod
+FROM  dbo.DimDate(NOLOCK)
+WHERE FiscalWeekEndDate = ?;"
+"SELECT DISTINCT  (CASE
+           WHEN FiscalWeekOfQuarterNumber = 1
+           THEN 1
+           ELSE 0
+       END) AS IsFirstWeekOfQuarter
+FROM  dbo.DimDate(NOLOCK)
+WHERE FiscalWeekEndDate = ?;"
+"SELECT DISTINCT (CASE
+           WHEN FiscalWeekOfYearNumber = 1
+           THEN 1
+           ELSE 0
+       END) AS IsFirstWeekOfYear
+FROM  dbo.DimDate(NOLOCK)
+WHERE FiscalWeekEndDate = ?;"
+truncate table [dbo].[CalculatedLanding]
+exec [dbo].[spFactWeeklyMeasureLoad_Calculated] ?
+"SELECT FiscalWeekEndDate AS FiscalWeekEndDateRange 
+FROM DimDate(NOLOCK)
 WHERE FiscalWeekEndDate >= ?
+GROUP BY FiscalWeekEndDate
+ORDER BY FiscalWeekEndDate"
+"DELETE   f 
+FROM FactWeeklyMeasure f
+WHERE FiscalWeekKey = ? AND SourceSystem = ?
 
-Select @@Rowcount as DeleteCount"
-"Execute spEndAuditLog ?,0,?,?,?;"
-"IF ? ='01/01/1900'  
-SELECT MIN(d.FiscalWeekEndDate) AS FiscalWeekEndDate
-FROM DimDate d
-WHERE ( d.FullDate >= DATEADD( dd, -180, CAST( GETDATE() AS DATE ) ) ) AND ( d.FullDate <= GETDATE() )
-ELSE
-SELECT MIN(d.FiscalWeekEndDate) AS FiscalWeekEndDate
-FROM DimDate d
-WHERE ( d.FullDate >= DATEADD(dd, -180, CAST( ? AS DATE) ) ) AND ( d.FullDate <= GETDATE() )"
-EXEC dbo.spGL_StagingToEDW_DimAccountSubAccount
-EXEC dbo.spCMS_StagingToEDW_DimAdjustmentReason
-EXEC dbo.spCMS_StagingToEDW_DimARAgencyType
-EXEC dbo.spHR_StagingToEDW_DimAssessmentType
-EXEC dbo.spHR_StagingToEDW_DimAssignmentType
-EXEC dbo.spCMS_StagingToEDW_DimClassroom
-EXEC dbo.spCSS_StagingToEDW_DimClassroom
-EXEC spGL_StagingToEDW_DimCompany
-Execute [dbo].[spGL_StagingToEDW_DimCompanyRollup]
-EXEC [dbo].[spHR_StagingToEDW_DimComplianceItem]
-EXEC dbo.spHR_StagingToEDW_DimComplianceRating
-EXEC dbo.spGL_StagingToEDW_DimCostCenter
-EXEC dbo.spGL_StagingToEDW_DimCostCenterType
-EXEC dbo.spCMS_StagingToEDW_DimCreditMemoType
+SELECT @@ROWCOUNT AS Deleted  "
+TRUNCATE TABLE BaseDailyMeasureFTELanding;
+"DECLARE @Date TABLE
+(
+    FullDate DATETIME NULL
+);
+DECLARE @InsertQuery NVARCHAR(MAX);
+
+INSERT INTO @Date
+(
+    FullDate
+)
+
+SELECT DISTINCT
+       b.FullDate
+FROM dbo.BaseDailyMeasureFTE (NOLOCK) AS b
+WHERE   FiscalWeekEndDate = ?
+  UNION 
+SELECT b.FullDate
+FROM dbo.BaseDailyMeasureFTE (NOLOCK) AS b
+WHERE b.FullDate > ?
+ AND FiscalWeekEndDate = ? 
+
+ SET @InsertQuery = N'SELECT BaseDailyMeasureFTEID, FullDate, FiscalWeekEndDate, StudentID, SponsorID, PartnerID, TuitionAssistanceProviderID, CostCenterNumber, AccountSubaccountID
+, TierID, ProgramID, SessionID, ScheduleWeekName, LifecycleStatusName, MeasureName
+, DataScenarioName, Value1, SourceSystem, COALESCE(CSSCenterNumber, -2) CSSCenterNumber, COALESCE(CSSFamilyNumber, -2)CSSFamilyNumber
+, COALESCE(CSSStudentNumber, -2)CSSStudentNumber, COALESCE(CSSTierNumber, -1)CSSTierNumber, CSSProgramName
+, CSSSessionName, BaseCreatedDate
+FROM dbo.BaseDailyMeasureFTE' +   N' WHERE FullDate IN ( '
+ + STUFF( (SELECT ',' + '''' + CONVERT(VARCHAR,Fulldate,23) +''''
+ FROM @Date FOR XML PATH ('')),1,1,'') + N' )'
+
+SELECT @InsertQuery"
+User::vDeleteStatement
+"DECLARE @Date TABLE
+(
+    DateKey VARCHAR(15) NULL
+);
+DECLARE @DatestoDelete VARCHAR(MAX);
+
+INSERT INTO @Date
+(
+    DateKey
+)
+
+
+SELECT DISTINCT
+       REPLACE(b.FullDate, '-', '') AS DateKey
+FROM dbo.BaseDailyMeasureFTE (NOLOCK) AS b
+WHERE   FiscalWeekEndDate = ?
+  UNION 
+SELECT REPLACE(b.FullDate, '-', '') AS DateKey
+FROM dbo.BaseDailyMeasureFTE (NOLOCK) AS b
+WHERE b.FullDate > ?
+ AND FiscalWeekEndDate = ? 
+ORDER BY Datekey
+
+
+ SET @DatestoDelete = 'DELETE FROM dbo.FactFTE WHERE DateKey IN ('
+-- SELECT @DatestoDelete
++ STUFF( (SELECT ',' + DateKey
+FROM @Date FOR XML PATH ('')),1,1,'') + ' );'  + ' SELECT @@ROWCOUNT AS DeleteCount '
+SELECT CAST(@DatestoDelete  AS VARCHAR(MAX)) "
+"SELECT DISTINCT FiscalWeekEndDate
+FROM dbo.BaseDailyMeasureFTE (NOLOCK) AS b
+WHERE BaseCreatedDate > ? AND b.FiscalWeekEndDate >='01-08-2011'
+UNION
+SELECT DISTINCT FiscalWeekEndDate
+FROM dbo.BaseDailyMeasureFTE (NOLOCK) AS b
+WHERE b.FullDate > ? AND BaseCreatedDate > ?  AND b.FiscalWeekEndDate >='01-08-2011'
+ORDER BY  FiscalWeekEndDate"
+" DECLARE @LastProcessFiscalWeekEndDate datetime, @LastProcessDate datetime, @LastsuccessfulDate DateTime;
+WITH LatestJobAuditByTaskName AS (
+   SELECT TaskName, MAX(AuditId) AS LatestJobAudit
+      FROM dbo.AuditLog (NOLOCK)
+      WHERE (StatusCode = 1) AND (TaskName = ?)
+      GROUP BY TaskName)
+SELECT @LastProcessFiscalWeekEndDate = ja.BatchSplitByValue, @LastProcessDate = ja.StartTime
+   FROM dbo.AuditLog (NOLOCK) AS ja 
+      INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId;
+
+WITH LatestJobAuditBySuccessfulRun AS (
+   SELECT TaskName, MAX(AuditId) AS LatestJobAudit
+      FROM dbo.AuditLog (NOLOCK)
+      WHERE (StatusCode = 1) AND (TaskName = ?)
+      GROUP BY TaskName)
+SELECT @LastsuccessfulDate = ja.StartTime
+   FROM dbo.AuditLog (NOLOCK) AS ja 
+      INNER JOIN LatestJobAuditBySuccessfulRun AS lja ON lja.LatestJobAudit = ja.AuditId;
+
+
+SELECT ISNULL(@LastProcessFiscalWeekEndDate, '2011-01-08') AS LastProcessFiscalWeekEndDate, ISNULL(@LastProcessDate, '01-08-2011') AS LastProcessDate, ISNULL(@LastsuccessfulDate, '01-08-2011') AS LastsuccessfulDate;"
+TRUNCATE TABLE BaseDailyMeasureNetRevenueLanding;
+"DECLARE @Date TABLE
+(
+    FullDate DATETIME NULL
+);
+DECLARE @InsertQuery NVARCHAR(MAX);
+
+INSERT INTO @Date
+(
+    FullDate
+)
+
+SELECT DISTINCT
+       b.FullDate
+FROM dbo.BaseDailyMeasureNetRevenue (NOLOCK) AS b
+WHERE BaseCreatedDate > ?
+      AND FiscalWeekEndDate = ?
+  UNION 
+SELECT b.FullDate
+FROM dbo.BaseDailyMeasureNetRevenue (NOLOCK) AS b
+WHERE b.FullDate > ?
+ AND FiscalWeekEndDate = ? 
+
+ SET @InsertQuery = N'SELECT BaseDailyMeasureNetRevID, FullDate, FiscalWeekEndDate, StudentID, SponsorID, PartnerID, TuitionAssistanceProviderID, CostCenterNumber, AccountSubaccountID
+, TierID, ProgramID, SessionID, ScheduleWeekName, LifecycleStatusName, TransactionNumber, MeasureName
+, DataScenarioName, Value1, SourceSystem, COALESCE(CSSCenterNumber, -2) CSSCenterNumber, COALESCE(CSSFamilyNumber, -2)CSSFamilyNumber
+, COALESCE(CSSStudentNumber, -2)CSSStudentNumber, COALESCE(CSSCustomerCode, ''-2'')CSSCustomerCode, COALESCE(CSSTierNumber, -1)CSSTierNumber, CSSProgramName
+, CSSSessionName, BaseCreatedDate
+FROM dbo.BaseDailyMeasureNetRevenue' +   N' WHERE FullDate IN ( '
+ + STUFF( (SELECT ',' + '''' + CONVERT(VARCHAR,Fulldate,23) +''''
+ FROM @Date FOR XML PATH ('')),1,1,'') + N' )'
+
+SELECT @InsertQuery"
+"DECLARE @Date TABLE
+(
+    DateKey VARCHAR(15) NULL
+);
+DECLARE @DatestoDelete VARCHAR(MAX);
+
+INSERT INTO @Date
+(
+    DateKey
+)
+
+
+SELECT DISTINCT
+       REPLACE(b.FullDate, '-', '') AS DateKey
+FROM dbo.BaseDailyMeasureNetRevenue (NOLOCK) AS b
+WHERE BaseCreatedDate > ?
+      AND FiscalWeekEndDate = ?
+  UNION 
+SELECT REPLACE(b.FullDate, '-', '') AS DateKey
+FROM dbo.BaseDailyMeasureNetRevenue (NOLOCK) AS b
+WHERE b.FullDate > ?
+ AND FiscalWeekEndDate = ? 
+ORDER BY Datekey
+
+
+ SET @DatestoDelete = 'DELETE FROM dbo.FactNetRevenue WHERE DateKey IN ('
+-- SELECT @DatestoDelete
++ STUFF( (SELECT ',' + DateKey
+FROM @Date FOR XML PATH ('')),1,1,'') + ' );'  + ' SELECT @@ROWCOUNT AS DeleteCount '
+SELECT CAST(@DatestoDelete  AS VARCHAR(MAX)) "
+"SELECT DISTINCT FiscalWeekEndDate
+FROM dbo.BaseDailyMeasureNetRevenue (NOLOCK) AS b
+WHERE BaseCreatedDate > ?  AND b.FiscalWeekEndDate>='01-08-2011'
+UNION
+SELECT DISTINCT FiscalWeekEndDate
+FROM dbo.BaseDailyMeasureNetRevenue (NOLOCK) AS b
+WHERE b.FullDate > ? AND BaseCreatedDate > ?  AND b.FiscalWeekEndDate>='01-08-2011'
+ORDER BY  FiscalWeekEndDate"
+" DECLARE @LastProcessFiscalWeekEndDate datetime, @LastProcessDate datetime, @LastsuccessfulDate DateTime;
+WITH LatestJobAuditByTaskName AS (
+   SELECT TaskName, MAX(AuditId) AS LatestJobAudit
+      FROM dbo.AuditLog (NOLOCK)
+      WHERE (StatusCode = 1) AND (TaskName = ?)
+      GROUP BY TaskName)
+SELECT @LastProcessFiscalWeekEndDate = ja.BatchSplitByValue, @LastProcessDate = ja.StartTime
+   FROM dbo.AuditLog (NOLOCK) AS ja 
+      INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId;
+WITH LatestJobAuditBySuccessfulRun AS (
+   SELECT TaskName, MAX(AuditId) AS LatestJobAudit
+      FROM dbo.AuditLog (NOLOCK)
+      WHERE (StatusCode = 1) AND (TaskName = ?)
+      GROUP BY TaskName)
+SELECT @LastsuccessfulDate = ja.StartTime
+   FROM dbo.AuditLog (NOLOCK) AS ja 
+      INNER JOIN LatestJobAuditBySuccessfulRun AS lja ON lja.LatestJobAudit = ja.AuditId;
+SELECT ISNULL(@LastProcessFiscalWeekEndDate, '2011-01-08') AS LastProcessFiscalWeekEndDate, ISNULL(@LastProcessDate, '01-08-2011') AS LastProcessDate, ISNULL(@LastsuccessfulDate, '01-08-2011') AS LastsuccessfulDate;
+"
+"Execute spBeginAuditLog ? OUTPUT, ?;"
+"Execute spEndAuditLog ?,?,?,?,?;"
 " SELECT COUNT(1) AS DeleteCount 
 From dbo.DimDataScenario"
 "WITH DataScenario
@@ -6718,9 +10259,7 @@ INSERT INTO [dbo].[DimDataScenario]
              '12/31/9999 23:59:59.999',
              ?;
 SET IDENTITY_INSERT dbo.DimDataScenario OFF;"
-"Execute spBeginAuditLog ? OUTPUT, ?;"
  TRUNCATE TABLE dbo.DimDataScenario
-EXEC dbo.spGL_StagingToEDW_DimDate
 " 
 
 DELETE FROM [dbo].[DimDate]
@@ -6867,6 +10406,243 @@ DELETE FROM [dbo].[DimDate]
 					 'Active', ---RowStatus;
                            ? --ETLJobID
            "
+SELECT COUNT(1) AS vInsertCount FROM DimMeasureLanding(NOLOCK)
+Truncate table DimMeasureLanding
+"DECLARE @DelCount INT, @InsCount INT, @AudID INT
+
+SET @AudID = ?
+SET @DelCount = (SELECT COUNT(1) FROM dbo.DimTimeCalculation)
+
+TRUNCATE TABLE dbo.DimTimeCalculation
+
+SET IDENTITY_INSERT dbo.DimTimeCalculation ON;
+
+
+;WITH DimTimeCalc
+AS (
+	    SELECT -2 AS TCKey,	'Not Applicable Time Calculation' AS CalcName
+		UNION ALL
+		SELECT -1 AS TCKey,	'Unknown Time Calculation' AS CalcName
+		UNION ALL
+		SELECT 1 AS TCKey, 'Selection' AS CalcName
+		UNION ALL
+		SELECT 2 AS TCKey, 'PTD' AS CalcName
+		UNION ALL
+		SELECT 3 AS TCKey, 'QTD' AS CalcName
+		UNION ALL
+		SELECT 5 AS TCKey, 'YTD' AS CalcName
+)
+--SELECT * FROM DimTimeCalc+
+
+INSERT INTO [dbo].[DimTimeCalculation]
+(	  [TimeCalculationKey]
+	 ,[TimeCalculationName]
+     ,[EDWEffectiveFrom]
+     ,[EDWEffectiveTo]
+     ,[EDWRowStatus]
+     ,[ETLJobID]			)
+SELECT TCKey AS TimeCalculationKey,
+       CalcName AS TimeCalculationName,
+       CAST('1900-01-01 00:00:00.000' AS DATE) AS EffectiveFrom,
+	   CAST('9999-12-31 23:59:59.999' AS DATE) AS EffectiveTo,
+	   'A' AS RowStatus,
+       @AudID As ETLJobID
+FROM DimTimeCalc
+ORDER BY TCKey;
+
+
+--Get Insert Count
+SET @InsCount = (SELECT COUNT(1) FROM dbo.DimTimeCalculation)
+
+
+SET IDENTITY_INSERT dbo.DimTimeCalculation OFF;
+
+SELECT @InsCount AS InsCount, @DelCount AS DelCount;"
+Select 'Complete'
+"SELECT CAST(CAST(DATEADD(SECOND, ?, 0) AS TIME) as varchar(8))"
+"SELECT DISTINCT DateKey AS DateKey, FiscalWeekOfPeriodNumber,
+FiscalWeekOfQuarterNumber,
+FiscalWeekOfYearNumber
+FROM  dbo.DimDate(NOLOCK)
+WHERE FullDate = ?;
+"
+truncate table [dbo].[FTESnapshotLanding]
+exec [dbo].[spFactWeeklyMeasureLoad_FTESnapshot] ?
+truncate table [dbo].[GLBalancePlanAllocation_NetRevenueLanding]
+exec [dbo].[spFactWeeklyMeasureLoad_GLBalancePlanAllocation_NetRevenue] ?
+truncate table  [dbo].[LaborHoursLanding]
+exec [dbo].[spFactWeeklyMeasureLoad_LaborHours] ?
+truncate table [dbo].[FactWeeklyMeasureLanding]
+exec [dbo].[spupdate_FactWeeklyMeasure_Dimkey] ?
+"SELECT FiscalWeekEndDate AS FiscalWeekEndDateRange 
+FROM DimDate(NOLOCK)
+WHERE FiscalWeekEndDate >= ?
+AND FiscalWeekStartDate < ?
+--where fiscalweekenddate='2011-02-05'
+GROUP BY FiscalWeekEndDate
+ORDER BY FiscalWeekEndDate"
+TRUNCATE TABLE [dbo].[ReportMeasure]
+"DECLARE @SummaryOfChanges TABLE (Change VARCHAR(20));
+DECLARE @InsertCount INT,
+		@UpdateCount INT,
+		@DeleteCount INT;
+
+MERGE [DW_Mart].[dbo].[ReportMeasure] AS [T]
+USING (
+	SELECT
+		[ReportID], [ReportName], [MeasureOrder], [MeasureLabel], [MeasureName], [NumberFormat], [IsHeader], [PageOrder], [PageName], [HasRightBorder], [Font], [PlanDisplay], [PlanVarDisplay], [PlanVarPctDisplay],
+		[LYDisplay], [LYVarDisplay], [LYVarPctDisplay], [ActualToDateDisplay], [PlanVarInverse], [LYVarInverse], [AbsDivisor], [TargetForPlan], [CreatedDate]
+	FROM [DW_Landing].[dbo].[ReportMeasure]
+) AS [S]
+	(
+		[ReportID], [ReportName], [MeasureOrder], [MeasureLabel], [MeasureName], [NumberFormat], [IsHeader], [PageOrder], [PageName], [HasRightBorder], [Font], [PlanDisplay], [PlanVarDisplay], [PlanVarPctDisplay],
+		[LYDisplay], [LYVarDisplay], [LYVarPctDisplay], [ActualToDateDisplay], [PlanVarInverse], [LYVarInverse], [AbsDivisor], [TargetForPlan], [CreatedDate]
+	)
+	ON
+		[T].[ReportID] = [S].[ReportID]
+		AND [T].[MeasureOrder] = [S].[MeasureOrder]
+		AND [T].[MeasureLabel] = [S].[MeasureLabel]
+WHEN MATCHED
+	THEN
+		UPDATE
+			SET [ReportName] = [S].[ReportName],
+				[MeasureName] = [S].[MeasureName],
+				[NumberFormat] = [S].[NumberFormat],
+				[IsHeader] = [S].[IsHeader],
+				[PageOrder] = [S].[PageOrder],
+				[PageName] = [S].[PageName],
+				[HasRightBorder] = [S].[HasRightBorder],
+				[Font] = [S].[Font],
+				[PlanDisplay] = [S].[PlanDisplay],
+				[PlanVarDisplay] = [S].[PlanVarDisplay],
+				[PlanVarPctDisplay] = [S].[PlanVarPctDisplay],
+				[LYDisplay] = [S].[LYDisplay],
+				[LYVarDisplay] = [S].[LYVarDisplay],
+				[LYVarPctDisplay] = [S].[LYVarPctDisplay],
+				[ActualToDateDisplay] = [S].[ActualToDateDisplay],
+				[PlanVarInverse] = [S].[PlanVarInverse],
+				[LYVarInverse] = [S].[LYVarInverse],
+				[AbsDivisor] = [S].[AbsDivisor],
+				[TargetForPlan] = [S].[TargetForPlan]
+
+WHEN NOT MATCHED BY TARGET
+	THEN
+		INSERT (
+			[ReportID], [ReportName], [MeasureOrder], [MeasureLabel], [MeasureName], [NumberFormat], [IsHeader], [PageOrder], [PageName], [HasRightBorder], [Font], [PlanDisplay], [PlanVarDisplay], [PlanVarPctDisplay],
+			[LYDisplay], [LYVarDisplay], [LYVarPctDisplay], [ActualToDateDisplay], [PlanVarInverse], [LYVarInverse], [AbsDivisor], [TargetForPlan], [CreatedDate]
+		)
+		VALUES (
+			[S].[ReportID], [S].[ReportName], [S].[MeasureOrder], [S].[MeasureLabel], [S].[MeasureName], [S].[NumberFormat], [S].[IsHeader], [S].[PageOrder], [S].[PageName], [S].[HasRightBorder], [S].[Font],
+			[S].[PlanDisplay], [S].[PlanVarDisplay], [S].[PlanVarPctDisplay], [S].[LYDisplay], [S].[LYVarDisplay], [S].[LYVarPctDisplay], [S].[ActualToDateDisplay], [S].[PlanVarInverse], [S].[LYVarInverse],
+			[S].[AbsDivisor], [S].[TargetForPlan], GETDATE()
+		)
+WHEN NOT MATCHED BY SOURCE
+	THEN
+		DELETE
+OUTPUT $action
+INTO @SummaryOfChanges;
+
+SELECT @InsertCount = COUNT(*) FROM @SummaryOfChanges WHERE [Change] = 'INSERT';
+SELECT @UpdateCount = COUNT(*) FROM @SummaryOfChanges WHERE [Change] = 'UPDATE';
+SELECT @DeleteCount = COUNT(*) FROM @SummaryOfChanges WHERE [Change] = 'DELETE';
+
+SELECT
+	@InsertCount AS [InsertCount],
+	@UpdateCount AS [UpdateCount],
+	@DeleteCount AS [DeleteCount];"
+ SELECT COUNT(1) AS DeleteCount  From [dbo].[ReportProfile]
+ SELECT COUNT(1) AS InsertCount  From [dbo].[ReportProfile]
+"SET IDENTITY_INSERT [dbo].[ReportProfile] ON;
+INSERT INTO [dbo].[ReportProfile]
+([ReportProfileKey], 
+ [ReportProfileID], 
+ [ReportProfileName], 
+ [ReportProfileLogoImage], 
+ [ReportProfileSmallImage], 
+ [ReportProfileLegalNoticeDescription], 
+ [MartCreatedDate]
+)
+       SELECT-1, 
+             -1, 
+             '-1', 
+             0x00, 
+             0x00, 
+             'Unknown Description', 
+             GETDATE()
+       UNION
+       SELECT-2, 
+             -2, 
+             '-2', 
+             0x00, 
+             0x00, 
+             'Not Applicable Description', 
+             GETDATE();
+SET IDENTITY_INSERT [dbo].[ReportProfile] OFF;"
+ TRUNCATE TABLE dbo.ReportProfile
+"Select isnull(Max(CreatedDate),'2020-01-01') As LastProcessedDate from DW_Mart.[dbo].[SubScriptionlogs]"
+"UPDATE [dbo].[SubScriptionlogs]
+  SET 
+      [Status] = 'Success'
+WHERE [TimeStart] IS NOT NULL;
+UPDATE [dbo].[SubScriptionlogs]
+  SET 
+      [Status] = 'Failed'
+WHERE [TimeStart] IS NULL;
+"
+EXEC dbo.spCSS_StagingToEDW_DimARAgencyType
+EXEC dbo.spCSS_StagingTransform_DimDiscountType;
+EXEC dbo.spCSS_StagingToEDW_DimFeeType;
+"Execute spBeginAuditLog ? OUTPUT, ?,?;"
+"SELECT COUNT(*) AS vInsertCount
+FROM dbo.DimSponsor
+WHERE ETLJobID = ?"
+"SELECT COUNT(*) AS vInsertCount
+FROM dbo.DimStudent 
+WHERE ETLJobID = ?"
+SELECT COUNT(1) AS IC FROM  [dbo].[DimTuitionAssistanceProvider] WHERE SourceSystem ='CSS'
+EXEC DBO.spCSS_StagingToEDW_DimPaymentType;
+EXEC dbo.spCSS_StagingTransform_DimProgram;
+EXEC dbo.spCSS_StagingToEDW_DimSession
+Execute [dbo].[spCSS_StagingToEDW_DimSponsor]
+EXEC dbo.spCSS_StagingToEDW_DimStudent
+EXEC dbo.spCSS_StagingToEDW_DimTier
+EXEC dbo.spCSS_StagingToEDW_DimTransactionCode;
+EXEC dbo.spCSS_StagingToEDW_DimTuitionAssistanceProvider;
+Exec [dbo].[spCSS_BatchLoad_StagingToEDW_FactFTESnapshot]
+EXEC spCSS_BatchLoad_StagingToEDW_FactLaborHourTarget
+EXEC spCSS_BatchLoad_StagingToEDW_FactLifeCycleStatusSnapshot
+EXEC spCSS_BatchLoad_StagingToEDW_FactNetRevenue
+Execute [dbo].[spGL_StagingToEDW_BridgeCompanyRollup]
+Execute [dbo].[spHR_StagingToEDW_BridgeSecurityPersonHRISGroup]
+Execute [dbo].[spHR_StagingToEDW_BridgeSecurityPersonOrg]
+"DELETE FROM CompNonCompStatus
+WHERE FiscalWeekEndDate >= ?
+
+Select @@Rowcount as DeleteCount"
+"Execute spEndAuditLog ?,0,?,?,?;"
+"IF ? ='01/01/1900'  
+SELECT MIN(d.FiscalWeekEndDate) AS FiscalWeekEndDate
+FROM DimDate d
+WHERE ( d.FullDate >= DATEADD( dd, -180, CAST( GETDATE() AS DATE ) ) ) AND ( d.FullDate <= GETDATE() )
+ELSE
+SELECT MIN(d.FiscalWeekEndDate) AS FiscalWeekEndDate
+FROM DimDate d
+WHERE ( d.FullDate >= DATEADD(dd, -180, CAST( ? AS DATE) ) ) AND ( d.FullDate <= GETDATE() )"
+EXEC dbo.spGL_StagingToEDW_DimAccountSubAccount
+EXEC dbo.spCMS_StagingToEDW_DimAdjustmentReason
+EXEC dbo.spCMS_StagingToEDW_DimARAgencyType
+EXEC dbo.spHR_StagingToEDW_DimAssessmentType
+EXEC dbo.spHR_StagingToEDW_DimAssignmentType
+EXEC dbo.spCMS_StagingToEDW_DimClassroom
+EXEC dbo.spCSS_StagingToEDW_DimClassroom
+EXEC spGL_StagingToEDW_DimCompany
+Execute [dbo].[spGL_StagingToEDW_DimCompanyRollup]
+EXEC [dbo].[spHR_StagingToEDW_DimComplianceItem]
+EXEC dbo.spHR_StagingToEDW_DimComplianceRating
+EXEC dbo.spGL_StagingToEDW_DimCostCenter
+EXEC dbo.spGL_StagingToEDW_DimCostCenterType
+EXEC dbo.spCMS_StagingToEDW_DimCreditMemoType
+EXEC dbo.spGL_StagingToEDW_DimDate
 EXEC dbo.spCMS_StagingToEDW_DimDiscountType
 EXEC dbo.spCMS_StagingToEDW_DimFeeType
 Exec [dbo].[spHR_StagingToEDW_DimHRUser]
@@ -8436,8 +12212,6 @@ BEGIN
           
              SET IDENTITY_INSERT dbo.DimTuitionAssistanceProvider OFF;
 			 END;"
-SELECT COUNT(1) AS vInsertCount FROM DimMeasureLanding(NOLOCK)
-Truncate table DimMeasureLanding
 EXEC spHR_StagingToEDW_DimOrganization
 Exec [dbo].[spHR_StagingToEDW_DimPayBasis]
 EXEC dbo.spHR_StagingToEDW_DimPayGrade
@@ -8548,56 +12322,6 @@ Exec [dbo].[spHR_StagingToEDW_DimSpecialInfo]
 Execute [dbo].[spCMS_StagingToEDW_DimSponsor]
 EXEC dbo.spCMS_StagingToEDW_DimStudent
 Exec [dbo].[spCMS_StagingToEDW_DimTier];
-"DECLARE @DelCount INT, @InsCount INT, @AudID INT
-
-SET @AudID = ?
-SET @DelCount = (SELECT COUNT(1) FROM dbo.DimTimeCalculation)
-
-TRUNCATE TABLE dbo.DimTimeCalculation
-
-SET IDENTITY_INSERT dbo.DimTimeCalculation ON;
-
-
-;WITH DimTimeCalc
-AS (
-	    SELECT -2 AS TCKey,	'Not Applicable Time Calculation' AS CalcName
-		UNION ALL
-		SELECT -1 AS TCKey,	'Unknown Time Calculation' AS CalcName
-		UNION ALL
-		SELECT 1 AS TCKey, 'Selection' AS CalcName
-		UNION ALL
-		SELECT 2 AS TCKey, 'PTD' AS CalcName
-		UNION ALL
-		SELECT 3 AS TCKey, 'QTD' AS CalcName
-		UNION ALL
-		SELECT 5 AS TCKey, 'YTD' AS CalcName
-)
---SELECT * FROM DimTimeCalc+
-
-INSERT INTO [dbo].[DimTimeCalculation]
-(	  [TimeCalculationKey]
-	 ,[TimeCalculationName]
-     ,[EDWEffectiveFrom]
-     ,[EDWEffectiveTo]
-     ,[EDWRowStatus]
-     ,[ETLJobID]			)
-SELECT TCKey AS TimeCalculationKey,
-       CalcName AS TimeCalculationName,
-       CAST('1900-01-01 00:00:00.000' AS DATE) AS EffectiveFrom,
-	   CAST('9999-12-31 23:59:59.999' AS DATE) AS EffectiveTo,
-	   'A' AS RowStatus,
-       @AudID As ETLJobID
-FROM DimTimeCalc
-ORDER BY TCKey;
-
-
---Get Insert Count
-SET @InsCount = (SELECT COUNT(1) FROM dbo.DimTimeCalculation)
-
-
-SET IDENTITY_INSERT dbo.DimTimeCalculation OFF;
-
-SELECT @InsCount AS InsCount, @DelCount AS DelCount;"
 EXEC dbo.spCMS_StagingToEDW_DimTuitionAssistanceProvider;
 EXEC dbo.spSalesForce_StagingToEDW_DimWebCampaign;
 EXEC dbo.spCMS_StagingToEDW_FactAdjustment
@@ -8638,27 +12362,6 @@ EXEC spCMS_BatchLoad_StagingToEDW_FactNetRevenue
   ,NULL"
 EXEC spHOR_BatchLoad_StagingToEDW_FactNetRevenue
 EXEC spPRO_BatchLoad_StagingToEDW_FactNetRevenue
-"Execute spEndAuditLog ?,?,?,?,?"
-"IF EXISTS
-(SELECT 1
-FROM ETLBatchControl(NOLOCK)
-WHERE EventName = ?)
-
-BEGIN
- (SELECT COALESCE(LastProcessedDate,'19000101') AS  LastProcessedDate 
- FROM ETLBatchControl(NOLOCK)
- WHERE EventName = ?)
-
-END
-
-ELSE 
-
-BEGIN
- INSERT INTO ETLBatchControl(EventName, LastProcessedDate, Status) VALUES
-  (?, NULL, NULL);
-
-SELECT '1900-01-01' AS  LastProcessedDate;
-END"
 SELECT COUNT(1) AS InsertCount FROM dbo.FactPartnerVerifiedSponsor WHERE  CreatedDate>?
 "-------------------------------------------------------------------------------------------------------
 UPDATE FCT
@@ -8697,10 +12400,6 @@ WHERE (
       )
       AND FCT.PartnerVerificationEndDate IS NULL  AND FCT.RowStatus='A'
 -------------------------------------------------------------------------------------------------------"
-"UPDATE ETLBatchControl
-SET LastProcessedDate = ?,
-Status = 'Success'
-WHERE EventName = ?"
 SELECT COUNT(1) AS UpdateCount FROM dbo.FactPartnerVerifiedSponsor WHERE CreatedDate<>ModifiedDate AND ModifiedDate>?
 TRUNCATE TABLE dbo.FactPartnerVerifiedSponsorLanding
 EXEC dbo.spCMS_BatchLoad_StagingToEDW_FactPayment
@@ -9561,104 +13260,6 @@ SET [ASAFieldDepth] = -1,                                 -- [ASAFieldDepth]
     [ASAFieldLevel12Unary] = 1,                           -- [ASAFieldLevel12Unary]	
     [ASAFieldLevel12Sort] = 99999                         -- [ASAFieldLevel12Sort]
 WHERE AccountSubaccountKey = '-2';"
-TRUNCATE TABLE [dbo].[ReportMeasure]
-"DECLARE @SummaryOfChanges TABLE (Change VARCHAR(20));
-DECLARE @InsertCount INT,
-		@UpdateCount INT,
-		@DeleteCount INT;
-
-MERGE [DW_Mart].[dbo].[ReportMeasure] AS [T]
-USING (
-	SELECT
-		[ReportID], [ReportName], [MeasureOrder], [MeasureLabel], [MeasureName], [NumberFormat], [IsHeader], [PageOrder], [PageName], [HasRightBorder], [Font], [PlanDisplay], [PlanVarDisplay], [PlanVarPctDisplay],
-		[LYDisplay], [LYVarDisplay], [LYVarPctDisplay], [ActualToDateDisplay], [PlanVarInverse], [LYVarInverse], [AbsDivisor], [TargetForPlan], [CreatedDate]
-	FROM [DW_Landing].[dbo].[ReportMeasure]
-) AS [S]
-	(
-		[ReportID], [ReportName], [MeasureOrder], [MeasureLabel], [MeasureName], [NumberFormat], [IsHeader], [PageOrder], [PageName], [HasRightBorder], [Font], [PlanDisplay], [PlanVarDisplay], [PlanVarPctDisplay],
-		[LYDisplay], [LYVarDisplay], [LYVarPctDisplay], [ActualToDateDisplay], [PlanVarInverse], [LYVarInverse], [AbsDivisor], [TargetForPlan], [CreatedDate]
-	)
-	ON
-		[T].[ReportID] = [S].[ReportID]
-		AND [T].[MeasureOrder] = [S].[MeasureOrder]
-		AND [T].[MeasureLabel] = [S].[MeasureLabel]
-WHEN MATCHED
-	THEN
-		UPDATE
-			SET [ReportName] = [S].[ReportName],
-				[MeasureName] = [S].[MeasureName],
-				[NumberFormat] = [S].[NumberFormat],
-				[IsHeader] = [S].[IsHeader],
-				[PageOrder] = [S].[PageOrder],
-				[PageName] = [S].[PageName],
-				[HasRightBorder] = [S].[HasRightBorder],
-				[Font] = [S].[Font],
-				[PlanDisplay] = [S].[PlanDisplay],
-				[PlanVarDisplay] = [S].[PlanVarDisplay],
-				[PlanVarPctDisplay] = [S].[PlanVarPctDisplay],
-				[LYDisplay] = [S].[LYDisplay],
-				[LYVarDisplay] = [S].[LYVarDisplay],
-				[LYVarPctDisplay] = [S].[LYVarPctDisplay],
-				[ActualToDateDisplay] = [S].[ActualToDateDisplay],
-				[PlanVarInverse] = [S].[PlanVarInverse],
-				[LYVarInverse] = [S].[LYVarInverse],
-				[AbsDivisor] = [S].[AbsDivisor],
-				[TargetForPlan] = [S].[TargetForPlan]
-
-WHEN NOT MATCHED BY TARGET
-	THEN
-		INSERT (
-			[ReportID], [ReportName], [MeasureOrder], [MeasureLabel], [MeasureName], [NumberFormat], [IsHeader], [PageOrder], [PageName], [HasRightBorder], [Font], [PlanDisplay], [PlanVarDisplay], [PlanVarPctDisplay],
-			[LYDisplay], [LYVarDisplay], [LYVarPctDisplay], [ActualToDateDisplay], [PlanVarInverse], [LYVarInverse], [AbsDivisor], [TargetForPlan], [CreatedDate]
-		)
-		VALUES (
-			[S].[ReportID], [S].[ReportName], [S].[MeasureOrder], [S].[MeasureLabel], [S].[MeasureName], [S].[NumberFormat], [S].[IsHeader], [S].[PageOrder], [S].[PageName], [S].[HasRightBorder], [S].[Font],
-			[S].[PlanDisplay], [S].[PlanVarDisplay], [S].[PlanVarPctDisplay], [S].[LYDisplay], [S].[LYVarDisplay], [S].[LYVarPctDisplay], [S].[ActualToDateDisplay], [S].[PlanVarInverse], [S].[LYVarInverse],
-			[S].[AbsDivisor], [S].[TargetForPlan], GETDATE()
-		)
-WHEN NOT MATCHED BY SOURCE
-	THEN
-		DELETE
-OUTPUT $action
-INTO @SummaryOfChanges;
-
-SELECT @InsertCount = COUNT(*) FROM @SummaryOfChanges WHERE [Change] = 'INSERT';
-SELECT @UpdateCount = COUNT(*) FROM @SummaryOfChanges WHERE [Change] = 'UPDATE';
-SELECT @DeleteCount = COUNT(*) FROM @SummaryOfChanges WHERE [Change] = 'DELETE';
-
-SELECT
-	@InsertCount AS [InsertCount],
-	@UpdateCount AS [UpdateCount],
-	@DeleteCount AS [DeleteCount];"
- SELECT COUNT(1) AS DeleteCount  From [dbo].[ReportProfile]
- SELECT COUNT(1) AS InsertCount  From [dbo].[ReportProfile]
-"SET IDENTITY_INSERT [dbo].[ReportProfile] ON;
-INSERT INTO [dbo].[ReportProfile]
-([ReportProfileKey], 
- [ReportProfileID], 
- [ReportProfileName], 
- [ReportProfileLogoImage], 
- [ReportProfileSmallImage], 
- [ReportProfileLegalNoticeDescription], 
- [MartCreatedDate]
-)
-       SELECT-1, 
-             -1, 
-             '-1', 
-             0x00, 
-             0x00, 
-             'Unknown Description', 
-             GETDATE()
-       UNION
-       SELECT-2, 
-             -2, 
-             '-2', 
-             0x00, 
-             0x00, 
-             'Not Applicable Description', 
-             GETDATE();
-SET IDENTITY_INSERT [dbo].[ReportProfile] OFF;"
- TRUNCATE TABLE dbo.ReportProfile
 EXEC dbo.spBING_EDW_Build_DimensionStaticData
 "INSERT INTO dbo.EDWAuditLog 
 (StartTime,

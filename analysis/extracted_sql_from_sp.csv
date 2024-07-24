@@ -1,89 +1,534 @@
 File_path,store_procedure_name,Extracted,db
-DWBaseIncrementalLoad_ARBalanceMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_ARBalanceMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_ARBalanceMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_ARBalanceMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_ARBalanceMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_CalculatedMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_CalculatedMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_CalculatedMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_CalculatedMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_CalculatedMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_CenterStatusSnapshot,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_CenterStatusSnapshot,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_CenterStatusSnapshot,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_CenterStatusSnapshot,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_CenterStatusSnapshot,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_DailyMeasureFTE,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_DailyMeasureFTE,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_DailyMeasureFTE,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_DailyMeasureFTE,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_DailyMeasureFTE,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_DailyMeasureNetRevenue,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_DailyMeasureNetRevenue,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_DailyMeasureNetRevenue,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_DailyMeasureNetRevenue,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_DailyMeasureNetRevenue,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_DailyMeasureNSE,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_DailyMeasureNSE,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_DailyMeasureNSE,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_DailyMeasureNSE,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_DailyMeasureNSE,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_FTESnapshotMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_FTESnapshotMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_FTESnapshotMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_FTESnapshotMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_FTESnapshotMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_FTEMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_FTEMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_FTEMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_FTEMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_FTEMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_LaborHoursMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_LaborHoursMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_LaborHoursMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_LaborHoursMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_LaborHoursMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_LaborSalaryMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_LaborSalaryMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_LaborSalaryMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_LaborSalaryMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_LaborSalaryMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_NetRevenueMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_NetRevenueMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_NetRevenueMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_NetRevenueMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_GLBalancePlanAllocation_NetRevenueMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_GLPlanAllocation_LaborHoursMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_GLPlanAllocation_LaborHoursMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_GLPlanAllocation_LaborHoursMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_GLPlanAllocation_LaborHoursMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_GLPlanAllocation_LaborHoursMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_LaborHoursMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_LaborHoursMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_LaborHoursMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_LaborHoursMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_LaborHoursMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_LaborSalaryMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_LaborSalaryMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_LaborSalaryMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_LaborSalaryMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_LaborSalaryMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_LeadEventMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_LeadEventMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_LeadEventMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_LeadEventMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_LeadEventMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_LifeCycleStatusMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_LifeCycleStatusMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_LifeCycleStatusMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_LifeCycleStatusMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_LifeCycleStatusMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
-DWBaseIncrementalLoad_NetRevenueMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
-DWBaseIncrementalLoad_NetRevenueMeasure,spEndAuditLog,FROM AuditLog,No db found
-DWBaseIncrementalLoad_NetRevenueMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
-DWBaseIncrementalLoad_NetRevenueMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
-DWBaseIncrementalLoad_NetRevenueMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_DimAccreditation,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_DimAccreditation,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_DimAccreditation,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_DimAccreditation,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_DimAccreditation,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_DimAge,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_DimAge,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_DimAge,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_DimAge,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_DimAge,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_DimAssessment,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_DimAssessment,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_DimAssessment,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_DimAssessment,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_DimAssessment,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_DimAssignment,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_DimAssignment,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_DimAssignment,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_DimAssignment,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_DimAssignment,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_DimEvent,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_DimEvent,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_DimEvent,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_DimEvent,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_DimEvent,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_DimPayGrade,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_DimPayGrade,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_DimPayGrade,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_DimPayGrade,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_DimPayGrade,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_DimPerson,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_DimPerson,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_DimPerson,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_DimPerson,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_DimPerson,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,FROM DimPerson. Runtime ,DimPerson
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,from source,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @ProcName NVARCHAR,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @DebugMsg NVARCHAR,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @SourceName VARCHAR,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @RowCount INT,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @Error INT,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @SourceCount INT,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @InsertCount INT,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @UpdateCount INT,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @DeleteCount INT,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @EffectiveTo Datetime2,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @tblMergeActions TABLE,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @tblDeleteActions TABLE,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,from DimPerson based on [DimPerson].[SupervisorNumber] ,[DimPerson]
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,From [DW_Mart].Sys.Tables Where Name ,[DW_Mart]
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,"From
+		  FROM [DW_MART].[dbo].[DimPerson] as p ",[DW_MART]
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,JOIN [DW_Mart].dbo.DimPerson as s ,[DW_Mart]
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,Insert Into [DimPersonSupervisor],No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,From PersonSupervisorColumns,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,FROM [DW_Mart].dbo.DimPerson,[DW_Mart]
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,FROM [DW_Mart].dbo.DimPersonSupervisor,[DW_Mart]
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,from DimPerson and loaded ,No db found
+DataLakeBaseToMart_DimPerson,spDimPersonSupervisorLoad,DECLARE @ErrMsg NVARCHAR,No db found
+DataLakeBaseToMart_DimPosition,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_DimPosition,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_DimPosition,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_DimPosition,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_DimPosition,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_DimTermination,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_DimTermination,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_DimTermination,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_DimTermination,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_DimTermination,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_DimTimeIn,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_DimTimeIn,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_DimTimeIn,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_DimTimeIn,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_DimTimeIn,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_FactCosting,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_FactCosting,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_FactCosting,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_FactCosting,spFactCostingLoad,from [DW_Landing].[FactADPCostingBN],[DW_Landing]
+DataLakeBaseToMart_FactCosting,spFactCostingLoad,update Person Keys in fact when there is an incremental change in DimPerson,No db found
+DataLakeBaseToMart_FactCosting,spFactCostingLoad,INSERT INTO [dbo].[FactCosting],[dbo]
+DataLakeBaseToMart_FactCosting,spFactCostingLoad,FROM [DW_Landing].[dbo].[FactADPCostingBN] AS [SRC],[DW_Landing]
+DataLakeBaseToMart_FactCosting,spFactCostingLoad,JOIN [DW_Mart].[dbo].[DimCostCenter] AS [DIM_CCenter] ,[DW_Mart]
+DataLakeBaseToMart_FactCosting,spFactCostingLoad,JOIN [DW_Mart].[dbo].[DimAccountSubaccount] AS [SubActDT],[DW_Mart]
+DataLakeBaseToMart_FactCosting,spFactCostingLoad,JOIN [DW_Mart].[dbo].[DimDate] AS [FullDT] ,[DW_Mart]
+DataLakeBaseToMart_FactCosting,spFactCostingLoad,JOIN [DW_Mart].[dbo].[DimMeasure] AS [DIM_MES],[DW_Mart]
+DataLakeBaseToMart_FactCosting,spFactCostingLoad,JOIN [DW_Mart].[dbo].[DimDataScenario] AS [DIM_DATASC] ,[DW_Mart]
+DataLakeBaseToMart_FactCosting,spFactCostingUpdateKeys,Update [PersonKey] since [PersonKey] is expected to change in [dbo].[DimPerson],[dbo]
+DataLakeBaseToMart_FactCosting,spFactCostingUpdateKeys,DECLARE @AuditID BIGINT ,No db found
+DataLakeBaseToMart_FactCosting,spFactCostingUpdateKeys,FROM [dbo].[FactCosting] [F],[dbo]
+DataLakeBaseToMart_FactCosting,spFactCostingUpdateKeys,JOIN [dbo].[DimDate] [D],[dbo]
+DataLakeBaseToMart_FactCosting,spFactCostingUpdateKeys,JOIN [dbo].[DimPerson] [P],[dbo]
+DataLakeBaseToMart_FactCosting,spFactCostingUpdateKeys,JOIN [dbo].[DimPerson] [C],[dbo]
+DataLakeBaseToMart_FactCosting,spFactCostingUpdateKeys,UPDATE [F],No db found
+DataLakeBaseToMart_FactCosting,spFactCostingUpdateKeys,JOIN ,No db found
+DataLakeBaseToMart_FactEarning,spFactEarningLoad,from [DW_Landing].[FactADPEarningBN],[DW_Landing]
+DataLakeBaseToMart_FactEarning,spFactEarningLoad,update Person Keys in fact when there is an incremental change in DimPerson,No db found
+DataLakeBaseToMart_FactEarning,spFactEarningLoad,INSERT INTO [dbo].[FactEarning],[dbo]
+DataLakeBaseToMart_FactEarning,spFactEarningLoad,FROM [DW_Landing].[dbo].[FactADPEarningBN] AS [SRC],[DW_Landing]
+DataLakeBaseToMart_FactEarning,spFactEarningLoad,JOIN [DW_Mart].[dbo].[DimCostCenter] AS [DIM_CCenter] ,[DW_Mart]
+DataLakeBaseToMart_FactEarning,spFactEarningLoad,JOIN [DW_Mart].[dbo].[DimDate] AS [CHKDT] ,[DW_Mart]
+DataLakeBaseToMart_FactEarning,spFactEarningLoad,JOIN [DW_Mart].[dbo].[DimDate] AS [FullDT] ,[DW_Mart]
+DataLakeBaseToMart_FactEarning,spFactEarningLoad,JOIN [DW_Mart].[dbo].[DimMeasure] AS [DIM_MES],[DW_Mart]
+DataLakeBaseToMart_FactEarning,spFactEarningLoad,JOIN [DW_Mart].[dbo].[DimDataScenario] AS [DIM_DATASC] ,[DW_Mart]
+DataLakeBaseToMart_FactEarning,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_FactEarning,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_FactEarning,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,Update Keys,No db found
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,DECLARE @AuditID BIGINT ,No db found
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,Update PersonKey,No db found
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,FROM [dbo].[FactEarning] [F],[dbo]
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,JOIN [dbo].[DimDate] [D],[dbo]
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,JOIN [dbo].[DimPerson] [P],[dbo]
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,JOIN [dbo].[DimPerson] [C],[dbo]
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,UPDATE [F],No db found
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,JOIN ,No db found
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,Update AssignmentKey,No db found
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,JOIN [dbo].[DimAssignment] [P],[dbo]
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,JOIN [dbo].[DimAssignment] [C],[dbo]
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,Update PositionKey,No db found
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,JOIN [dbo].[DimPosition] [P],[dbo]
+DataLakeBaseToMart_FactEarning,spFactEarningUpdateKeys,JOIN [dbo].[DimPosition] [C],[dbo]
+DataLakeBaseToMart_FactEmployeeCensus,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_FactEmployeeCensus,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_FactEmployeeCensus,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_FactEmployeeCensusArchive,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_FactEmployeeCensusArchive,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_FactEmployeeCensusArchive,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_FactEmployeeCensusArchive,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_FactEmployeeCensusArchive,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeBaseToMart_FactEmployeeEvent,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeBaseToMart_FactEmployeeEvent,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeBaseToMart_FactEmployeeEvent,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeBaseToMart_FactEmployeeEvent,spEndAuditLog,FROM AuditLog,No db found
+DataLakeBaseToMart_FactEmployeeEvent,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_AccreditationBN,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_AccreditationBN,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_AccreditationBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_AccreditationBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_AccreditationBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_AgeBN,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_AgeBN,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_AgeBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_AgeBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_AgeBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_AP_SUPPLIERS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_AP_SUPPLIERS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_AP_SUPPLIERS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_AP_SUPPLIERS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_AP_SUPPLIERS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_AssessmentBN,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_AssessmentBN,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_AssessmentBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_AssessmentBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_AssessmentBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_AssignmentBN,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_AssignmentBN,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_AssignmentBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_AssignmentBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_AssignmentBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_BaseEmployeeCensusBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_BaseEmployeeCensusBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_BaseEmployeeCensusBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_BaseEmployeeCensusBN,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_BaseEmployeeCensusBN,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_BaseEmployeeEventBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_BaseEmployeeEventBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_BaseEmployeeEventBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_EventBN,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_EventBN,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_EventBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_EventBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_EventBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_FlexValuesLookupB10,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_FlexValuesLookupB10,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_FlexValuesLookupB10,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_FlexValuesLookupB10,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_FlexValuesLookupB10,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_FND_FLEX_VALUES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_FND_FLEX_VALUES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_FND_FLEX_VALUES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_FND_FLEX_VALUES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_FND_FLEX_VALUES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_FND_FLEX_VALUES_TL_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_FND_FLEX_VALUES_TL_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_FND_FLEX_VALUES_TL_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_FND_FLEX_VALUES_TL_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_FND_FLEX_VALUES_TL_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_FND_FLEX_VALUE_SETS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_FND_FLEX_VALUE_SETS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_FND_FLEX_VALUE_SETS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_FND_FLEX_VALUE_SETS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_FND_FLEX_VALUE_SETS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_FND_ID_FLEX_STRUCTURES_TL_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_FND_ID_FLEX_STRUCTURES_TL_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_FND_ID_FLEX_STRUCTURES_TL_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_FND_ID_FLEX_STRUCTURES_TL_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_FND_ID_FLEX_STRUCTURES_TL_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_FND_LOGINS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_FND_LOGINS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_FND_LOGINS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_FND_LOGINS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_FND_LOGINS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_FND_LOOKUP_VALUES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_FND_LOOKUP_VALUES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_FND_LOOKUP_VALUES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_FND_LOOKUP_VALUES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_FND_LOOKUP_VALUES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_HRIS_Datalake_Runtime_Metadata,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_HRIS_Datalake_Runtime_Metadata,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_HRIS_Datalake_Runtime_Metadata,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_HRIS_Datalake_Runtime_Metadata,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_HRIS_Datalake_Runtime_Metadata,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_HR_ALL_ORGANIZATION_UNITS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_HR_ALL_ORGANIZATION_UNITS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_HR_ALL_ORGANIZATION_UNITS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_HR_ALL_ORGANIZATION_UNITS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_HR_ALL_ORGANIZATION_UNITS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_HR_ALL_POSITIONS_F_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_HR_ALL_POSITIONS_F_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_HR_ALL_POSITIONS_F_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_HR_ALL_POSITIONS_F_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_HR_ALL_POSITIONS_F_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_HR_LOCATIONS_ALL_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_HR_LOCATIONS_ALL_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_HR_LOCATIONS_ALL_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_HR_LOCATIONS_ALL_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_HR_LOCATIONS_ALL_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_HR_LOCATION_EXTRA_INFO_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_HR_LOCATION_EXTRA_INFO_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_HR_LOCATION_EXTRA_INFO_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_HR_LOCATION_EXTRA_INFO_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_HR_LOCATION_EXTRA_INFO_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PayGradeBN,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PayGradeBN,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PayGradeBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PayGradeBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PayGradeBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PAY_COST_ALLOCATION_KEYFLEX_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PAY_COST_ALLOCATION_KEYFLEX_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PAY_COST_ALLOCATION_KEYFLEX_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PAY_COST_ALLOCATION_KEYFLEX_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PAY_COST_ALLOCATION_KEYFLEX_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PAY_GRADE_RULES_F_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PAY_GRADE_RULES_F_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PAY_GRADE_RULES_F_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PAY_GRADE_RULES_F_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PAY_GRADE_RULES_F_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PAY_PEOPLE_GROUPS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PAY_PEOPLE_GROUPS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PAY_PEOPLE_GROUPS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PAY_PEOPLE_GROUPS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PAY_PEOPLE_GROUPS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PerPeriodsB10,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PerPeriodsB10,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PersonBN,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PersonBN,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PersonBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PersonBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PersonBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_ADDRESSES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_ADDRESSES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_ADDRESSES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_ADDRESSES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_ADDRESSES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_ALL_ASSIGNMENTS_F_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_ALL_ASSIGNMENTS_F_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_ALL_ASSIGNMENTS_F_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_ALL_ASSIGNMENTS_F_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_ALL_ASSIGNMENTS_F_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_ALL_PEOPLE_F_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_ALL_PEOPLE_F_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_ALL_PEOPLE_F_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_ALL_PEOPLE_F_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_ALL_PEOPLE_F_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_ANALYSIS_CRITERIA_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_ANALYSIS_CRITERIA_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_ANALYSIS_CRITERIA_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_ANALYSIS_CRITERIA_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_ANALYSIS_CRITERIA_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_ASSIGNMENT_STATUS_TYPES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_ASSIGNMENT_STATUS_TYPES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_ASSIGNMENT_STATUS_TYPES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_ASSIGNMENT_STATUS_TYPES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_ASSIGNMENT_STATUS_TYPES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_COMPETENCES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_COMPETENCES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_COMPETENCES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_COMPETENCES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_COMPETENCES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_COMPETENCE_ELEMENTS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_COMPETENCE_ELEMENTS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_COMPETENCE_ELEMENTS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_COMPETENCE_ELEMENTS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_COMPETENCE_ELEMENTS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_GRADES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_GRADES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_GRADES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_GRADES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_GRADES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_JOBS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_JOBS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_JOBS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_JOBS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_JOBS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_JOB_GROUPS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_JOB_GROUPS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_JOB_GROUPS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_JOB_GROUPS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_JOB_GROUPS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_ORGANIZATION_STRUCTURES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_ORGANIZATION_STRUCTURES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_ORGANIZATION_STRUCTURES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_ORGANIZATION_STRUCTURES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_ORGANIZATION_STRUCTURES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_ORG_STRUCTURE_ELEMENTS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_ORG_STRUCTURE_ELEMENTS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_ORG_STRUCTURE_ELEMENTS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_ORG_STRUCTURE_ELEMENTS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_ORG_STRUCTURE_ELEMENTS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_ORG_STRUCTURE_VERSIONS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_ORG_STRUCTURE_VERSIONS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_ORG_STRUCTURE_VERSIONS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_ORG_STRUCTURE_VERSIONS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_ORG_STRUCTURE_VERSIONS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_PAY_BASES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_PAY_BASES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_PAY_BASES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_PAY_BASES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_PAY_BASES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_PAY_PROPOSALS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_PAY_PROPOSALS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_PAY_PROPOSALS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_PAY_PROPOSALS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_PAY_PROPOSALS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_PERFORMANCE_REVIEWS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_PERFORMANCE_REVIEWS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_PERFORMANCE_REVIEWS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_PERFORMANCE_REVIEWS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_PERFORMANCE_REVIEWS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_PERIODS_OF_PLACEMENT_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_PERIODS_OF_PLACEMENT_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_PERIODS_OF_PLACEMENT_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_PERIODS_OF_PLACEMENT_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_PERIODS_OF_PLACEMENT_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_PERIODS_OF_SERVICE_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_PERIODS_OF_SERVICE_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_PERIODS_OF_SERVICE_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_PERIODS_OF_SERVICE_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_PERIODS_OF_SERVICE_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_PERSON_ANALYSES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_PERSON_ANALYSES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_PERSON_ANALYSES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_PERSON_ANALYSES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_PERSON_ANALYSES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_PERSON_TYPES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_PERSON_TYPES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_PERSON_TYPES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_PERSON_TYPES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_PERSON_TYPES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_PHONES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_PHONES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_PHONES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_PHONES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_PHONES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_QUALIFICATIONS_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_QUALIFICATIONS_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_QUALIFICATIONS_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_QUALIFICATIONS_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_QUALIFICATIONS_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PER_QUALIFICATION_TYPES_B0,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PER_QUALIFICATION_TYPES_B0,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PER_QUALIFICATION_TYPES_B0,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PER_QUALIFICATION_TYPES_B0,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PER_QUALIFICATION_TYPES_B0,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_PositionBN,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_PositionBN,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_PositionBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_PositionBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_PositionBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_TerminationBN,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_TerminationBN,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_TerminationBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_TerminationBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_TerminationBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DataLakeHRISToBase_TimeInBN,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DataLakeHRISToBase_TimeInBN,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DataLakeHRISToBase_TimeInBN,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DataLakeHRISToBase_TimeInBN,spEndAuditLog,FROM AuditLog,No db found
+DataLakeHRISToBase_TimeInBN,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_ARBalance,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_ARBalance,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_ARBalance,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_ARBalance,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_ARBalance,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_Calculated,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_Calculated,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_Calculated,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_Calculated,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_Calculated,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_Calculated,spFactWeeklyMeasureLoad_Calculated,from DW_Landing.[CalculatedLanding],DW_Landing
+DWMartIncrementalLoad_Calculated,spFactWeeklyMeasureLoad_Calculated,INSERT INTO [dbo].[FactWeeklyMeasure],[dbo]
+DWMartIncrementalLoad_Calculated,spFactWeeklyMeasureLoad_Calculated,FROM [DW_Landing].[dbo].[CalculatedLanding] as a,[DW_Landing]
+DWMartIncrementalLoad_Calculated,spFactWeeklyMeasureLoad_Calculated,join [dbo].[DimCostCenter] as b on a.CostCenterNumber,[dbo]
+DWMartIncrementalLoad_Calculated,spFactWeeklyMeasureLoad_Calculated,From and EDWEffectiveTo,No db found
+DWMartIncrementalLoad_Calculated,spFactWeeklyMeasureLoad_Calculated,join [dbo].[DimDataScenario] as c on a.[DataScenarioName],[dbo]
+DWMartIncrementalLoad_Calculated,spFactWeeklyMeasureLoad_Calculated,join [dbo].[DimMeasure] as d on a.[MeasureName],[dbo]
+DWMartIncrementalLoad_CenterStatusSnapshot,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_CenterStatusSnapshot,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_CenterStatusSnapshot,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_CenterStatusSnapshot,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_CenterStatusSnapshot,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_DailyFTE,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_DailyFTE,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_DailyFTE,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_DailyFTE,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_DailyFTE,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_DailyNetRevenue,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_DailyNetRevenue,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_DailyNetRevenue,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_DailyNetRevenue,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_DailyNetRevenue,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_DimCostCenter,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_DimCostCenter,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_DimCostCenter,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_DimCostCenter,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_DimCostCenter,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_DimDataScenario,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_DimDataScenario,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_DimDataScenario,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_DimDataScenario,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_DimDataScenario,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_DimMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_DimMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_DimMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_DimMeasure,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_DimMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_DimTimeCalculation,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_DimTimeCalculation,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_DimTimeCalculation,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_DimTimeCalculation,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_DimTimeCalculation,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_FTESnapshot,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_FTESnapshot,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_FTESnapshot,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_FTESnapshot,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_FTESnapshot,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_FTESnapshot,spFactWeeklyMeasureLoad_FTESnapshot,from DW_Landing.[FTESnapshotLanding],DW_Landing
+DWMartIncrementalLoad_FTESnapshot,spFactWeeklyMeasureLoad_FTESnapshot,INSERT INTO [dbo].[FactWeeklyMeasure],[dbo]
+DWMartIncrementalLoad_FTESnapshot,spFactWeeklyMeasureLoad_FTESnapshot,FROM [DW_Landing].[dbo].[FTESnapshotLanding] as a,[DW_Landing]
+DWMartIncrementalLoad_FTESnapshot,spFactWeeklyMeasureLoad_FTESnapshot,join [dbo].[DimCostCenter] as b on a.CostCenterNumber,[dbo]
+DWMartIncrementalLoad_FTESnapshot,spFactWeeklyMeasureLoad_FTESnapshot,From and EDWEffectiveTo,No db found
+DWMartIncrementalLoad_FTESnapshot,spFactWeeklyMeasureLoad_FTESnapshot,join [dbo].[DimDataScenario] as c on a.[DataScenarioName],[dbo]
+DWMartIncrementalLoad_FTESnapshot,spFactWeeklyMeasureLoad_FTESnapshot,join [dbo].[DimMeasure] as d on a.[MeasureName],[dbo]
+DWMartIncrementalLoad_GLBalancePlanAllocation_FTE,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_FTE,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_FTE,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_FTE,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_FTE,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_LaborHours,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_LaborHours,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_LaborHours,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_LaborHours,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_LaborHours,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_LaborSalary,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_LaborSalary,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_LaborSalary,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_LaborSalary,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_LaborSalary,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spFactWeeklyMeasureLoad_GLBalancePlanAllocation_NetRevenue,from DW_Landing.[GLBalancePlanAllocation_NetRevenueLanding],DW_Landing
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spFactWeeklyMeasureLoad_GLBalancePlanAllocation_NetRevenue,INSERT INTO [dbo].[FactWeeklyMeasure],[dbo]
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spFactWeeklyMeasureLoad_GLBalancePlanAllocation_NetRevenue,FROM [DW_Landing].[dbo].[GLBalancePlanAllocation_NetRevenueLanding] as a,[DW_Landing]
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spFactWeeklyMeasureLoad_GLBalancePlanAllocation_NetRevenue,join [dbo].[DimCostCenter] as b on a.CostCenterNumber,[dbo]
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spFactWeeklyMeasureLoad_GLBalancePlanAllocation_NetRevenue,From and EDWEffectiveTo,No db found
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spFactWeeklyMeasureLoad_GLBalancePlanAllocation_NetRevenue,join [dbo].[DimDataScenario] as c on a.[DataScenarioName],[dbo]
+DWMartIncrementalLoad_GLBalancePlanAllocation_NetRevenue,spFactWeeklyMeasureLoad_GLBalancePlanAllocation_NetRevenue,join [dbo].[DimMeasure] as d on a.[MeasureName],[dbo]
+DWMartIncrementalLoad_LaborHours,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_LaborHours,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_LaborHours,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_LaborHours,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_LaborHours,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_LaborHours,spFactWeeklyMeasureLoad_LaborHours,from DW_Landing.[LaborHoursLanding],DW_Landing
+DWMartIncrementalLoad_LaborHours,spFactWeeklyMeasureLoad_LaborHours,INSERT INTO [dbo].[FactWeeklyMeasure],[dbo]
+DWMartIncrementalLoad_LaborHours,spFactWeeklyMeasureLoad_LaborHours,FROM [DW_Landing].[dbo].[LaborHoursLanding] as a,[DW_Landing]
+DWMartIncrementalLoad_LaborHours,spFactWeeklyMeasureLoad_LaborHours,join [dbo].[DimCostCenter] as b on a.CostCenterNumber,[dbo]
+DWMartIncrementalLoad_LaborHours,spFactWeeklyMeasureLoad_LaborHours,From and EDWEffectiveTo,No db found
+DWMartIncrementalLoad_LaborHours,spFactWeeklyMeasureLoad_LaborHours,join [dbo].[DimDataScenario] as c on a.[DataScenarioName],[dbo]
+DWMartIncrementalLoad_LaborHours,spFactWeeklyMeasureLoad_LaborHours,join [dbo].[DimMeasure] as d on a.[MeasureName],[dbo]
+DWMartIncrementalLoad_LaborSalary,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_LaborSalary,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_LaborSalary,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_LaborSalary,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_LaborSalary,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_LeadEvent,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_LeadEvent,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_LeadEvent,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_LeadEvent,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_LeadEvent,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_LeadEvent,spupdate_FactWeeklyMeasure_Dimkey,Update Lead Event dimention keys,No db found
+DWMartIncrementalLoad_LeadEvent,spupdate_FactWeeklyMeasure_Dimkey,INSERT INTO [dbo].[FactWeeklyMeasure],[dbo]
+DWMartIncrementalLoad_LeadEvent,spupdate_FactWeeklyMeasure_Dimkey,FROM [DW_Landing].[dbo].[FactWeeklyMeasureLanding] as a,[DW_Landing]
+DWMartIncrementalLoad_LeadEvent,spupdate_FactWeeklyMeasure_Dimkey,join [dbo].[dimcostcenter] as b on a.Costcenternumber,[dbo]
+DWMartIncrementalLoad_LeadEvent,spupdate_FactWeeklyMeasure_Dimkey,From and EDWEffectiveTo,No db found
+DWMartIncrementalLoad_LeadEvent,spupdate_FactWeeklyMeasure_Dimkey,join [dbo].[dimdatascenario] as c on a.[datascenarioname],[dbo]
+DWMartIncrementalLoad_LeadEvent,spupdate_FactWeeklyMeasure_Dimkey,join [dbo].[dimmeasure] as d on a.[measurename],[dbo]
+DWMartIncrementalLoad_LifeCycleStatus,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_LifeCycleStatus,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_LifeCycleStatus,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_LifeCycleStatus,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_LifeCycleStatus,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_NetRevenue,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_NetRevenue,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_NetRevenue,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_NetRevenue,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_NetRevenue,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_ReportMeasure,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_ReportMeasure,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_ReportMeasure,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_ReportMeasure,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_ReportMeasure,spBeginAuditLog,INSERT INTO AuditLog,No db found
+DWMartIncrementalLoad_ReportProfile,spEndAuditLog,update  audit table after the DML operation on the table,No db found
+DWMartIncrementalLoad_ReportProfile,spEndAuditLog,FROM AuditLog,No db found
+DWMartIncrementalLoad_ReportProfile,spEndAuditLog,UPDATE	AuditLog,No db found
+DWMartIncrementalLoad_ReportProfile,spBeginAuditLog,update  audit table  before the DML operation on the table ,No db found
+DWMartIncrementalLoad_ReportProfile,spBeginAuditLog,INSERT INTO AuditLog,No db found
 StagingtoEDWCSS_DimARAgencyTypeCSS,spCSS_StagingToEDW_DimARAgencyType,from Staging to BING_EDW.,BING_EDW
 StagingtoEDWCSS_DimARAgencyTypeCSS,spCSS_StagingToEDW_DimARAgencyType,from Source by calling,No db found
 StagingtoEDWCSS_DimARAgencyTypeCSS,spCSS_StagingToEDW_DimARAgencyType,from source,No db found

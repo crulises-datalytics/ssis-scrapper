@@ -67,7 +67,7 @@ def dependencies(file_path):
     if len(matches) > 0:
         return matches
     else:
-        return ""
+        return None
     
 
 def collect_keys_values(json_obj, keys=set(), values=set()):
@@ -136,9 +136,9 @@ def process_map_dict(map_dict):
                         new_dep_dict[key].update({v: map_dict[v]})
                     iterated_keys.append(v)
             else:
-                new_dep_dict[key] = ""
+                new_dep_dict[key] = None
         else:
-            new_dep_dict[key] = ""
+            new_dep_dict[key] = None
     return new_dep_dict, iterated_keys
 
 def clean_dep_dict(new_dep_dict, iterated_keys):
@@ -318,16 +318,19 @@ def get_package_inner_execution_order(file_path):
 def extract_activities(container, inner_dependencies):
     prefix='{www.microsoft.com/SqlServer/Dts}'
     
-    activities = container.findall(f'{prefix}Executables')[0].getchildren()
     pack_dict = {
         'activity_name' : container.attrib[f'{prefix}refId'],
         'depends_on' : inner_dependencies.get(container.attrib[f'{prefix}refId'], None),
         'elements' : []}
-    for act in activities:
-        if act.attrib[f'{prefix}ExecutableType'] == 'Microsoft.ExecutePackageTask':
-            pack_dict['elements'].append(act.attrib[f'{prefix}ObjectName'])
-        elif act.attrib[f'{prefix}ExecutableType'] == 'STOCK:SEQUENCE':
-            pack_dict['elements'].append(extract_activities(act, inner_dependencies))
+    
+    if len(container.findall(f'{prefix}Executables')) > 0:
+        activities = container.findall(f'{prefix}Executables')[0].getchildren()
+
+        for act in activities:
+            if act.attrib[f'{prefix}ExecutableType'] == 'Microsoft.ExecutePackageTask':
+                pack_dict['elements'].append(act.attrib[f'{prefix}ObjectName'])
+            elif act.attrib[f'{prefix}ExecutableType'] == 'STOCK:SEQUENCE':
+                pack_dict['elements'].append(extract_activities(act, inner_dependencies))
     
     return pack_dict
 

@@ -54,7 +54,7 @@ df.to_csv(f"{target_dir}\\total_StoreProcedures.csv", index=False)
 #GENERATE TREE OF DEPENDENCIES
 dir_path = os.path.join(path, "bing")
 target_dir = os.path.join(path, "analysis")
-valid_dirs = ['DataLakeHRISToBase']
+valid_dirs = ['StagingToEDW', 'DataLakeHRISToBase', 'DWMartIncrementalLoad', 'DataLakeBaseToMart']
 
 discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".dtsx")
 files_path = discovery.get_files()
@@ -104,7 +104,7 @@ df_final.to_csv(path + "\\analysis\\extracted_sql_from_sp.csv", index=False)
 
 #EXTRACTING ALL DATA CONSIDERED RELEVANT FROM QUERIES AND STORE PROCEDURES IN THE PACKAGES
 root_directory = os.path.join(path, "bing")
-disc = SSISAnalyzer(root_directory=root_directory, valid_dirs=['DWBaseIncrementalLoad', 'StagingToEDW'], file_extension=".dtsx")
+disc = SSISAnalyzer(root_directory=root_directory, valid_dirs=['StagingToEDW', 'DataLakeHRISToBase', 'DWMartIncrementalLoad', 'DataLakeBaseToMart'], file_extension=".dtsx")
 all_files_path = disc.get_files()
 
 pattern = "//*[local-name()='component']/*[local-name()='properties']/*[local-name()='property']/text()"
