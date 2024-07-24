@@ -163,6 +163,15 @@ def clean_dep_dict(new_dep_dict, iterated_keys):
     return {k: v for k, v in sorted(new_dep_dict.items(), key=lambda item: len(item[1]) if item[1] is not None else 0, reverse=True)}
 
 def get_package_inner_execution_order(file_path):
+    '''
+    Returns the execution order of the activities within a certain SSIS package.
+    
+    Args:
+        file_path (string): local path to the SSIS package.
+        
+    Returns:
+        inner_dependencies (dict): dictionary containing the precedence order of the activities.
+    '''
     with open(file_path, 'r') as file:
         content = file.read()
     
@@ -178,6 +187,16 @@ def get_package_inner_execution_order(file_path):
     return inner_dependencies
 
 def extract_activities(container, inner_dependencies):
+    '''
+    Recursively extracts the activities' information from within a SSIS package container (STOCK:SEQUENCE) activity .
+    
+    Args:
+        container (lxml.etree._Element): a STOCK:SEQUENCE SSIS activity that contains other activities within it, be it package execution tasks or more container activities.
+        inner_dependencies (dict): the precedence order of the activities within the original container.
+        
+    Returns:
+        pack_dict (dict): a dictionary containing the activity name, what it depends on to run, and the elements contained within the container. Elements may be the packages invoked, or inner containers.
+    '''
     prefix='{www.microsoft.com/SqlServer/Dts}'
     
     activities = container.findall(f'{prefix}Executables')[0].getchildren()
@@ -194,6 +213,15 @@ def extract_activities(container, inner_dependencies):
     return pack_dict
 
 def build_dependencies(file_path):
+    '''
+    Given the file path pointing to a parent SSIS package, it builds the dependencies and relationships of the packages contained within the parent one.
+    
+    Args:
+        file_path (string): local path to the parent SSIS package containing other packages.
+        
+    Returns:
+        pack_dependencies (dict): dictionary in which the key is the parent package name, and it's value is the composition of the activities' dependencies and relations.
+    '''
     tree = lxml.etree.parse(file_path)
     prefix='{www.microsoft.com/SqlServer/Dts}'
     root = tree.getroot()
@@ -207,6 +235,7 @@ def build_dependencies(file_path):
         pack_dependencies[root.attrib[f'{prefix}ObjectName']].append(extract_activities(caja, inner_order))
     
     return pack_dependencies
+
 def extract_sql_data(input_df, columns_to_keep:list=['File_path', 'Extracted', 'db']):
     regex = "FROM\\s+[ _@A-Za-z0-9.\\[\\]]+|join[ _A-Za-z0-9.\\[\\]]+|insert\\s+into\\s+[ _@A-Za-z0-9.\\[\\]]+|declare[ _@A-Za-z0-9.\\[\\]]+|update\\s+[ _@A-Za-z0-9.\[\]]+"
     # Filter rows based on the presence of SQL keywords and patterns
