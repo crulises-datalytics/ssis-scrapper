@@ -1,6 +1,11 @@
 SqlTaskData
-"Execute spEndAuditLog ?,?,?,?,?,?,?;"
-"Execute spBeginAuditLog ? OUTPUT, ?, ?;"
-"Execute spEndAuditLog ?, ?, ?, ?, ?;"
-EXEC [dbo].[SpPopulateNSESupport]   @DebugMode =1
- Exec [dbo].[SpPopulateNSESupportSD]   @DebugMode =1
+"EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, ?, ?
+GO"
+"EXECUTE [dbo].[spEndAuditLog] ?, ?, ?, ?, ?, ?
+GO"
+"EXECUTE [dbo].[spEndAuditLog] ?, ?, ?, ?, ?, ?, ?
+GO"
+"EXECUTE [dbo].[spEndAuditLog] ?, ?, ?, ?, ?,?
+GO"
+"EXECUTE [dbo].[spEndAuditLog] ?, ?, ?, ?, ?
+GO"

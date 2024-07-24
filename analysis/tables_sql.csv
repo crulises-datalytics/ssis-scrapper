@@ -1,10 +1,5 @@
-SqlTaskData
-""
-"EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, ?, ?
-GO"
-"EXECUTE [dbo].[spEndAuditLog] ?, ?, ?, ?, ?, ?
-GO"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+File_path,SqlTaskData,Extracted
+DataLakeHRISToBase_AccreditationBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
 	BEGIN
 		INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
 	END
@@ -15,8 +10,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.Accred
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
 
-SELECT @LastProcessedDate AS LastProcessedDate;"
-"WITH PerQualifications AS 
+SELECT @LastProcessedDate AS LastProcessedDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_AccreditationBN,"WITH PerQualifications AS 
 (
 SELECT 
 pq.qualification_id AS QualificationID
@@ -38,12 +33,12 @@ WHERE NOT EXISTS
 )
 AND abn.Deleted IS NULL;
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE  dbo.ETLBatchControl 
+SELECT @@ROWCOUNT AS DeleteCount ;",FROM dbo.PER_QUALIFICATIONS_B0
+DataLakeHRISToBase_AccreditationBN,"UPDATE  dbo.ETLBatchControl 
 SET LastProcessedDate = GETDATE()
 , Status = 'Success'
-WHERE Tablename = ?;"
-"WITH PerQualifications AS 
+WHERE Tablename = ?;",UPDATE
+DataLakeHRISToBase_AccreditationBN,"WITH PerQualifications AS 
 (
 SELECT 
 pq.qualification_id AS QualificationID
@@ -84,8 +79,8 @@ UPDATE bn
 FROM dbo.AccreditationBN bn
 JOIN PerQualificationUpdate base ON bn.QualificationID = base.QualificationID
 
-SELECT @@ROWCOUNT AS UpdateCount ;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount ;",FROM dbo.PER_QUALIFICATIONS_B0
+DataLakeHRISToBase_AP_SUPPLIERS_B0,"DELETE FROM base
 FROM dbo.[AP_SUPPLIERS_B0] base
 WHERE NOT EXISTS
 (
@@ -94,9 +89,8 @@ WHERE NOT EXISTS
     WHERE base.vendor_id = landing.vendor_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount;"
-User::vLandingCountQuery
-"UPDATE base SET 
+SELECT @@ROWCOUNT AS DeleteCount;",
+DataLakeHRISToBase_AP_SUPPLIERS_B0,"UPDATE base SET 
 	base.last_update_date = landing.last_update_date,
 	base.last_updated_by = landing.last_updated_by,
 	base.vendor_name = landing.vendor_name,
@@ -285,9 +279,8 @@ JOIN [HR_Landing].dbo.[AP_SUPPLIERS_B0Landing] landing
 	ON base.vendor_id = landing.vendor_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-User::vLandingTruncateQuery
-"UPDATE target SET 
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_AP_SUPPLIERS_B0,"UPDATE target SET 
 	target.RowHash = src.RowHash
 FROM 
 (SELECT 
@@ -472,8 +465,8 @@ FROM
 FROM dbo.AP_SUPPLIERS_B0Landing l) src
 JOIN dbo.AP_SUPPLIERS_B0Landing target ON src.vendor_id = target.vendor_id
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_AssessmentBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
  BEGIN
   INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
  END
@@ -484,8 +477,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.Assess
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
 
-SELECT @LastProcessedDate AS LastProcessedDate;"
-"WITH Assessment AS
+SELECT @LastProcessedDate AS LastProcessedDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_AssessmentBN,"WITH Assessment AS
 (
 SELECT  
 	    ( coalesce(PAC.segment1,'') + case when PAC.segment1 is not null or PAC.segment3 is not null then   '_' end  + coalesce (PAC.segment3,'')) AS  AssessmentID 
@@ -509,13 +502,13 @@ WHERE NOT EXISTS
       
       AND Trmn.deleted IS NULL;
 
-SELECT @@RowCount AS DeleteCount;"
-"
+SELECT @@RowCount AS DeleteCount;",FROM dbo.PER_ANALYSIS_CRITERIA_B0
+DataLakeHRISToBase_AssessmentBN,"
 UPDATE  dbo.ETLBatchControl 
 SET LastProcessedDate = GETDATE()
 , Status = 'Success'
-WHERE Tablename = ?;"
-"
+WHERE Tablename = ?;",UPDATE
+DataLakeHRISToBase_AssessmentBN,"
 WITH B0Query AS 
 (
 SELECT 
@@ -554,8 +547,8 @@ SET  [AssessmentType] =                      Upd.[AssessmentType],
 	
 SELECT @@ROWCOUNT AS UpdateCount
     
-"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+",FROM dbo.PER_ANALYSIS_CRITERIA_B0
+DataLakeHRISToBase_AssignmentBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
 	BEGIN
 		INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
 	END
@@ -568,9 +561,8 @@ SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
 
 SELECT @LastProcessedDate AS LastProcessedDate;
 
-"
-TRUNCATE TABLE dbo.AssignmentB1
-"DELETE p
+",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_AssignmentBN,"DELETE p
 FROM dbo.AssignmentBN p 
 JOIN (SELECT *
 FROM HR_Landing.dbo.AssignmentB1 vpbn
@@ -584,8 +576,8 @@ WHERE EXISTS
 )
 )A ON p.AssignmentID = a.AssignmentID AND p.EffectiveStartDate = a.EffectiveStartDate AND p.BaseEffectiveDate = a.BaseEffectiveDate
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"DELETE pbn
+SELECT @@ROWCOUNT AS DeleteCount ;",FROM dbo.AssignmentBN
+DataLakeHRISToBase_AssignmentBN,"DELETE pbn
 FROM dbo.AssignmentBN pbn
 WHERE NOT EXISTS
 (
@@ -596,8 +588,8 @@ WHERE NOT EXISTS
     AND pbn.BaseEffectiveDate = vpbn.BaseEffectiveDate
 )
 
-SELECT @@ROWCOUNT + ? AS DeleteCount ;"
-"WITH Updates AS 
+SELECT @@ROWCOUNT + ? AS DeleteCount ;",FROM dbo.AssignmentBN
+DataLakeHRISToBase_AssignmentBN,"WITH Updates AS 
 (
 SELECT * 
 FROM dbo.vAssignmentBN vabn
@@ -657,8 +649,12 @@ FROM dbo.AssignmentBN a
 JOIN Updates u ON a.AssignmentID = u.AssignmentID AND a.EffectiveStartDate = u.EffectiveStartDate 
 		AND a.BaseEffectiveDate = u.BaseEffectiveDate AND a.BaseEndDate = u.BaseEndDate
 
-SELECT @@ROWCOUNT  AS UpdateCount;"
-"UPDATE dbo.AssignmentBN 
+SELECT @@ROWCOUNT  AS UpdateCount;",Update
+DataLakeHRISToBase_AssignmentBN,"UPDATE  dbo.ETLBatchControl 
+SET LastProcessedDate = GETDATE()
+, Status = 'Success'
+WHERE Tablename = ?;",UPDATE
+DataLakeHRISToBase_AssignmentBN,"UPDATE dbo.AssignmentBN 
 SET RowStatus = 'H'
 , BaseModifiedDate = GETDATE()
 , UpdateAuditID = ?
@@ -666,21 +662,8 @@ WHERE
  CAST(BaseEndDate AS DATE)< CAST(GETDATE() AS DATE) 
  AND RowStatus <> 'H'
 
-SELECT @@ROWCOUNT + ? AS UpdateCount;"
-"DECLARE @FiscalDate DATE = ?;
-DECLARE @BatchSplitByName VARCHAR(20);
-DECLARE @Day VARCHAR(20) = (SELECT DATENAME(WEEKDAY, @FiscalDate ) );
-
-IF @Day = 'Sunday' 
-	BEGIN
-		SET @BatchSplitByName = 'FiscalWeekDate'
-	END
-ELSE 
-	SET @BatchSplitByName = 'FiscalDate'
-
-EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, ?, ?,@BatchSplitByName, @FiscalDate;
-GO"
-"DECLARE @FiscalDate DATE = ?
+SELECT @@ROWCOUNT + ? AS UpdateCount;",UPDATE
+DataLakeHRISToBase_BaseEmployeeCensusBN,"DECLARE @FiscalDate DATE = ?
 DECLARE @CurrentDate DATE = ?
 DECLARE @PreviousWeek DATE = (SELECT DATEADD(week, (DATEDIFF(week,-1,@FiscalDate)),-1));
 DECLARE @ReloadDate DATE = (SELECT DATEADD(DAY, -365, @CurrentDate));
@@ -731,17 +714,15 @@ ELSE
 				SET @DeleteCount = (SELECT 0 + @DeleteCount);
 		
 		SELECT @DeleteCount AS DeleteCount;
-	END"
-"EXECUTE [dbo].[spEndAuditLog] ?, ?, ?, ?, ?, ?, ?
-GO"
-"SELECT COUNT(1) AS InsertCount 
+	END",FROM dbo.BaseEmployeeCensusBN
+DataLakeHRISToBase_BaseEmployeeCensusBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeCensusBN
 WHERE InsertAuditID = ?;
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"/* Get Last Fiscal Date processed successfully from AuditLog */
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeCensusBN,"/* Get Last Fiscal Date processed successfully from AuditLog */
 
 DECLARE @LastProcessedFiscalDate DATE;
 DECLARE @FullDate DATE = (SELECT MAX(FullDate) FROM dbo.BaseEmployeeCensusBN(NOLOCK));
@@ -758,8 +739,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
 
 SELECT CASE WHEN @FullDate IS NULL THEN ?
 		ELSE ISNULL(@LastProcessedFiscalDate, '1900-01-01') 
-	   END AS LastProcessedFiscalDate;	 "
-"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
+	   END AS LastProcessedFiscalDate;	 ",FROM dbo.BaseEmployeeCensusBN
+DataLakeHRISToBase_BaseEmployeeCensusBN,"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
 
 DECLARE @BatchOverrideID BIGINT = ?;
 DECLARE @NewExecutionID VARCHAR(300) = ?;
@@ -788,8 +769,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
       INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId ;
 
 SELECT ISNULL(@LastProcessedFiscalDate, '1900-01-01') AS LastProcessedFiscalDate
-"
-"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
+",FROM dbo.ETLBatchOverrideExecutions
+DataLakeHRISToBase_BaseEmployeeCensusBN,"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
 									   ELSE FiscalWeekStartDate 
 								  END AS FiscalWeekStartDate
 						   FROM dbo.DimDate WHERE FullDate = ?)
@@ -816,8 +797,8 @@ ELSE
 		UNION 
 		SELECT @CurrentDate AS FiscalWeekStartDate
 		ORDER BY FiscalWeekStartDate
-	END"
-"DECLARE @OverrideStartDate DATE = ?;
+	END",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeCensusBN,"DECLARE @OverrideStartDate DATE = ?;
 DECLARE @OverrideEndDate DATE = ?;
 DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE); 
 DECLARE @CurrentDate DATE = CAST(? AS DATE);
@@ -862,8 +843,8 @@ ELSE
 				AND FiscalWeekStartDate > @LastProcessedFiscalDate
 				ORDER BY FiscalWeekStartDate
 			END
-	END "
-"DECLARE @PackageName VARCHAR(MAX) = ?;
+	END ",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeCensusBN,"DECLARE @PackageName VARCHAR(MAX) = ?;
 DECLARE @CurrentDate DATE = CAST(? AS DATE);
 DECLARE @ReloadDate DATE = (SELECT DATEADD(DAY, -365, @CurrentDate));
 
@@ -887,8 +868,8 @@ ELSE IF (NOT EXISTS (SELECT 1 FROM dbo.BaseEmployeeCensusBN ))
 
 SELECT CAST(LastProcessedDate AS DATE) AS LoadStartDate 
 FROM dbo.ETLBatchControl WHERE TableName = @PackageName;
-	 "
-"DECLARE @OverrideStartDate DATE;
+	 ",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_BaseEmployeeCensusBN,"DECLARE @OverrideStartDate DATE;
 DECLARE @OverrideEndDate DATE;
 DECLARE @BatchOverrideID BIGINT;
 DECLARE @IsOverride BIT;
@@ -927,25 +908,25 @@ SELECT @BatchOverrideID AS BatchOverrideID,
        @OverrideStartDate AS OverrideStartDate,
        @OverrideEndDate AS OverrideEndDate,
        @IsOverride AS IsOverride;
-"
-"SELECT SUM(SourceCount) AS SourceCount, SUM(InsertCount) AS InsertCount, SUM(UpdateCount) AS UpdateCount, SUM(DeleteCount) AS DeleteCount, SUM(RejectCount) AS RejectCount
+",FROM dbo.ETLBatchOverride
+DataLakeHRISToBase_BaseEmployeeCensusBN,"SELECT SUM(SourceCount) AS SourceCount, SUM(InsertCount) AS InsertCount, SUM(UpdateCount) AS UpdateCount, SUM(DeleteCount) AS DeleteCount, SUM(RejectCount) AS RejectCount
 FROM dbo.AuditLog(NOLOCK)
-WHERE ExecutionID = ?"
-"UPDATE dbo.ETLBatchOverride
+WHERE ExecutionID = ?",Insert
+DataLakeHRISToBase_BaseEmployeeCensusBN,"UPDATE dbo.ETLBatchOverride
 SET IsActive = 0
          , LastProcessedDate = ?
 WHERE TaskName = ?
-AND IsActive = 1"
-"UPDATE dbo.ETLBatchControl
+AND IsActive = 1",UPDATE
+DataLakeHRISToBase_BaseEmployeeCensusBN,"UPDATE dbo.ETLBatchControl
 SET LastProcessedDate = ?
 , Status = 'Success'
-WHERE TableName = ?;"
-"DECLARE @FiscalUpdateDate DATE = ?
+WHERE TableName = ?;",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalUpdateDate DATE = ?
 
     DELETE FROM dbo.BaseEmployeeEventBN WHERE FullDate =  @FiscalUpdateDate  and EventName='Anniversary';
   
-    SELECT @@ROWCOUNT AS DeleteCount ;"
-"DECLARE @FiscalDate DATE = ?;
+    SELECT @@ROWCOUNT AS DeleteCount ;",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?;
 DECLARE @BatchSplitByName VARCHAR(20);
 
 
@@ -956,15 +937,15 @@ DECLARE @BatchSplitByName VARCHAR(20);
 
 
 EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeAnniversaryEventUpdates', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+GO",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN where Eventname='Anniversary'
  and Fulldate= ?;
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"DECLARE @FiscalDate DATE = ?
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?
 DECLARE @CurrentDate DATE = ?
 
 DECLARE @DeleteCount INT = ?;
@@ -994,27 +975,15 @@ ELSE
     
   SET @DeleteCount = (SELECT @@ROWCOUNT);
   SELECT @DeleteCount AS DeleteCount;
- END"
-"DECLARE @FiscalDate DATE = ?;
-DECLARE @BatchSplitByName VARCHAR(20);
-
-
-
- BEGIN
-  SET @BatchSplitByName = 'FiscalDate'
- END
-
-
-EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeAnniversaryEvent', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+ END",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN
 WHERE InsertAuditID = ? AND EventName='Anniversary';
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"With 
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"With 
 PersonID
 AS 
 (
@@ -1045,8 +1014,8 @@ where EventName='Anniversary'
  )
 select cast([year]+'-'+[Month] as date)  FullUpdateDate from OldDates  where [year] is not null and [Month] is not null  AND [Month]<>'02-29' AND  [Year]>=format(GETDATE(), 'yyyy')-7
 Union
-select cast([year]+'-'+[Month]  as date) FullUpdateDate from NewDates  where [year] is not null and [Month] is not null  AND [Month]<>'02-29' AND  [Year]>=format(GETDATE(), 'yyyy')-7"
-"/* Get Last Fiscal Date processed successfully from AuditLog */
+select cast([year]+'-'+[Month]  as date) FullUpdateDate from NewDates  where [year] is not null and [Month] is not null  AND [Month]<>'02-29' AND  [Year]>=format(GETDATE(), 'yyyy')-7",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog */
 
 DECLARE @LastProcessedFiscalDate DATE;
 DECLARE @FullDate DATE = (SELECT MAX(FullDate) FROM dbo.BaseEmployeeEventBN(NOLOCK) WHERE EventName='Anniversary');
@@ -1063,8 +1032,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
 
 SELECT CASE WHEN @FullDate IS NULL THEN ?
   ELSE ISNULL(@LastProcessedFiscalDate, '1900-01-01') 
-    END AS LastProcessedFiscalDate;  "
-"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
+    END AS LastProcessedFiscalDate;  ",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
 
 DECLARE @BatchOverrideID BIGINT = ?;
 DECLARE @NewExecutionID VARCHAR(300) = ?;
@@ -1093,8 +1062,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
       INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId ;
 
 SELECT ISNULL(@LastProcessedFiscalDate, '1900-01-01') AS LastProcessedFiscalDate
-"
-"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
+",FROM dbo.ETLBatchOverrideExecutions
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
             ELSE FiscalWeekStartDate 
           END AS FiscalWeekStartDate
          FROM dbo.DimDate WHERE FullDate = ?)
@@ -1121,8 +1090,8 @@ ELSE
   UNION 
   SELECT @CurrentDate AS FullDate
   ORDER BY FullDate
- END"
-"DECLARE @OverrideStartDate DATE = ?;
+ END",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE = ?;
 DECLARE @OverrideEndDate DATE = ?;
 DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE); 
 DECLARE @CurrentDate DATE = CAST(? AS DATE);
@@ -1167,8 +1136,8 @@ ELSE
     AND FullDate > @LastProcessedFiscalDate
     ORDER BY FullDate 
    END
- END "
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeAnniversaryEventBN')
+ END ",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeAnniversaryEventBN')
  BEGIN
   INSERT INTO dbo.ETLBatchControl (TableName,LastProcessedDate) VALUES ('BaseEmployeeAnniversaryEventBN',?)
  END
@@ -1180,8 +1149,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.BaseEm
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = ?;
 
-SELECT @LastProcessedDate AS LoadStartDate;"
-"DECLARE @OverrideStartDate DATE;
+SELECT @LastProcessedDate AS LoadStartDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE;
 DECLARE @OverrideEndDate DATE;
 DECLARE @BatchOverrideID BIGINT;
 DECLARE @IsOverride BIT;
@@ -1220,22 +1189,22 @@ SELECT @BatchOverrideID AS BatchOverrideID,
        @OverrideStartDate AS OverrideStartDate,
        @OverrideEndDate AS OverrideEndDate,
        @IsOverride AS IsOverride;
-"
-"UPDATE dbo.ETLBatchOverride
+",FROM dbo.ETLBatchOverride
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchOverride
 SET IsActive = 0
          , LastProcessedDate = ?
 WHERE TaskName = 'BaseEmployeeAnniversaryEventBN'
-AND IsActive = 1"
-"UPDATE dbo.ETLBatchControl
+AND IsActive = 1",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchControl
 SET LastProcessedDate = ?
 , Status = 'Success'
-WHERE TableName = 'BaseEmployeeAnniversaryEventBN';"
-"DECLARE @FiscalUpdateDate DATE = ?
+WHERE TableName = 'BaseEmployeeAnniversaryEventBN';",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalUpdateDate DATE = ?
 
     DELETE FROM dbo.BaseEmployeeEventBN WHERE FullDate =  @FiscalUpdateDate  and EventName='Birthday';
   
-    SELECT @@ROWCOUNT AS DeleteCount ;"
-"DECLARE @FiscalDate DATE = ?;
+    SELECT @@ROWCOUNT AS DeleteCount ;",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?;
 DECLARE @BatchSplitByName VARCHAR(20);
 
 
@@ -1246,15 +1215,15 @@ DECLARE @BatchSplitByName VARCHAR(20);
 
 
 EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeBirthdayEventUpdates', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+GO",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN where Eventname='Birthday'
  and Fulldate= ?;
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"DECLARE @FiscalDate DATE = ?
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?
 DECLARE @CurrentDate DATE = ?
 
 DECLARE @DeleteCount INT = ?;
@@ -1284,27 +1253,15 @@ ELSE
     
   SET @DeleteCount = (SELECT @@ROWCOUNT);
   SELECT @DeleteCount AS DeleteCount;
- END"
-"DECLARE @FiscalDate DATE = ?;
-DECLARE @BatchSplitByName VARCHAR(20);
-
-
-
- BEGIN
-  SET @BatchSplitByName = 'FiscalDate'
- END
-
-
-EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeBirthdayEvent', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+ END",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN
 WHERE InsertAuditID = ? AND EventName='Birthday';
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"With 
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"With 
 PersonID
 AS 
 (
@@ -1335,8 +1292,8 @@ where EventName='Birthday'
  )
 select cast([year]+'-'+[Month] as date)  FullUpdateDate from OldDates  where [year] is not null and [Month] is not null   AND [Month]<>'02-29'  AND  [Year]>=format(GETDATE(), 'yyyy')-7
 Union
-select cast([year]+'-'+[Month]  as date) FullUpdateDate from NewDates  where [year] is not null and [Month] is not null  AND [Month]<>'02-29'  AND  [Year]>=format(GETDATE(), 'yyyy')-7"
-"/* Get Last Fiscal Date processed successfully from AuditLog */
+select cast([year]+'-'+[Month]  as date) FullUpdateDate from NewDates  where [year] is not null and [Month] is not null  AND [Month]<>'02-29'  AND  [Year]>=format(GETDATE(), 'yyyy')-7",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog */
 
 DECLARE @LastProcessedFiscalDate DATE;
 DECLARE @FullDate DATE = (SELECT MAX(FullDate) FROM dbo.BaseEmployeeEventBN(NOLOCK) WHERE EventName='Birthday');
@@ -1353,8 +1310,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
 
 SELECT CASE WHEN @FullDate IS NULL THEN ?
   ELSE ISNULL(@LastProcessedFiscalDate, '1900-01-01') 
-    END AS LastProcessedFiscalDate;  "
-"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
+    END AS LastProcessedFiscalDate;  ",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
 
 DECLARE @BatchOverrideID BIGINT = ?;
 DECLARE @NewExecutionID VARCHAR(300) = ?;
@@ -1383,8 +1340,82 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
       INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId ;
 
 SELECT ISNULL(@LastProcessedFiscalDate, '1900-01-01') AS LastProcessedFiscalDate
-"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeBirthdayEventBN')
+",FROM dbo.ETLBatchOverrideExecutions
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
+            ELSE FiscalWeekStartDate 
+          END AS FiscalWeekStartDate
+         FROM dbo.DimDate WHERE FullDate = ?)
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE);
+
+
+IF (@LastProcessedFiscalDate IS NULL) 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE FullDate BETWEEN  @StartDate AND @CurrentDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+
+ END
+ELSE 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE (FullDate BETWEEN  @StartDate AND @CurrentDate)
+  AND FullDate > @LastProcessedFiscalDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+ END",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE = ?;
+DECLARE @OverrideEndDate DATE = ?;
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE); 
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @Weekday VARCHAR(15) = (SELECT DATENAME(WEEKDAY, @OverrideEndDate));
+DECLARE @FiscalWeekStartDate DATE = (SELECT FiscalWeekStartDate FROM dbo.DimDate WHERE FullDate = @CurrentDate)
+
+IF (@Weekday <> 'Sunday' AND @OverrideEndDate > @FiscalWeekStartDate)
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+ END 
+ELSE 
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate BETWEEN @OverrideStartDate AND @OverrideEndDate
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    ORDER BY FullDate 
+   END
+ END ",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeBirthdayEventBN')
  BEGIN
   INSERT INTO dbo.ETLBatchControl (TableName,LastProcessedDate) VALUES ('BaseEmployeeBirthdayEventBN',?)
  END
@@ -1396,8 +1427,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.BaseEm
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = ?;
 
-SELECT @LastProcessedDate AS LoadStartDate;"
-"DECLARE @OverrideStartDate DATE;
+SELECT @LastProcessedDate AS LoadStartDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE;
 DECLARE @OverrideEndDate DATE;
 DECLARE @BatchOverrideID BIGINT;
 DECLARE @IsOverride BIT;
@@ -1436,22 +1467,22 @@ SELECT @BatchOverrideID AS BatchOverrideID,
        @OverrideStartDate AS OverrideStartDate,
        @OverrideEndDate AS OverrideEndDate,
        @IsOverride AS IsOverride;
-"
-"UPDATE dbo.ETLBatchOverride
+",FROM dbo.ETLBatchOverride
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchOverride
 SET IsActive = 0
          , LastProcessedDate = ?
 WHERE TaskName = 'BaseEmployeeBirthdayEventBN'
-AND IsActive = 1"
-"UPDATE dbo.ETLBatchControl
+AND IsActive = 1",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchControl
 SET LastProcessedDate = ?
 , Status = 'Success'
-WHERE TableName = 'BaseEmployeeBirthdayEventBN';"
-"DECLARE @FiscalUpdateDate DATE = ?
+WHERE TableName = 'BaseEmployeeBirthdayEventBN';",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalUpdateDate DATE = ?
 
     DELETE FROM dbo.BaseEmployeeEventBN WHERE FullDate =  @FiscalUpdateDate  and EventName='Hire';
   
-    SELECT @@ROWCOUNT AS DeleteCount ;"
-"DECLARE @FiscalDate DATE = ?;
+    SELECT @@ROWCOUNT AS DeleteCount ;",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?;
 DECLARE @BatchSplitByName VARCHAR(20);
 
 
@@ -1462,15 +1493,15 @@ DECLARE @BatchSplitByName VARCHAR(20);
 
 
 EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeHireEventUpdates', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+GO",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN where Eventname='Hire'
  and Fulldate= ?;
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"DECLARE @FiscalDate DATE = ?
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?
 DECLARE @CurrentDate DATE = ?
 
 DECLARE @DeleteCount INT = ?;
@@ -1500,27 +1531,15 @@ ELSE
     
   SET @DeleteCount = (SELECT @@ROWCOUNT);
   SELECT @DeleteCount AS DeleteCount;
- END"
-"DECLARE @FiscalDate DATE = ?;
-DECLARE @BatchSplitByName VARCHAR(20);
-
-
-
- BEGIN
-  SET @BatchSplitByName = 'FiscalDate'
- END
-
-
-EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeHireEvent', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+ END",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN
 WHERE InsertAuditID = ? AND EventName='Hire';
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"SELECT DISTINCT  date_start  FROM  HR_Base.dbo.PER_PERIODS_OF_SERVICE_B0 s with (nolock)
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT DISTINCT  date_start  FROM  HR_Base.dbo.PER_PERIODS_OF_SERVICE_B0 s with (nolock)
 JOIN HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0 a with (nolock) ON s.period_of_service_id = a.period_of_service_id 
 WHERE s.person_id IN (
 SELECT DISTINCT s.person_id  FROM  HR_Base.dbo.PER_PERIODS_OF_SERVICE_B0History s with (nolock)
@@ -1539,8 +1558,8 @@ s.BaseUTCEndDate AT TIME ZONE 'Pacific Standard Time')))=CAST(? AS DATE)
  select distinct DateStart From PerPeriodsB10 with (nolock) where ActualTerminationDate is null and  PersonID in (
 select PersonID From PerPeriodsB10
 except 
-select PersonID from BaseEmployeeEventBN with (nolock) )"
-"/* Get Last Fiscal Date processed successfully from AuditLog */
+select PersonID from BaseEmployeeEventBN with (nolock) )",FROM  HR_Base.dbo
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog */
 
 DECLARE @LastProcessedFiscalDate DATE;
 DECLARE @FullDate DATE = (SELECT MAX(FullDate) FROM dbo.BaseEmployeeEventBN(NOLOCK) WHERE EventName='Hire');
@@ -1557,8 +1576,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
 
 SELECT CASE WHEN @FullDate IS NULL THEN ?
   ELSE ISNULL(@LastProcessedFiscalDate, '1900-01-01') 
-    END AS LastProcessedFiscalDate;  "
-"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
+    END AS LastProcessedFiscalDate;  ",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
 
 DECLARE @BatchOverrideID BIGINT = ?;
 DECLARE @NewExecutionID VARCHAR(300) = ?;
@@ -1587,8 +1606,82 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
       INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId ;
 
 SELECT ISNULL(@LastProcessedFiscalDate, '1900-01-01') AS LastProcessedFiscalDate
-"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeHireEventBN')
+",FROM dbo.ETLBatchOverrideExecutions
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
+            ELSE FiscalWeekStartDate 
+          END AS FiscalWeekStartDate
+         FROM dbo.DimDate WHERE FullDate = ?)
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE);
+
+
+IF (@LastProcessedFiscalDate IS NULL) 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE FullDate BETWEEN  @StartDate AND @CurrentDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+
+ END
+ELSE 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE (FullDate BETWEEN  @StartDate AND @CurrentDate)
+  AND FullDate > @LastProcessedFiscalDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+ END",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE = ?;
+DECLARE @OverrideEndDate DATE = ?;
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE); 
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @Weekday VARCHAR(15) = (SELECT DATENAME(WEEKDAY, @OverrideEndDate));
+DECLARE @FiscalWeekStartDate DATE = (SELECT FiscalWeekStartDate FROM dbo.DimDate WHERE FullDate = @CurrentDate)
+
+IF (@Weekday <> 'Sunday' AND @OverrideEndDate > @FiscalWeekStartDate)
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+ END 
+ELSE 
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate BETWEEN @OverrideStartDate AND @OverrideEndDate
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    ORDER BY FullDate 
+   END
+ END ",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeHireEventBN')
  BEGIN
   INSERT INTO dbo.ETLBatchControl (TableName,LastProcessedDate) VALUES ('BaseEmployeeHireEventBN',?)
  END
@@ -1600,8 +1693,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.BaseEm
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = ?;
 
-SELECT @LastProcessedDate AS LoadStartDate;"
-"DECLARE @OverrideStartDate DATE;
+SELECT @LastProcessedDate AS LoadStartDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE;
 DECLARE @OverrideEndDate DATE;
 DECLARE @BatchOverrideID BIGINT;
 DECLARE @IsOverride BIT;
@@ -1640,22 +1733,22 @@ SELECT @BatchOverrideID AS BatchOverrideID,
        @OverrideStartDate AS OverrideStartDate,
        @OverrideEndDate AS OverrideEndDate,
        @IsOverride AS IsOverride;
-"
-"UPDATE dbo.ETLBatchOverride
+",FROM dbo.ETLBatchOverride
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchOverride
 SET IsActive = 0
          , LastProcessedDate = ?
 WHERE TaskName = 'BaseEmployeeHireEventBN'
-AND IsActive = 1"
-"UPDATE dbo.ETLBatchControl
+AND IsActive = 1",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchControl
 SET LastProcessedDate = ?
 , Status = 'Success'
-WHERE TableName = 'BaseEmployeeHireEventBN';"
-"DECLARE @FiscalUpdateDate DATE = ?
+WHERE TableName = 'BaseEmployeeHireEventBN';",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalUpdateDate DATE = ?
 
     DELETE FROM dbo.BaseEmployeeEventBN WHERE FullDate =  @FiscalUpdateDate  and EventName='Job Change';
   
-    SELECT @@ROWCOUNT AS DeleteCount ;"
-"DECLARE @FiscalDate DATE = ?;
+    SELECT @@ROWCOUNT AS DeleteCount ;",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?;
 DECLARE @BatchSplitByName VARCHAR(20);
 
 
@@ -1666,15 +1759,15 @@ DECLARE @BatchSplitByName VARCHAR(20);
 
 
 EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeJobChangeEventUpdates', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+GO",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN where Eventname='Job Change'
  and Fulldate= ?;
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"DECLARE @FiscalDate DATE = ?
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?
 DECLARE @CurrentDate DATE = ?
 
 DECLARE @DeleteCount INT = ?;
@@ -1704,27 +1797,15 @@ ELSE
     
   SET @DeleteCount = (SELECT @@ROWCOUNT);
   SELECT @DeleteCount AS DeleteCount;
- END"
-"DECLARE @FiscalDate DATE = ?;
-DECLARE @BatchSplitByName VARCHAR(20);
-
-
-
- BEGIN
-  SET @BatchSplitByName = 'FiscalDate'
- END
-
-
-EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeJobChangeEvent', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+ END",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN
 WHERE InsertAuditID = ? AND EventName='Job Change';
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"SELECT distinct  effective_start_date  FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0 with (nolock) WHERE job_id in (
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT distinct  effective_start_date  FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0 with (nolock) WHERE job_id in (
 SELECT DISTINCT job_id FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0History with (nolock)
 WHERE CONVERT(date, SWITCHOFFSET(BaseUTCEndDate, DATEPART(TZOFFSET, 
 BaseUTCEndDate AT TIME ZONE 'Pacific Standard Time'))) =CAST(?  as date) ) 
@@ -1738,8 +1819,8 @@ UNION
 SELECT DISTINCT effective_start_date FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0History with (nolock)
 WHERE CONVERT(date, SWITCHOFFSET(BaseUTCEndDate, DATEPART(TZOFFSET, 
 BaseUTCEndDate AT TIME ZONE 'Pacific Standard Time'))) =CAST(?  as date) and  effective_start_date is not null
-"
-"/* Get Last Fiscal Date processed successfully from AuditLog */
+",FROM  HR_Base.dbo
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog */
 
 DECLARE @LastProcessedFiscalDate DATE;
 DECLARE @FullDate DATE = (SELECT MAX(FullDate) FROM dbo.BaseEmployeeEventBN(NOLOCK) WHERE EventName='Job Change');
@@ -1756,8 +1837,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
 
 SELECT CASE WHEN @FullDate IS NULL THEN ?
   ELSE ISNULL(@LastProcessedFiscalDate, '1900-01-01') 
-    END AS LastProcessedFiscalDate;  "
-"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
+    END AS LastProcessedFiscalDate;  ",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
 
 DECLARE @BatchOverrideID BIGINT = ?;
 DECLARE @NewExecutionID VARCHAR(300) = ?;
@@ -1786,8 +1867,82 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
       INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId ;
 
 SELECT ISNULL(@LastProcessedFiscalDate, '1900-01-01') AS LastProcessedFiscalDate
-"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeJobChangeEventBN')
+",FROM dbo.ETLBatchOverrideExecutions
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
+            ELSE FiscalWeekStartDate 
+          END AS FiscalWeekStartDate
+         FROM dbo.DimDate WHERE FullDate = ?)
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE);
+
+
+IF (@LastProcessedFiscalDate IS NULL) 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE FullDate BETWEEN  @StartDate AND @CurrentDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+
+ END
+ELSE 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE (FullDate BETWEEN  @StartDate AND @CurrentDate)
+  AND FullDate > @LastProcessedFiscalDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+ END",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE = ?;
+DECLARE @OverrideEndDate DATE = ?;
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE); 
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @Weekday VARCHAR(15) = (SELECT DATENAME(WEEKDAY, @OverrideEndDate));
+DECLARE @FiscalWeekStartDate DATE = (SELECT FiscalWeekStartDate FROM dbo.DimDate WHERE FullDate = @CurrentDate)
+
+IF (@Weekday <> 'Sunday' AND @OverrideEndDate > @FiscalWeekStartDate)
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+ END 
+ELSE 
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate BETWEEN @OverrideStartDate AND @OverrideEndDate
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    ORDER BY FullDate 
+   END
+ END ",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeJobChangeEventBN')
  BEGIN
   INSERT INTO dbo.ETLBatchControl (TableName,LastProcessedDate) VALUES ('BaseEmployeeJobChangeEventBN',?)
  END
@@ -1799,8 +1954,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.BaseEm
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = ?;
 
-SELECT @LastProcessedDate AS LoadStartDate;"
-"DECLARE @OverrideStartDate DATE;
+SELECT @LastProcessedDate AS LoadStartDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE;
 DECLARE @OverrideEndDate DATE;
 DECLARE @BatchOverrideID BIGINT;
 DECLARE @IsOverride BIT;
@@ -1839,22 +1994,22 @@ SELECT @BatchOverrideID AS BatchOverrideID,
        @OverrideStartDate AS OverrideStartDate,
        @OverrideEndDate AS OverrideEndDate,
        @IsOverride AS IsOverride;
-"
-"UPDATE dbo.ETLBatchOverride
+",FROM dbo.ETLBatchOverride
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchOverride
 SET IsActive = 0
          , LastProcessedDate = ?
 WHERE TaskName = 'BaseEmployeeJobChangeEventBN'
-AND IsActive = 1"
-"UPDATE dbo.ETLBatchControl
+AND IsActive = 1",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchControl
 SET LastProcessedDate = ?
 , Status = 'Success'
-WHERE TableName = 'BaseEmployeeJobChangeEventBN';"
-"DECLARE @FiscalUpdateDate DATE = ?
+WHERE TableName = 'BaseEmployeeJobChangeEventBN';",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalUpdateDate DATE = ?
 
     DELETE FROM dbo.BaseEmployeeEventBN WHERE FullDate =  @FiscalUpdateDate  and EventName='Organization Change';
   
-    SELECT @@ROWCOUNT AS DeleteCount ;"
-"DECLARE @FiscalDate DATE = ?;
+    SELECT @@ROWCOUNT AS DeleteCount ;",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?;
 DECLARE @BatchSplitByName VARCHAR(20);
 
 
@@ -1865,15 +2020,15 @@ DECLARE @BatchSplitByName VARCHAR(20);
 
 
 EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeOrgnChangeEventUpdates', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+GO",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN where Eventname='Organization Change'
  and Fulldate= ?;
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"DECLARE @FiscalDate DATE = ?
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?
 DECLARE @CurrentDate DATE = ?
 
 DECLARE @DeleteCount INT = ?;
@@ -1903,27 +2058,15 @@ ELSE
     
   SET @DeleteCount = (SELECT @@ROWCOUNT);
   SELECT @DeleteCount AS DeleteCount;
- END"
-"DECLARE @FiscalDate DATE = ?;
-DECLARE @BatchSplitByName VARCHAR(20);
-
-
-
- BEGIN
-  SET @BatchSplitByName = 'FiscalDate'
- END
-
-
-EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeOrgChangeEvent', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+ END",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN
 WHERE InsertAuditID = ? AND EventName='Organization Change';
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"SELECT distinct  effective_start_date  FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0 with (nolock) WHERE organization_id in (
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT distinct  effective_start_date  FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0 with (nolock) WHERE organization_id in (
 SELECT DISTINCT organization_id FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0History with (nolock) 
 WHERE CONVERT(date, SWITCHOFFSET(BaseUTCEndDate, DATEPART(TZOFFSET, 
 BaseUTCEndDate AT TIME ZONE 'Pacific Standard Time'))) =CAST(? as date) ) 
@@ -1937,8 +2080,8 @@ UNION
 SELECT DISTINCT effective_start_date FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0History with (nolock) 
 WHERE CONVERT(date, SWITCHOFFSET(BaseUTCEndDate, DATEPART(TZOFFSET, 
 BaseUTCEndDate AT TIME ZONE 'Pacific Standard Time'))) =CAST(?  as date) and  effective_start_date is not null
-"
-"/* Get Last Fiscal Date processed successfully from AuditLog */
+",FROM  HR_Base.dbo
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog */
 
 DECLARE @LastProcessedFiscalDate DATE;
 DECLARE @FullDate DATE = (SELECT MAX(FullDate) FROM dbo.BaseEmployeeEventBN(NOLOCK) WHERE EventName='Organization Change');
@@ -1955,8 +2098,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
 
 SELECT CASE WHEN @FullDate IS NULL THEN ?
   ELSE ISNULL(@LastProcessedFiscalDate, '1900-01-01') 
-    END AS LastProcessedFiscalDate;  "
-"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
+    END AS LastProcessedFiscalDate;  ",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
 
 DECLARE @BatchOverrideID BIGINT = ?;
 DECLARE @NewExecutionID VARCHAR(300) = ?;
@@ -1985,8 +2128,82 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
       INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId ;
 
 SELECT ISNULL(@LastProcessedFiscalDate, '1900-01-01') AS LastProcessedFiscalDate
-"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeOrgChangeEventBN')
+",FROM dbo.ETLBatchOverrideExecutions
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
+            ELSE FiscalWeekStartDate 
+          END AS FiscalWeekStartDate
+         FROM dbo.DimDate WHERE FullDate = ?)
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE);
+
+
+IF (@LastProcessedFiscalDate IS NULL) 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE FullDate BETWEEN  @StartDate AND @CurrentDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+
+ END
+ELSE 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE (FullDate BETWEEN  @StartDate AND @CurrentDate)
+  AND FullDate > @LastProcessedFiscalDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+ END",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE = ?;
+DECLARE @OverrideEndDate DATE = ?;
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE); 
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @Weekday VARCHAR(15) = (SELECT DATENAME(WEEKDAY, @OverrideEndDate));
+DECLARE @FiscalWeekStartDate DATE = (SELECT FiscalWeekStartDate FROM dbo.DimDate WHERE FullDate = @CurrentDate)
+
+IF (@Weekday <> 'Sunday' AND @OverrideEndDate > @FiscalWeekStartDate)
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+ END 
+ELSE 
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate BETWEEN @OverrideStartDate AND @OverrideEndDate
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    ORDER BY FullDate 
+   END
+ END ",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeOrgChangeEventBN')
  BEGIN
   INSERT INTO dbo.ETLBatchControl (TableName,LastProcessedDate) VALUES ('BaseEmployeeOrgChangeEventBN',?)
  END
@@ -1998,8 +2215,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.BaseEm
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = ?;
 
-SELECT @LastProcessedDate AS LoadStartDate;"
-"DECLARE @OverrideStartDate DATE;
+SELECT @LastProcessedDate AS LoadStartDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE;
 DECLARE @OverrideEndDate DATE;
 DECLARE @BatchOverrideID BIGINT;
 DECLARE @IsOverride BIT;
@@ -2038,22 +2255,22 @@ SELECT @BatchOverrideID AS BatchOverrideID,
        @OverrideStartDate AS OverrideStartDate,
        @OverrideEndDate AS OverrideEndDate,
        @IsOverride AS IsOverride;
-"
-"UPDATE dbo.ETLBatchOverride
+",FROM dbo.ETLBatchOverride
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchOverride
 SET IsActive = 0
          , LastProcessedDate = ?
 WHERE TaskName = 'BaseEmployeeOrgChangeEventBN'
-AND IsActive = 1"
-"UPDATE dbo.ETLBatchControl
+AND IsActive = 1",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchControl
 SET LastProcessedDate = ?
 , Status = 'Success'
-WHERE TableName = 'BaseEmployeeOrgChangeEventBN';"
-"DECLARE @FiscalUpdateDate DATE = ?
+WHERE TableName = 'BaseEmployeeOrgChangeEventBN';",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalUpdateDate DATE = ?
 
     DELETE FROM dbo.BaseEmployeeEventBN WHERE FullDate =  @FiscalUpdateDate  and EventName='Position Change';
   
-    SELECT @@ROWCOUNT AS DeleteCount ;"
-"DECLARE @FiscalDate DATE = ?;
+    SELECT @@ROWCOUNT AS DeleteCount ;",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?;
 DECLARE @BatchSplitByName VARCHAR(20);
 
 
@@ -2064,15 +2281,15 @@ DECLARE @BatchSplitByName VARCHAR(20);
 
 
 EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeePositionChangeEventUpdates', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+GO",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN where Eventname='Position Change'
  and Fulldate= ?;
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"DECLARE @FiscalDate DATE = ?
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?
 DECLARE @CurrentDate DATE = ?
 
 DECLARE @DeleteCount INT = ?;
@@ -2102,27 +2319,15 @@ ELSE
     
   SET @DeleteCount = (SELECT @@ROWCOUNT);
   SELECT @DeleteCount AS DeleteCount;
- END"
-"DECLARE @FiscalDate DATE = ?;
-DECLARE @BatchSplitByName VARCHAR(20);
-
-
-
- BEGIN
-  SET @BatchSplitByName = 'FiscalDate'
- END
-
-
-EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeePositionChangeEvent', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+ END",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN
 WHERE InsertAuditID = ? AND EventName='Position Change';
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"SELECT distinct  effective_start_date  FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0 with (nolock) WHERE position_id in (
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT distinct  effective_start_date  FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0 with (nolock) WHERE position_id in (
 SELECT DISTINCT position_id FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0History with (nolock) 
 WHERE CONVERT(date, SWITCHOFFSET(BaseUTCEndDate, DATEPART(TZOFFSET, 
 BaseUTCEndDate AT TIME ZONE 'Pacific Standard Time'))) =CAST(? as date) ) 
@@ -2136,8 +2341,8 @@ UNION
 SELECT DISTINCT effective_start_date FROM  HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0History with (nolock) 
 WHERE CONVERT(date, SWITCHOFFSET(BaseUTCEndDate, DATEPART(TZOFFSET, 
 BaseUTCEndDate AT TIME ZONE 'Pacific Standard Time'))) =CAST(?  as date) and  effective_start_date is not null
-"
-"/* Get Last Fiscal Date processed successfully from AuditLog */
+",FROM  HR_Base.dbo
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog */
 
 DECLARE @LastProcessedFiscalDate DATE;
 DECLARE @FullDate DATE = (SELECT MAX(FullDate) FROM dbo.BaseEmployeeEventBN(NOLOCK) WHERE EventName='Position Change');
@@ -2154,8 +2359,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
 
 SELECT CASE WHEN @FullDate IS NULL THEN ?
   ELSE ISNULL(@LastProcessedFiscalDate, '1900-01-01') 
-    END AS LastProcessedFiscalDate;  "
-"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
+    END AS LastProcessedFiscalDate;  ",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
 
 DECLARE @BatchOverrideID BIGINT = ?;
 DECLARE @NewExecutionID VARCHAR(300) = ?;
@@ -2184,8 +2389,82 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
       INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId ;
 
 SELECT ISNULL(@LastProcessedFiscalDate, '1900-01-01') AS LastProcessedFiscalDate
-"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeePositionChangeEventBN')
+",FROM dbo.ETLBatchOverrideExecutions
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
+            ELSE FiscalWeekStartDate 
+          END AS FiscalWeekStartDate
+         FROM dbo.DimDate WHERE FullDate = ?)
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE);
+
+
+IF (@LastProcessedFiscalDate IS NULL) 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE FullDate BETWEEN  @StartDate AND @CurrentDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+
+ END
+ELSE 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE (FullDate BETWEEN  @StartDate AND @CurrentDate)
+  AND FullDate > @LastProcessedFiscalDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+ END",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE = ?;
+DECLARE @OverrideEndDate DATE = ?;
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE); 
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @Weekday VARCHAR(15) = (SELECT DATENAME(WEEKDAY, @OverrideEndDate));
+DECLARE @FiscalWeekStartDate DATE = (SELECT FiscalWeekStartDate FROM dbo.DimDate WHERE FullDate = @CurrentDate)
+
+IF (@Weekday <> 'Sunday' AND @OverrideEndDate > @FiscalWeekStartDate)
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+ END 
+ELSE 
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate BETWEEN @OverrideStartDate AND @OverrideEndDate
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    ORDER BY FullDate 
+   END
+ END ",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeePositionChangeEventBN')
  BEGIN
   INSERT INTO dbo.ETLBatchControl (TableName,LastProcessedDate) VALUES ('BaseEmployeePositionChangeEventBN',?)
  END
@@ -2197,8 +2476,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.BaseEm
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = ?;
 
-SELECT @LastProcessedDate AS LoadStartDate;"
-"DECLARE @OverrideStartDate DATE;
+SELECT @LastProcessedDate AS LoadStartDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE;
 DECLARE @OverrideEndDate DATE;
 DECLARE @BatchOverrideID BIGINT;
 DECLARE @IsOverride BIT;
@@ -2237,22 +2516,22 @@ SELECT @BatchOverrideID AS BatchOverrideID,
        @OverrideStartDate AS OverrideStartDate,
        @OverrideEndDate AS OverrideEndDate,
        @IsOverride AS IsOverride;
-"
-"UPDATE dbo.ETLBatchOverride
+",FROM dbo.ETLBatchOverride
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchOverride
 SET IsActive = 0
          , LastProcessedDate = ?
 WHERE TaskName = 'BaseEmployeePositionChangeEventBN'
-AND IsActive = 1"
-"UPDATE dbo.ETLBatchControl
+AND IsActive = 1",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchControl
 SET LastProcessedDate = ?
 , Status = 'Success'
-WHERE TableName = 'BaseEmployeePositionChangeEventBN';"
-"DECLARE @FiscalUpdateDate DATE = ?
+WHERE TableName = 'BaseEmployeePositionChangeEventBN';",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalUpdateDate DATE = ?
 
     DELETE FROM dbo.BaseEmployeeEventBN WHERE FullDate =  @FiscalUpdateDate  and EventName='Rehire';
   
-    SELECT @@ROWCOUNT AS DeleteCount ;"
-"DECLARE @FiscalDate DATE = ?;
+    SELECT @@ROWCOUNT AS DeleteCount ;",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?;
 DECLARE @BatchSplitByName VARCHAR(20);
 
 
@@ -2263,15 +2542,15 @@ DECLARE @BatchSplitByName VARCHAR(20);
 
 
 EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeRehireEventUpdates', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+GO",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN where Eventname='Rehire'
  and Fulldate= ?;
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"DECLARE @FiscalDate DATE = ?
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?
 DECLARE @CurrentDate DATE = ?
 
 DECLARE @DeleteCount INT = ?;
@@ -2301,27 +2580,15 @@ ELSE
     
   SET @DeleteCount = (SELECT @@ROWCOUNT);
   SELECT @DeleteCount AS DeleteCount;
- END"
-"DECLARE @FiscalDate DATE = ?;
-DECLARE @BatchSplitByName VARCHAR(20);
-
-
-
- BEGIN
-  SET @BatchSplitByName = 'FiscalDate'
- END
-
-
-EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeRehireEvent', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+ END",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN
 WHERE InsertAuditID = ? AND EventName='Rehire';
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"SELECT DISTINCT  date_start  FROM  HR_Base.dbo.PER_PERIODS_OF_SERVICE_B0 s with (nolock) 
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT DISTINCT  date_start  FROM  HR_Base.dbo.PER_PERIODS_OF_SERVICE_B0 s with (nolock) 
 JOIN HR_Base.dbo.PER_ALL_ASSIGNMENTS_F_B0 a with (nolock) ON s.period_of_service_id = a.period_of_service_id 
 WHERE s.person_id IN (
 SELECT DISTINCT s.person_id  FROM  HR_Base.dbo.PER_PERIODS_OF_SERVICE_B0History s with (nolock) 
@@ -2342,8 +2609,8 @@ select PersonID From PerPeriodsB10
 except 
 select PersonID from BaseEmployeeEventBN with (nolock) )
 UNION
- select distinct DateStart From PerPeriodsB10 with (nolock) where DateStart>getdate()"
-"/* Get Last Fiscal Date processed successfully from AuditLog */
+ select distinct DateStart From PerPeriodsB10 with (nolock) where DateStart>getdate()",FROM  HR_Base.dbo
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog */
 
 DECLARE @LastProcessedFiscalDate DATE;
 DECLARE @FullDate DATE = (SELECT MAX(FullDate) FROM dbo.BaseEmployeeEventBN(NOLOCK) WHERE EventName='Rehire');
@@ -2360,8 +2627,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
 
 SELECT CASE WHEN @FullDate IS NULL THEN ?
   ELSE ISNULL(@LastProcessedFiscalDate, '1900-01-01') 
-    END AS LastProcessedFiscalDate;  "
-"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
+    END AS LastProcessedFiscalDate;  ",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
 
 DECLARE @BatchOverrideID BIGINT = ?;
 DECLARE @NewExecutionID VARCHAR(300) = ?;
@@ -2390,8 +2657,82 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
       INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId ;
 
 SELECT ISNULL(@LastProcessedFiscalDate, '1900-01-01') AS LastProcessedFiscalDate
-"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeRehireEventBN')
+",FROM dbo.ETLBatchOverrideExecutions
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
+            ELSE FiscalWeekStartDate 
+          END AS FiscalWeekStartDate
+         FROM dbo.DimDate WHERE FullDate = ?)
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE);
+
+
+IF (@LastProcessedFiscalDate IS NULL) 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE FullDate BETWEEN  @StartDate AND @CurrentDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+
+ END
+ELSE 
+ BEGIN
+  SELECT DISTINCT FullDate
+  FROM dbo.DimDate
+  WHERE (FullDate BETWEEN  @StartDate AND @CurrentDate)
+  AND FullDate > @LastProcessedFiscalDate
+  UNION 
+  SELECT @CurrentDate AS FullDate
+  ORDER BY FullDate
+ END",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE = ?;
+DECLARE @OverrideEndDate DATE = ?;
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE); 
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @Weekday VARCHAR(15) = (SELECT DATENAME(WEEKDAY, @OverrideEndDate));
+DECLARE @FiscalWeekStartDate DATE = (SELECT FiscalWeekStartDate FROM dbo.DimDate WHERE FullDate = @CurrentDate)
+
+IF (@Weekday <> 'Sunday' AND @OverrideEndDate > @FiscalWeekStartDate)
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+ END 
+ELSE 
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate BETWEEN @OverrideStartDate AND @OverrideEndDate
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    ORDER BY FullDate 
+   END
+ END ",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeRehireEventBN')
  BEGIN
   INSERT INTO dbo.ETLBatchControl (TableName,LastProcessedDate) VALUES ('BaseEmployeeRehireEventBN',?)
  END
@@ -2403,8 +2744,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.BaseEm
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = ?;
 
-SELECT @LastProcessedDate AS LoadStartDate;"
-"DECLARE @OverrideStartDate DATE;
+SELECT @LastProcessedDate AS LoadStartDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE;
 DECLARE @OverrideEndDate DATE;
 DECLARE @BatchOverrideID BIGINT;
 DECLARE @IsOverride BIT;
@@ -2443,22 +2784,22 @@ SELECT @BatchOverrideID AS BatchOverrideID,
        @OverrideStartDate AS OverrideStartDate,
        @OverrideEndDate AS OverrideEndDate,
        @IsOverride AS IsOverride;
-"
-"UPDATE dbo.ETLBatchOverride
+",FROM dbo.ETLBatchOverride
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchOverride
 SET IsActive = 0
          , LastProcessedDate = ?
 WHERE TaskName = 'BaseEmployeeRehireEventBN'
-AND IsActive = 1"
-"UPDATE dbo.ETLBatchControl
+AND IsActive = 1",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchControl
 SET LastProcessedDate = ?
 , Status = 'Success'
-WHERE TableName = 'BaseEmployeeRehireEventBN';"
-"DECLARE @FiscalUpdateDate DATE = ?
+WHERE TableName = 'BaseEmployeeRehireEventBN';",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalUpdateDate DATE = ?
 
     DELETE FROM dbo.BaseEmployeeEventBN WHERE FullDate =  @FiscalUpdateDate  and EventName='Termination';
   
-    SELECT @@ROWCOUNT AS DeleteCount ;"
-"DECLARE @FiscalDate DATE = ?;
+    SELECT @@ROWCOUNT AS DeleteCount ;",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?;
 DECLARE @BatchSplitByName VARCHAR(20);
 
 
@@ -2469,15 +2810,15 @@ DECLARE @BatchSplitByName VARCHAR(20);
 
 
 EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeTerminationEventUpdates', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+GO",Update
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN where Eventname='Termination'
  and Fulldate= ?;
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"DECLARE @FiscalDate DATE = ?
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @FiscalDate DATE = ?
 DECLARE @CurrentDate DATE = ?
 
 DECLARE @DeleteCount INT = ?;
@@ -2507,27 +2848,15 @@ ELSE
 				
 		SET @DeleteCount = (SELECT @@ROWCOUNT);
 		SELECT @DeleteCount AS DeleteCount;
-	END"
-"DECLARE @FiscalDate DATE = ?;
-DECLARE @BatchSplitByName VARCHAR(20);
-
-
-
-	BEGIN
-		SET @BatchSplitByName = 'FiscalDate'
-	END
-
-
-EXECUTE [dbo].[spBeginAuditLog] ? OUTPUT, 'BaseEmployeeTerminationEvent', ?,@BatchSplitByName, @FiscalDate;
-GO"
-"SELECT COUNT(1) AS InsertCount 
+	END",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT COUNT(1) AS InsertCount 
 FROM dbo.BaseEmployeeEventBN
 WHERE InsertAuditID = ?;
 
 /* Set source count to Insert + Delete */
 
-SET ? = ? + ?;"
-"SELECT DISTINCT  actual_termination_date  FROM  HR_Base.dbo.PER_PERIODS_OF_SERVICE_B0 with (nolock) WHERE person_id in (
+SET ? = ? + ?;",Insert
+DataLakeHRISToBase_BaseEmployeeEventBN,"SELECT DISTINCT  actual_termination_date  FROM  HR_Base.dbo.PER_PERIODS_OF_SERVICE_B0 with (nolock) WHERE person_id in (
 SELECT DISTINCT person_id  FROM  HR_Base.dbo.PER_PERIODS_OF_SERVICE_B0History with (nolock) WHERE CONVERT(date, SWITCHOFFSET(BaseUTCEndDate, DATEPART(TZOFFSET, 
 BaseUTCEndDate AT TIME ZONE 'Pacific Standard Time')))=CAST(? as date) ) and  actual_termination_date is not null and actual_termination_date>=DATEADD(YEAR,-7,format(GETDATE(),'yyyy'))
 UNION
@@ -2537,8 +2866,8 @@ UNION
  select distinct ActualTerminationDate From PerPeriodsB10 with (nolock) where ActualTerminationDate is not null and  PersonID in (
 select PersonID From PerPeriodsB10
 except 
-select PersonID from BaseEmployeeEventBN with (nolock) where EventName='Termination' )"
-"/* Get Last Fiscal Date processed successfully from AuditLog */
+select PersonID from BaseEmployeeEventBN with (nolock) where EventName='Termination' )",FROM  HR_Base.dbo
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog */
 
 DECLARE @LastProcessedFiscalDate DATE;
 DECLARE @FullDate DATE = (SELECT MAX(FullDate) FROM dbo.BaseEmployeeEventBN(NOLOCK) WHERE EventName='Termination');
@@ -2555,8 +2884,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
 
 SELECT CASE WHEN @FullDate IS NULL THEN ?
 		ELSE ISNULL(@LastProcessedFiscalDate, '1900-01-01') 
-	   END AS LastProcessedFiscalDate;	 "
-"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
+	   END AS LastProcessedFiscalDate;	 ",FROM dbo.BaseEmployeeEventBN
+DataLakeHRISToBase_BaseEmployeeEventBN,"/* Get Last Fiscal Date processed successfully from AuditLog for override only */
 
 DECLARE @BatchOverrideID BIGINT = ?;
 DECLARE @NewExecutionID VARCHAR(300) = ?;
@@ -2585,8 +2914,8 @@ SELECT @LastProcessedFiscalDate = CAST(ja.BatchSplitByValue  AS DATE)
       INNER JOIN LatestJobAuditByTaskName AS lja ON lja.LatestJobAudit = ja.AuditId ;
 
 SELECT ISNULL(@LastProcessedFiscalDate, '1900-01-01') AS LastProcessedFiscalDate
-"
-"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
+",FROM dbo.ETLBatchOverrideExecutions
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @StartDate DATE = (SELECT CASE WHEN FullDate > FiscalWeekStartDate THEN DATEADD(DAY, 7, FiscalWeekStartDate)
 									   ELSE FiscalWeekStartDate 
 								  END AS FiscalWeekStartDate
 						   FROM dbo.DimDate WHERE FullDate = ?)
@@ -2613,8 +2942,54 @@ ELSE
 		UNION 
 		SELECT @CurrentDate AS FullDate
 		ORDER BY FullDate
-	END"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeTerminationEventBN')
+	END",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE = ?;
+DECLARE @OverrideEndDate DATE = ?;
+DECLARE @LastProcessedFiscalDate DATE = CAST(NULLIF(?, '1900-01-01') AS DATE); 
+DECLARE @CurrentDate DATE = CAST(? AS DATE);
+DECLARE @Weekday VARCHAR(15) = (SELECT DATENAME(WEEKDAY, @OverrideEndDate));
+DECLARE @FiscalWeekStartDate DATE = (SELECT FiscalWeekStartDate FROM dbo.DimDate WHERE FullDate = @CurrentDate)
+
+IF (@Weekday <> 'Sunday' AND @OverrideEndDate > @FiscalWeekStartDate)
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    UNION 
+    SELECT @CurrentDate AS FullDate 
+    ORDER BY FullDate 
+   END
+ END 
+ELSE 
+ BEGIN
+  IF (@LastProcessedFiscalDate IS NULL)
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE FullDate BETWEEN @OverrideStartDate AND @OverrideEndDate
+   END
+  ELSE 
+   BEGIN
+    SELECT DISTINCT FullDate 
+    FROM dbo.DimDate
+    WHERE (FullDate  BETWEEN @OverrideStartDate AND @OverrideEndDate)
+    AND FullDate > @LastProcessedFiscalDate
+    ORDER BY FullDate 
+   END
+ END ",FROM dbo.DimDate
+DataLakeHRISToBase_BaseEmployeeEventBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = 'BaseEmployeeTerminationEventBN')
  BEGIN
   INSERT INTO dbo.ETLBatchControl (TableName,LastProcessedDate) VALUES ('BaseEmployeeTerminationEventBN',?)
  END
@@ -2626,8 +3001,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.BaseEm
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = ?;
 
-SELECT @LastProcessedDate AS LoadStartDate;"
-"DECLARE @OverrideStartDate DATE;
+SELECT @LastProcessedDate AS LoadStartDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_BaseEmployeeEventBN,"DECLARE @OverrideStartDate DATE;
 DECLARE @OverrideEndDate DATE;
 DECLARE @BatchOverrideID BIGINT;
 DECLARE @IsOverride BIT;
@@ -2666,25 +3041,25 @@ SELECT @BatchOverrideID AS BatchOverrideID,
        @OverrideStartDate AS OverrideStartDate,
        @OverrideEndDate AS OverrideEndDate,
        @IsOverride AS IsOverride;
-"
-"UPDATE dbo.ETLBatchOverride
+",FROM dbo.ETLBatchOverride
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchOverride
 SET IsActive = 0
          , LastProcessedDate = ?
 WHERE TaskName = 'BaseEmployeeTerminationEventBN'
-AND IsActive = 1"
-"UPDATE dbo.ETLBatchControl
+AND IsActive = 1",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"UPDATE dbo.ETLBatchControl
 SET LastProcessedDate = ?
 , Status = 'Success'
-WHERE TableName = 'BaseEmployeeTerminationEventBN';"
-"With MinDateOfBaseTables
+WHERE TableName = 'BaseEmployeeTerminationEventBN';",UPDATE
+DataLakeHRISToBase_BaseEmployeeEventBN,"With MinDateOfBaseTables
 As (
 Select Min(effective_end_date) as MinDate From PER_ALL_ASSIGNMENTS_F_B0 -- 2016-01-01
 Union
 Select Min(effective_end_date) From PER_ALL_PEOPLE_F_B0 -- 2016-01-01
 Union
 Select Min(actual_termination_date ) From PER_PERIODS_OF_SERVICE_B0 -- 2016-01-01
-) Select Min(MinDate) as [MinDateOfBaseTables] From MinDateOfBaseTables"
-"DECLARE @TableName varchar(30) = 'FlexValuesLookupB10'
+) Select Min(MinDate) as [MinDateOfBaseTables] From MinDateOfBaseTables",
+DataLakeHRISToBase_FlexValuesLookupB10,"DECLARE @TableName varchar(30) = 'FlexValuesLookupB10'
 DECLARE @LastProcessedDate datetime
 DECLARE @BaseCreatedDate datetime
 
@@ -2704,8 +3079,8 @@ IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 		SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
 	END
 
-SELECT @LastProcessedDate AS LastProcessedDate;"
-"UPDATE tgt SET
+SELECT @LastProcessedDate AS LastProcessedDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_FlexValuesLookupB10,"UPDATE tgt SET
 	Deleted			= 'Y',
 	BaseEndDate		= GETDATE()
 FROM
@@ -2729,15 +3104,15 @@ WHERE NOT EXISTS
 	AND ISNULL(tgt.Deleted, '')			!= 'Y'
 	;
 
-SELECT @@ROWCOUNT AS DeleteCount;"
-"DECLARE @Tablename varchar(30) = 'FlexValuesLookupB10'
+SELECT @@ROWCOUNT AS DeleteCount;",UPDATE
+DataLakeHRISToBase_FlexValuesLookupB10,"DECLARE @Tablename varchar(30) = 'FlexValuesLookupB10'
 
 UPDATE dbo.ETLBatchControl SET
 	LastProcessedDate = GETDATE(),
 	[Status] = 'Success'
 WHERE
-	Tablename = @Tablename"
-"DELETE FROM base
+	Tablename = @Tablename",UPDATE
+DataLakeHRISToBase_FND_FLEX_VALUES_B0,"DELETE FROM base
 FROM dbo.[FND_FLEX_VALUES_B0] base
 WHERE NOT EXISTS
 (
@@ -2746,8 +3121,8 @@ WHERE NOT EXISTS
     WHERE base.[flex_value_id] = landing.[flex_value_id]
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base SET 
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_FND_FLEX_VALUES_B0,"UPDATE base SET 
 	base.[flex_value_set_id] = landing.[flex_value_set_id],
 	base.[flex_value] = landing.[flex_value],
 	base.[last_update_date] = landing.[last_update_date],
@@ -2825,8 +3200,8 @@ FROM [HR_Base].dbo.[FND_FLEX_VALUES_B0] base
 JOIN [HR_Landing].dbo.[FND_FLEX_VALUES_B0Landing] landing ON base.[flex_value_id] = landing.[flex_value_id]
 WHERE base.[RowHash] != landing.[RowHash];
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_FND_FLEX_VALUES_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [flex_value_id],
@@ -2900,8 +3275,8 @@ HASHBYTES('MD5',
 FROM [dbo].FND_FLEX_VALUES_B0Landing l)src
 JOIN [dbo].FND_FLEX_VALUES_B0Landing TARGET ON src.[flex_value_id] = TARGET.[flex_value_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_FND_FLEX_VALUES_TL_B0,"DELETE FROM base
 FROM dbo.FND_FLEX_VALUES_TL_B0 BASE
 WHERE NOT EXISTS
 (
@@ -2910,8 +3285,8 @@ WHERE NOT EXISTS
     WHERE base.flex_value_id = landing.flex_value_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",FROM dbo.FND_FLEX_VALUES_TL_B0
+DataLakeHRISToBase_FND_FLEX_VALUES_TL_B0,"UPDATE base
 SET base.flex_value_id = landing.flex_value_id,
     base.language = landing.language,
     base.last_update_date = landing.last_update_date,
@@ -2932,8 +3307,8 @@ FROM [HR_Base].dbo.[FND_FLEX_VALUES_TL_B0] base
         ON base.flex_value_id = landing.flex_value_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE TARGET 
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_FND_FLEX_VALUES_TL_B0,"UPDATE TARGET 
 SET target.RowHash=SRC.RowHash
 FROM 
 (SELECT flex_value_id,
@@ -2953,8 +3328,8 @@ zd_edition_name
   JOIN [HR_Landing].[dbo].[FND_FLEX_VALUES_TL_B0Landing] Target ON SRC.flex_value_id=Target.flex_value_id
 
 
-   SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+   SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_FND_FLEX_VALUE_SETS_B0,"DELETE FROM base
 FROM dbo.[FND_FLEX_VALUE_SETS_B0] base
 WHERE NOT EXISTS
 (
@@ -2963,8 +3338,8 @@ WHERE NOT EXISTS
     WHERE base.flex_value_set_id = landing.flex_value_set_id   
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_FND_FLEX_VALUE_SETS_B0,"UPDATE base
    SET 
        base.flex_value_set_id = landing.flex_value_set_id
       ,base.flex_value_set_name = landing.flex_value_set_name
@@ -2998,8 +3373,8 @@ FROM [HR_Base].dbo.[FND_FLEX_VALUE_SETS_B0] base
 JOIN [HR_Landing].dbo.[FND_FLEX_VALUE_SETS_B0Landing] landing ON base.flex_value_set_id = landing.flex_value_set_id 
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_FND_FLEX_VALUE_SETS_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [flex_value_set_id],
@@ -3026,8 +3401,8 @@ HASHBYTES('MD5',
 FROM [dbo].FND_FLEX_VALUE_SETS_B0Landing l)src
 JOIN [dbo].FND_FLEX_VALUE_SETS_B0Landing TARGET ON src.[flex_value_set_id] = TARGET.[flex_value_set_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_FND_ID_FLEX_STRUCTURES_TL_B0,"DELETE FROM base
 FROM dbo.[FND_ID_FLEX_STRUCTURES_TL_B0] base
 WHERE NOT EXISTS
 (
@@ -3040,8 +3415,8 @@ WHERE NOT EXISTS
 	base.[language] = landing.[language]
 );
 
-SELECT @@ROWCOUNT AS DeleteCount;"
-"UPDATE base SET 
+SELECT @@ROWCOUNT AS DeleteCount;",
+DataLakeHRISToBase_FND_ID_FLEX_STRUCTURES_TL_B0,"UPDATE base SET 
 	base.[last_update_date] = landing.[last_update_date],
 	base.[last_updated_by] = landing.[last_updated_by],
 	base.[creation_date] = landing.[creation_date],
@@ -3067,8 +3442,8 @@ FROM
 WHERE
 	base.[RowHash] != landing.[RowHash];
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_FND_ID_FLEX_STRUCTURES_TL_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [application_id], [id_flex_code], [id_flex_num], [language], 
@@ -3090,8 +3465,8 @@ JOIN [dbo].FND_ID_FLEX_STRUCTURES_TL_B0Landing target
 		src.[id_flex_num] = target.[id_flex_num] AND
 		src.[language] = target.[language];
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_FND_LOGINS_B0,"DELETE FROM base
 FROM dbo.Fnd_Logins_B0 BASE
 WHERE NOT EXISTS
 (
@@ -3100,8 +3475,8 @@ WHERE NOT EXISTS
     WHERE base.Login_id = landing.Login_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",FROM dbo.Fnd_Logins_B0
+DataLakeHRISToBase_FND_LOGINS_B0,"UPDATE base
 SET base.[Login_id] = landing.[Login_id],
     base.[User_id] = landing.[User_id],
     base.[Start_time] = landing.[Start_time],
@@ -3124,9 +3499,8 @@ FROM [HR_Base].dbo.[Fnd_Logins_B0] base
         ON base.Login_id = landing.Login_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-User::vPreLandingTruncateQuery
-"UPDATE TARGET 
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_FND_LOGINS_B0,"UPDATE TARGET 
 SET target.RowHash=SRC.RowHash
 FROM 
 (SELECT Login_id,
@@ -3150,16 +3524,16 @@ HASHBYTES('MD5',
     JOIN [dbo].[FND_LOGINS_B0PreLanding] Target
         ON SRC.Login_id = Target.Login_id;
            
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE dbo.[FND_LOOKUP_VALUES_B0] SET deleted= 'Y'
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_FND_LOOKUP_VALUES_B0,"UPDATE dbo.[FND_LOOKUP_VALUES_B0] SET deleted= 'Y'
 WHERE RowHash NOT IN
 (
     SELECT RowHash
     FROM [HR_Landing].dbo.[FND_LOOKUP_VALUES_B0Landing]
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base SET 
+SELECT @@ROWCOUNT AS DeleteCount ;",UPDATE
+DataLakeHRISToBase_FND_LOOKUP_VALUES_B0,"UPDATE base SET 
 	base.[language] = landing.[language],
 	base.[meaning] = landing.[meaning],
 	base.[description] = landing.[description],
@@ -3204,8 +3578,8 @@ JOIN [HR_Landing].dbo.[FND_LOOKUP_VALUES_B0Landing] landing
 	AND base.[view_application_id] = landing.[view_application_id]
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE TARGET
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_FND_LOOKUP_VALUES_B0,"UPDATE TARGET
 SET TARGET.RowHash = SRC.RowHash
 FROM 
 (SELECT [lookup_type], 
@@ -3251,8 +3625,8 @@ JOIN [dbo].FND_LOOKUP_VALUES_B0Landing TARGET
 	AND SRC.[lookup_code] COLLATE Latin1_General_CS_AS = TARGET.[lookup_code] COLLATE Latin1_General_CS_AS
 	AND SRC.[view_application_id] = TARGET.[view_application_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_HR_ALL_ORGANIZATION_UNITS_B0,"DELETE FROM base
 FROM dbo.[HR_ALL_ORGANIZATION_UNITS_B0] base
 WHERE NOT EXISTS
 (
@@ -3261,8 +3635,8 @@ WHERE NOT EXISTS
     WHERE base.organization_id = landing.organization_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount;"
-"UPDATE base SET 
+SELECT @@ROWCOUNT AS DeleteCount;",
+DataLakeHRISToBase_HR_ALL_ORGANIZATION_UNITS_B0,"UPDATE base SET 
 	base.attribute_category	= landing.attribute_category,
 	base.attribute1 = landing.attribute1,
 	base.attribute10 = landing.attribute10,
@@ -3325,8 +3699,8 @@ JOIN [HR_Landing].dbo.[HR_ALL_ORGANIZATION_UNITS_B0Landing] landing
 	ON base.organization_id = landing.organization_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target SET 
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_HR_ALL_ORGANIZATION_UNITS_B0,"UPDATE target SET 
 	target.RowHash = src.RowHash
 FROM 
 (SELECT 
@@ -3386,8 +3760,8 @@ FROM
 FROM dbo.HR_ALL_ORGANIZATION_UNITS_B0Landing l) src
 JOIN dbo.HR_ALL_ORGANIZATION_UNITS_B0Landing target ON src.[organization_id] = target.[organization_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_HR_ALL_POSITIONS_F_B0,"DELETE FROM base
 FROM dbo.[HR_ALL_POSITIONS_F_B0] base
 WHERE NOT EXISTS
 (
@@ -3398,8 +3772,8 @@ AND base.[effective_start_date] = landing.effective_start_date
 AND base.[effective_end_date] = landing.effective_end_date
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_HR_ALL_POSITIONS_F_B0,"UPDATE base
    SET base.[availability_status_id] = landing.availability_status_id
       ,base.[business_group_id] = landing.business_group_id
       ,base.[entry_grade_id] = landing.entry_grade_id
@@ -3543,8 +3917,8 @@ AND base.[effective_start_date] = landing.effective_start_date
 AND base.[effective_end_date] = landing.effective_end_date
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_HR_ALL_POSITIONS_F_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [position_id], [effective_start_date], [effective_end_date],
@@ -3684,10 +4058,8 @@ FROM [dbo].HR_ALL_POSITIONS_F_B0Landing l)src
 JOIN [dbo].HR_ALL_POSITIONS_F_B0Landing TARGET ON src.[position_id] = TARGET.[position_id]
 AND src.[effective_start_date] = target.[effective_start_date] AND src.[effective_end_date] = target.[effective_end_date]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"EXECUTE [dbo].[spEndAuditLog] ?, ?, ?, ?, ?,?
-GO"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_HR_LOCATIONS_ALL_B0,"DELETE FROM base
 FROM dbo.[HR_LOCATIONS_ALL_B0] base
 WHERE NOT EXISTS
 (
@@ -3696,8 +4068,8 @@ WHERE NOT EXISTS
     WHERE base.location_id = landing.location_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_HR_LOCATIONS_ALL_B0,"UPDATE base
    SET base.[location_id] = landing.location_id,
       base.[location_code] = landing.location_code,
       base.[business_group_id] = landing.business_group_id,
@@ -3796,8 +4168,8 @@ FROM [HR_Base].dbo.[HR_LOCATIONS_ALL_B0] base
 JOIN [HR_Landing].dbo.[HR_LOCATIONS_ALL_B0Landing] landing ON base.location_id = landing.location_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_HR_LOCATIONS_ALL_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [location_id],
@@ -3890,10 +4262,8 @@ HASHBYTES('MD5',
 FROM [dbo].HR_LOCATIONS_ALL_B0Landing l)src
 JOIN [dbo].HR_LOCATIONS_ALL_B0Landing TARGET ON src.[location_id] = TARGET.[location_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"EXECUTE [dbo].[spEndAuditLog] ?, ?, ?, ?, ?
-GO"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_HR_LOCATION_EXTRA_INFO_B0,"DELETE FROM base
 FROM dbo.HR_LOCATION_EXTRA_INFO_B0 BASE
 WHERE NOT EXISTS
 (
@@ -3902,8 +4272,8 @@ WHERE NOT EXISTS
     WHERE base.  [location_extra_info_id]  = landing.  [location_extra_info_id] 
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"
+SELECT @@ROWCOUNT AS DeleteCount ;",FROM dbo.HR_LOCATION_EXTRA_INFO_B0
+DataLakeHRISToBase_HR_LOCATION_EXTRA_INFO_B0,"
 UPDATE base SET 
        base.[location_extra_info_id] = landing.location_extra_info_id
       ,base.[information_type] = landing.information_type
@@ -3979,8 +4349,8 @@ JOIN [HR_Landing].dbo.[HR_LOCATION_EXTRA_INFO_B0Landing] landing
 	ON base.location_extra_info_id = landing.location_extra_info_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target SET 
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_HR_LOCATION_EXTRA_INFO_B0,"UPDATE target SET 
 	target.RowHash = src.RowHash
 FROM 
 (SELECT 
@@ -4051,8 +4421,8 @@ FROM
 FROM dbo.HR_LOCATION_EXTRA_INFO_B0Landing l) src
 JOIN dbo.HR_LOCATION_EXTRA_INFO_B0Landing target ON src.[location_extra_info_id] = target.[location_extra_info_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PayGradeBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
 
 BEGIN
 INSERT INTO dbo.ETLBatchControl (TableName) VALUES ( ? )
@@ -4064,8 +4434,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.PayGra
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
 
-SELECT @LastProcessedDate AS LastProcessedDate;"
-"UPDATE pgbn 
+SELECT @LastProcessedDate AS LastProcessedDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_PayGradeBN,"UPDATE pgbn 
 SET pgbn.Deleted = 'Y',
 pgbn.BaseModifiedDate = GETDATE(),
 pgbn.UpdateAuditID = ?
@@ -4079,16 +4449,20 @@ AND pgbn.EffectiveStartDate = vpgbn.EffectiveStartDate
 )
 AND pgbn.Deleted IS NULL;
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE dbo.PayGradeBN 
+SELECT @@ROWCOUNT AS DeleteCount ;",UPDATE
+DataLakeHRISToBase_PayGradeBN,"UPDATE  dbo.ETLBatchControl 
+SET LastProcessedDate = GETDATE()
+, Status = 'Success'
+WHERE Tablename = ?;",UPDATE
+DataLakeHRISToBase_PayGradeBN,"UPDATE dbo.PayGradeBN 
 SET RowStatus = 'H'
 , BaseModifiedDate = GETDATE()
 , UpdateAuditID = ?
 WHERE CAST(BaseEndDate AS DATE)< CAST(GETDATE() AS DATE)
  AND RowStatus <> 'H'
 
-SELECT @@ROWCOUNT + ? AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT + ? AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PAY_COST_ALLOCATION_KEYFLEX_B0,"DELETE FROM base
 FROM dbo.[PAY_COST_ALLOCATION_KEYFLEX_B0] base
 WHERE NOT EXISTS
 (
@@ -4097,8 +4471,8 @@ WHERE NOT EXISTS
     WHERE base.cost_allocation_keyflex_id = landing.cost_allocation_keyflex_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount;"
-"UPDATE base SET 
+SELECT @@ROWCOUNT AS DeleteCount;",
+DataLakeHRISToBase_PAY_COST_ALLOCATION_KEYFLEX_B0,"UPDATE base SET 
 	base.concatenated_segments = landing.concatenated_segments,
 	base.id_flex_num = landing.id_flex_num,
 	base.summary_flag = landing.summary_flag,
@@ -4149,8 +4523,8 @@ JOIN [HR_Landing].dbo.[PAY_COST_ALLOCATION_KEYFLEX_B0Landing] landing
 	ON base.cost_allocation_keyflex_id = landing.cost_allocation_keyflex_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target SET 
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PAY_COST_ALLOCATION_KEYFLEX_B0,"UPDATE target SET 
 	target.RowHash = src.RowHash
 FROM 
 (SELECT 
@@ -4197,8 +4571,8 @@ FROM
 FROM dbo.PAY_COST_ALLOCATION_KEYFLEX_B0Landing l) src
 JOIN dbo.PAY_COST_ALLOCATION_KEYFLEX_B0Landing target ON src.cost_allocation_keyflex_id = target.cost_allocation_keyflex_id
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PAY_GRADE_RULES_F_B0,"DELETE FROM base
 FROM dbo.[PAY_GRADE_RULES_F_B0] base
 WHERE NOT EXISTS
 (
@@ -4208,8 +4582,8 @@ WHERE NOT EXISTS
             AND base.effective_end_date = landing.effective_end_date
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PAY_GRADE_RULES_F_B0,"UPDATE base
    SET base.[grade_rule_id] = landing.[grade_rule_id],
       base.[effective_start_date] = landing.effective_start_date,
       base.[effective_end_date] = landing.effective_end_date,
@@ -4241,8 +4615,8 @@ FROM [HR_Base].dbo.[PAY_GRADE_RULES_F_B0] base
 JOIN [HR_Landing].dbo.[PAY_GRADE_RULES_F_B0Landing] landing ON base.grade_rule_id = landing.grade_rule_id AND  base.effective_start_date = landing.effective_start_date AND base.effective_end_date = landing.effective_end_date
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PAY_GRADE_RULES_F_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [grade_rule_id],[effective_start_date],
@@ -4270,8 +4644,8 @@ FROM [dbo].PAY_GRADE_RULES_F_B0Landing l)src
 JOIN [dbo].PAY_GRADE_RULES_F_B0Landing TARGET ON src.[grade_rule_id] = TARGET.[grade_rule_id]
 AND src.[effective_start_date] = target.[effective_start_date] AND src.[effective_end_date] = target.[effective_end_date]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PAY_PEOPLE_GROUPS_B0,"
 DELETE FROM base
 FROM dbo.[PAY_PEOPLE_GROUPS_B0] base
 WHERE NOT EXISTS
@@ -4282,8 +4656,8 @@ WHERE NOT EXISTS
 );
 
 SELECT @@ROWCOUNT AS DeleteCount ;
-"
-"UPDATE base
+",
+DataLakeHRISToBase_PAY_PEOPLE_GROUPS_B0,"UPDATE base
    SET base.[people_group_id] = landing.people_group_id
       ,base.[group_name] = landing.group_name
       ,base.[id_flex_num] = landing.id_flex_num
@@ -4334,8 +4708,8 @@ FROM [HR_Base].dbo.[PAY_PEOPLE_GROUPS_B0] base
 JOIN [HR_Landing].dbo.[PAY_PEOPLE_GROUPS_B0Landing] landing ON base.people_group_id = landing.people_group_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PAY_PEOPLE_GROUPS_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [people_group_id],
@@ -4382,8 +4756,8 @@ FROM [dbo].PAY_PEOPLE_GROUPS_B0Landing l)src
 JOIN [dbo].PAY_PEOPLE_GROUPS_B0Landing TARGET ON src.[people_group_id] = TARGET.[people_group_id]
 
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PerPeriodsB10,"
 
 declare @AuditId int = ?
 declare @PackageName varchar(35) = ?
@@ -4635,8 +5009,8 @@ EXECUTE [dbo].[spEndAuditLog]
 @vDeleteCount,   --@DeleteCount
 @vSourceCount,   --@SourceCount
 0,			     --@RejectCount
-@AuditId		 --@AuditId"
-"DECLARE @TableName varchar(30) = 'PerPeriodsB10'
+@AuditId		 --@AuditId",insert
+DataLakeHRISToBase_PerPeriodsB10,"DECLARE @TableName varchar(30) = 'PerPeriodsB10'
 DECLARE @LastProcessedDate datetime
 DECLARE @BaseCreatedDate datetime
 
@@ -4656,9 +5030,22 @@ IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 		SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
 	END
 
-SELECT @LastProcessedDate AS LastProcessedDate;"
-TRUNCATE TABLE dbo.PersonB1
-"DELETE p
+SELECT @LastProcessedDate AS LastProcessedDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_PersonBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+	BEGIN
+		INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
+	END
+
+DECLARE @LastProcessedDate DATETIME = (SELECT LastProcessedDate FROM dbo.ETLBatchControl WHERE TableName = ?);
+DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.PersonBN);
+
+IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
+SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
+
+SELECT @LastProcessedDate AS LastProcessedDate;
+
+",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_PersonBN,"DELETE p
 FROM dbo.PersonBN p 
 JOIN (SELECT *
 FROM HR_Landing.dbo.PersonB1 vpbn
@@ -4672,8 +5059,8 @@ WHERE EXISTS
 )
 )A ON p.PersonID = a.PersonID AND p.EffectiveStartDate = a.EffectiveStartDate AND p.BaseEffectiveDate = a.BaseEffectiveDate
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"DELETE pbn
+SELECT @@ROWCOUNT AS DeleteCount ;",FROM dbo.PersonBN
+DataLakeHRISToBase_PersonBN,"DELETE pbn
 FROM dbo.PersonBN pbn
 WHERE NOT EXISTS
 (
@@ -4684,8 +5071,8 @@ WHERE NOT EXISTS
     AND pbn.BaseEffectiveDate = vpbn.BaseEffectiveDate
 )
 
-SELECT @@ROWCOUNT + ? AS DeleteCount ;"
-"WITH Updates AS 
+SELECT @@ROWCOUNT + ? AS DeleteCount ;",FROM dbo.PersonBN
+DataLakeHRISToBase_PersonBN,"WITH Updates AS 
 (
 SELECT * 
 FROM dbo.vPersonBN vpbn
@@ -4767,8 +5154,12 @@ FROM dbo.PersonBN p
 JOIN Updates u ON p.PersonID = u.PersonID AND p.EffectiveStartDate = u.EffectiveStartDate 
 		AND p.BaseEffectiveDate = u.BaseEffectiveDate AND p.BaseEndDate = u.BaseEndDate
 
-SELECT @@ROWCOUNT  AS UpdateCount;"
-"UPDATE dbo.PersonBN 
+SELECT @@ROWCOUNT  AS UpdateCount;",Update
+DataLakeHRISToBase_PersonBN,"UPDATE  dbo.ETLBatchControl 
+SET LastProcessedDate = GETDATE()
+, Status = 'Success'
+WHERE Tablename = ?;",UPDATE
+DataLakeHRISToBase_PersonBN,"UPDATE dbo.PersonBN 
 SET RowStatus = 'H'
 , BaseModifiedDate = GETDATE()
 , UpdateAuditID = ?
@@ -4776,8 +5167,8 @@ WHERE
  CAST(BaseEndDate AS DATE)< CAST(GETDATE() AS DATE) 
  AND RowStatus <> 'H'
 
-SELECT @@ROWCOUNT + ? AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT + ? AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ADDRESSES_B0,"DELETE FROM base
 FROM dbo.[PER_ADDRESSES_B0] base
 WHERE NOT EXISTS
 (
@@ -4786,8 +5177,8 @@ WHERE NOT EXISTS
     WHERE base.address_id= landing.address_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_ADDRESSES_B0,"UPDATE base
    SET base.address_id = landing.address_id
       ,base.business_group_id = landing.business_group_id
       ,base.person_id = landing.person_id
@@ -4861,8 +5252,8 @@ WHERE base.RowHash != landing.RowHash;
 
 
 SELECT @@ROWCOUNT AS UpdateCount;
-"
-"UPDATE target
+",UPDATE
+DataLakeHRISToBase_PER_ADDRESSES_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [address_id],
@@ -4930,8 +5321,8 @@ FROM [dbo].PER_ADDRESSES_B0Landing l)src
 JOIN [dbo].PER_ADDRESSES_B0Landing TARGET ON src.[address_id] = TARGET.[address_id]
 
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ALL_ASSIGNMENTS_F_B0,"DELETE FROM base
 FROM dbo.[PER_ALL_ASSIGNMENTS_F_B0] base
 WHERE NOT EXISTS
 (
@@ -4943,8 +5334,8 @@ WHERE NOT EXISTS
 );
 
 SELECT @@ROWCOUNT AS DeleteCount ;
-"
-"UPDATE base
+",
+DataLakeHRISToBase_PER_ALL_ASSIGNMENTS_F_B0,"UPDATE base
    SET base.assignment_id = landing.assignment_id
       ,base.effective_start_date = landing.effective_start_date
       ,base.effective_end_date = landing.effective_end_date
@@ -5072,8 +5463,8 @@ JOIN [HR_Landing].dbo.[PER_ALL_ASSIGNMENTS_F_B0Landing] landing ON base.assignme
 WHERE base.RowHash != landing.RowHash;
 
 SELECT @@ROWCOUNT AS UpdateCount;
-"
-"UPDATE Target
+",UPDATE
+DataLakeHRISToBase_PER_ALL_ASSIGNMENTS_F_B0,"UPDATE Target
 SET Target.RowHash = SRC.RowHash
 FROM
 (
@@ -5202,8 +5593,8 @@ FROM
            AND SRC.effective_start_date = Target.effective_start_date
            AND SRC.effective_end_date = Target.effective_end_date;
 
-SELECT @@ROWCOUNT AS UpdateCount;			 "
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;			 ",UPDATE
+DataLakeHRISToBase_PER_ALL_PEOPLE_F_B0,"DELETE FROM base
 FROM dbo.PER_ALL_PEOPLE_F_B0 BASE
 WHERE NOT EXISTS
 (
@@ -5214,8 +5605,8 @@ and base.effective_start_date= landing.effective_start_date
 	AND base.effective_end_date = landing.effective_end_date
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",FROM dbo.PER_ALL_PEOPLE_F_B0
+DataLakeHRISToBase_PER_ALL_PEOPLE_F_B0,"UPDATE base
 SET
 Base.effective_start_date = Landing.effective_start_date
 ,Base.effective_end_date = Landing.effective_end_date
@@ -5378,8 +5769,8 @@ FROM [HR_Base].dbo.[PER_ALL_PEOPLE_F_B0] base
 	AND base.effective_end_date = landing.effective_end_date
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE Target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ALL_PEOPLE_F_B0,"UPDATE Target
 SET Target.RowHash = SRC.RowHash
 FROM
 (
@@ -5547,8 +5938,8 @@ FROM
 SELECT @@ROWCOUNT AS UpdateCount;
 
 
-"
-"
+",UPDATE
+DataLakeHRISToBase_PER_ANALYSIS_CRITERIA_B0,"
 DELETE FROM base
 FROM dbo.[PER_ANALYSIS_CRITERIA_B0] base
 WHERE NOT EXISTS
@@ -5559,8 +5950,8 @@ WHERE NOT EXISTS
 );
 
 SELECT @@ROWCOUNT AS DeleteCount ;
-"
-"UPDATE base
+",
+DataLakeHRISToBase_PER_ANALYSIS_CRITERIA_B0,"UPDATE base
    SET base.[analysis_criteria_id] = landing.analysis_criteria_id
       ,base.[request_id] = landing.request_id
       ,base.[program_application_id] = landing.program_application_id
@@ -5615,8 +6006,8 @@ FROM [HR_Base].dbo.[PER_ANALYSIS_CRITERIA_B0] base
 JOIN [HR_Landing].dbo.[PER_ANALYSIS_CRITERIA_B0Landing] landing ON base.analysis_criteria_id = landing.analysis_criteria_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ANALYSIS_CRITERIA_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [analysis_criteria_id],
@@ -5667,8 +6058,8 @@ FROM [dbo].PER_ANALYSIS_CRITERIA_B0Landing l)src
 JOIN [dbo].PER_ANALYSIS_CRITERIA_B0Landing TARGET ON src.[analysis_criteria_id] = TARGET.[analysis_criteria_id]
 
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ASSIGNMENT_STATUS_TYPES_B0,"DELETE FROM base
 FROM dbo.[PER_ASSIGNMENT_STATUS_TYPES_B0] base
 WHERE NOT EXISTS
 (
@@ -5677,8 +6068,8 @@ WHERE NOT EXISTS
     WHERE base.[assignment_status_type_id] = landing.[assignment_status_type_id]
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_ASSIGNMENT_STATUS_TYPES_B0,"UPDATE base
    SET  base.[assignment_status_type_id] =  landing.[assignment_status_type_id]
       , base.[business_group_id]         =  landing.[business_group_id]
       , base.[legislation_code]          =  landing.[legislation_code]
@@ -5702,8 +6093,8 @@ FROM [HR_Base].dbo.[PER_ASSIGNMENT_STATUS_TYPES_B0] base
 JOIN [HR_Landing].dbo.[PER_ASSIGNMENT_STATUS_TYPES_B0Landing] landing ON base.[assignment_status_type_id] = landing.[assignment_status_type_id]
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ASSIGNMENT_STATUS_TYPES_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [assignment_status_type_id],
@@ -5721,8 +6112,8 @@ HASHBYTES('MD5',
 FROM [dbo].PER_ASSIGNMENT_STATUS_TYPES_B0Landing l)src
 JOIN [dbo].PER_ASSIGNMENT_STATUS_TYPES_B0Landing TARGET ON src.[assignment_status_type_id] = TARGET.[assignment_status_type_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_COMPETENCES_B0,"DELETE FROM base
 FROM dbo.[PER_COMPETENCES_B0] base
 WHERE NOT EXISTS
 (
@@ -5731,8 +6122,8 @@ WHERE NOT EXISTS
     WHERE base.competence_id = landing.competence_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount;"
-"UPDATE base 
+SELECT @@ROWCOUNT AS DeleteCount;",
+DataLakeHRISToBase_PER_COMPETENCES_B0,"UPDATE base 
    SET 
        base.[competence_id] = landing.competence_id
       ,base.[business_group_id] = landing.business_group_id
@@ -5820,8 +6211,8 @@ SELECT @@ROWCOUNT AS UpdateCount;
 
 
 
-"
-"UPDATE target SET 
+",UPDATE
+DataLakeHRISToBase_PER_COMPETENCES_B0,"UPDATE target SET 
 	target.RowHash = src.RowHash
 FROM 
 (SELECT 
@@ -5901,8 +6292,8 @@ FROM
 FROM dbo.PER_COMPETENCES_B0Landing l) src
 JOIN dbo.PER_COMPETENCES_B0Landing target ON src.[competence_id] = target.[competence_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_COMPETENCE_ELEMENTS_B0,"DELETE FROM base
 FROM dbo.[PER_COMPETENCE_ELEMENTS_B0] base
 WHERE NOT EXISTS
 (
@@ -5911,8 +6302,8 @@ WHERE NOT EXISTS
     WHERE base.competence_element_id = landing.competence_element_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount;"
-"UPDATE base SET 
+SELECT @@ROWCOUNT AS DeleteCount;",
+DataLakeHRISToBase_PER_COMPETENCE_ELEMENTS_B0,"UPDATE base SET 
 	base.competence_element_id = landing.competence_element_id,
 	base.business_group_id = landing.business_group_id,
 	base.object_version_number = landing.object_version_number,
@@ -6015,8 +6406,8 @@ WHERE base.RowHash != landing.RowHash;
 
 SELECT @@ROWCOUNT AS UpdateCount;
 
-"
-"UPDATE target SET 
+",UPDATE
+DataLakeHRISToBase_PER_COMPETENCE_ELEMENTS_B0,"UPDATE target SET 
 	target.RowHash = src.RowHash
 FROM 
 (SELECT 
@@ -6113,8 +6504,8 @@ FROM
 FROM dbo.PER_COMPETENCE_ELEMENTS_B0Landing l) src
 JOIN dbo.PER_COMPETENCE_ELEMENTS_B0Landing target ON src.[competence_element_id] = target.[competence_element_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_GRADES_B0,"DELETE FROM base
 FROM dbo.[PER_GRADES_B0] base
 WHERE NOT EXISTS
 (
@@ -6123,8 +6514,8 @@ WHERE NOT EXISTS
     WHERE base.grade_id = landing.grade_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount;"
-"UPDATE base SET 
+SELECT @@ROWCOUNT AS DeleteCount;",
+DataLakeHRISToBase_PER_GRADES_B0,"UPDATE base SET 
 	base.business_group_id = landing.business_group_id,
 	base.grade_definition_id = landing.grade_definition_id,
 	base.date_from = landing.date_from,
@@ -6195,8 +6586,8 @@ JOIN [HR_Landing].dbo.[PER_GRADES_B0Landing] landing
 WHERE base.RowHash != landing.RowHash;
 
 SELECT @@ROWCOUNT AS UpdateCount;
-"
-"UPDATE target SET 
+",UPDATE
+DataLakeHRISToBase_PER_GRADES_B0,"UPDATE target SET 
 	target.RowHash = src.RowHash
 FROM 
 (SELECT 
@@ -6263,8 +6654,8 @@ FROM
 FROM dbo.PER_GRADES_B0Landing l) src
 JOIN dbo.PER_GRADES_B0Landing target ON src.grade_id = target.grade_id
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_JOBS_B0,"DELETE FROM base
 FROM dbo.PER_JOBS_B0 BASE
 WHERE NOT EXISTS
 (
@@ -6273,8 +6664,8 @@ WHERE NOT EXISTS
     WHERE base.job_id = landing.job_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",FROM dbo.PER_JOBS_B0
+DataLakeHRISToBase_PER_JOBS_B0,"UPDATE base
 SET BASE.[job_id]  =  Landing.[job_id]
 ,BASE.[business_group_id]  =  Landing.[business_group_id]
 ,BASE.[job_definition_id]  =  Landing.[job_definition_id]
@@ -6349,8 +6740,8 @@ FROM [HR_Base].dbo.[PER_JOBS_B0] base
         ON base.job_id = landing.job_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE TARGET 
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_JOBS_B0,"UPDATE TARGET 
 SET target.RowHash=SRC.RowHash
 FROM 
 (SELECT Job_id,
@@ -6421,8 +6812,8 @@ HASHBYTES('MD5',
   JOIN [HR_Landing].[dbo].[PER_JOBS_B0Landing] Target ON SRC.Job_id=Target.Job_id
 
 
-   SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+   SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_JOB_GROUPS_B0,"DELETE FROM base
 FROM dbo.[PER_JOB_GROUPS_B0] base
 WHERE NOT EXISTS
 (
@@ -6431,8 +6822,8 @@ WHERE NOT EXISTS
     WHERE base.job_group_id = landing.job_group_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_JOB_GROUPS_B0,"UPDATE base
    SET  base.job_group_id = landing.job_group_id
       , base.business_group_id = landing.business_group_id
       , base.legislation_code = landing.legislation_code
@@ -6454,8 +6845,8 @@ FROM [HR_Base].dbo.[PER_JOB_GROUPS_B0] base
 JOIN [HR_Landing].dbo.[PER_JOB_GROUPS_B0Landing] landing ON base.job_group_id = landing.job_group_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_JOB_GROUPS_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [job_group_id],
@@ -6472,8 +6863,8 @@ FOR XML RAW)) AS RowHash
 FROM [dbo].PER_JOB_GROUPS_B0Landing l)src
 JOIN [dbo].PER_JOB_GROUPS_B0Landing TARGET ON src.[job_group_id] = TARGET.[job_group_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ORGANIZATION_STRUCTURES_B0,"DELETE FROM base
 FROM dbo.[PER_ORGANIZATION_STRUCTURES_B0] base
 WHERE NOT EXISTS
 (
@@ -6482,8 +6873,8 @@ WHERE NOT EXISTS
     WHERE base.organization_structure_id = landing.organization_structure_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_ORGANIZATION_STRUCTURES_B0,"UPDATE base
    SET  base.[organization_structure_id]		=   landing.[organization_structure_id]
       , base.[business_group_id]				=   landing.[business_group_id]
       , base.[name]								=   landing.[name]
@@ -6529,8 +6920,8 @@ FROM [PER_ORGANIZATION_STRUCTURES_B0] base
 JOIN [HR_Landing].dbo.[PER_ORGANIZATION_STRUCTURES_B0Landing] landing ON base.organization_structure_id = landing.organization_structure_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ORGANIZATION_STRUCTURES_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [organization_structure_id],
@@ -6570,8 +6961,8 @@ HASHBYTES('MD5',
 FROM [dbo].PER_ORGANIZATION_STRUCTURES_B0Landing l)src
 JOIN [dbo].PER_ORGANIZATION_STRUCTURES_B0Landing TARGET ON src.[organization_structure_id] = TARGET.[organization_structure_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ORG_STRUCTURE_ELEMENTS_B0,"DELETE FROM base
 FROM dbo.Per_Org_Structure_Elements_B0 BASE
 WHERE NOT EXISTS
 (
@@ -6580,8 +6971,8 @@ WHERE NOT EXISTS
     WHERE base.  [org_structure_element_id]  = landing.  [org_structure_element_id] 
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",FROM dbo.Per_Org_Structure_Elements_B0
+DataLakeHRISToBase_PER_ORG_STRUCTURE_ELEMENTS_B0,"UPDATE base
 SET base.[org_structure_element_id] = landing.[org_structure_element_id],
     base.[business_group_id] = landing.[business_group_id],
     base.[organization_id_parent] = landing.[organization_id_parent],
@@ -6608,8 +6999,8 @@ FROM [HR_Base].dbo.[Per_Org_Structure_Elements_B0] base
         ON base.[org_structure_element_id] = landing.[org_structure_element_id]
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE TARGET 
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ORG_STRUCTURE_ELEMENTS_B0,"UPDATE TARGET 
 SET target.RowHash=SRC.RowHash
 FROM 
 (SELECT [org_structure_element_id],
@@ -6635,8 +7026,8 @@ HASHBYTES('MD5',
   FROM [dbo].[Per_Org_Structure_Elements_B0Landing]) SRC 
  JOIN [dbo].[Per_Org_Structure_Elements_B0Landing] TARGET ON SRC.[org_structure_element_id]=Target.[org_structure_element_id]
 
- SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+ SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ORG_STRUCTURE_VERSIONS_B0,"DELETE FROM base
 FROM dbo.PER_ORG_STRUCTURE_VERSIONS_B0 BASE
 WHERE NOT EXISTS
 (
@@ -6645,8 +7036,8 @@ WHERE NOT EXISTS
     WHERE base.  [org_structure_version_id]  = landing.  [org_structure_version_id] 
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"
+SELECT @@ROWCOUNT AS DeleteCount ;",FROM dbo.PER_ORG_STRUCTURE_VERSIONS_B0
+DataLakeHRISToBase_PER_ORG_STRUCTURE_VERSIONS_B0,"
 UPDATE base SET 
       base.[org_structure_version_id] = landing.org_structure_version_id
       ,base.[business_group_id] = landing.business_group_id
@@ -6675,8 +7066,8 @@ JOIN [HR_Landing].dbo.[PER_ORG_STRUCTURE_VERSIONS_B0Landing] landing
 	ON base.org_structure_version_id = landing.org_structure_version_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target SET 
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_ORG_STRUCTURE_VERSIONS_B0,"UPDATE target SET 
 	target.RowHash = src.RowHash
 FROM 
 (SELECT 
@@ -6700,8 +7091,8 @@ FROM
 FROM dbo.PER_ORG_STRUCTURE_VERSIONS_B0Landing l) src
 JOIN dbo.PER_ORG_STRUCTURE_VERSIONS_B0Landing target ON src.[org_structure_version_id] = target.[org_structure_version_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PAY_BASES_B0,"DELETE FROM base
 FROM dbo.[PER_PAY_BASES_B0] base
 WHERE NOT EXISTS
 (
@@ -6710,8 +7101,8 @@ WHERE NOT EXISTS
     WHERE base.pay_basis_id = landing.pay_basis_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_PAY_BASES_B0,"UPDATE base
    SET base.[pay_basis_id]				     =  landing.[pay_basis_id]				
 	   , base.[input_value_id]				 =  landing.[input_value_id]			
 	   , base.[rate_id]					     =  landing.[rate_id]					
@@ -6779,8 +7170,8 @@ FROM [HR_Base].dbo.[PER_PAY_BASES_B0] base
 JOIN [HR_Landing].dbo.[PER_PAY_BASES_B0Landing] landing ON base.pay_basis_id = landing.pay_basis_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PAY_BASES_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [pay_basis_id],
@@ -6842,8 +7233,8 @@ HASHBYTES('MD5',
 FROM [dbo].PER_PAY_BASES_B0Landing l)src
 JOIN [dbo].PER_PAY_BASES_B0Landing TARGET ON src.[pay_basis_id] = TARGET.[pay_basis_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PAY_PROPOSALS_B0,"
 DELETE FROM base
 FROM dbo.[PER_PAY_PROPOSALS_B0] base
 WHERE NOT EXISTS
@@ -6853,8 +7244,8 @@ WHERE NOT EXISTS
     WHERE base.pay_proposal_id = landing.pay_proposal_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_PAY_PROPOSALS_B0,"UPDATE base
    SET base.pay_proposal_id = landing.pay_proposal_id
       ,base.object_version_number = landing.object_version_number
       ,base.assignment_id = landing.assignment_id
@@ -6909,8 +7300,8 @@ FROM [HR_Base].dbo.[PER_PAY_PROPOSALS_B0] base
 JOIN [HR_Landing].dbo.[PER_PAY_PROPOSALS_B0Landing] landing ON base.pay_proposal_id = landing.pay_proposal_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PAY_PROPOSALS_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [pay_proposal_id],
@@ -6959,8 +7350,8 @@ HASHBYTES('MD5',
 FROM [dbo].PER_PAY_PROPOSALS_B0Landing l)src
 JOIN [dbo].PER_PAY_PROPOSALS_B0Landing TARGET ON src.[pay_proposal_id] = TARGET.pay_proposal_id
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PERFORMANCE_REVIEWS_B0,"DELETE FROM base
 FROM dbo.[PER_PERFORMANCE_REVIEWS_B0] base
 WHERE NOT EXISTS
 (
@@ -6969,8 +7360,8 @@ WHERE NOT EXISTS
     WHERE base.performance_review_id = landing.performance_review_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_PERFORMANCE_REVIEWS_B0,"UPDATE base
    SET base.[performance_review_id] = landing.performance_review_id,
       base.[event_id] = landing.event_id,
       base.[review_date] = landing.review_date,
@@ -7021,8 +7412,8 @@ FROM [HR_Base].dbo.[PER_PERFORMANCE_REVIEWS_B0] base
 JOIN [HR_Landing].dbo.[PER_PERFORMANCE_REVIEWS_B0Landing] landing ON base.performance_review_id = landing.performance_review_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PERFORMANCE_REVIEWS_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [performance_review_id],
@@ -7069,8 +7460,8 @@ HASHBYTES('MD5',
 FROM [dbo].PER_PERFORMANCE_REVIEWS_B0Landing l)src
 JOIN [dbo].PER_PERFORMANCE_REVIEWS_B0Landing TARGET ON src.[performance_review_id] = TARGET.[performance_review_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PERIODS_OF_PLACEMENT_B0,"DELETE FROM base
 FROM dbo.[PER_PERIODS_OF_PLACEMENT_B0] base
 WHERE NOT EXISTS
 (
@@ -7079,8 +7470,8 @@ WHERE NOT EXISTS
     WHERE base.period_of_placement_id = landing.period_of_placement_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_PERIODS_OF_PLACEMENT_B0,"
 
 
 
@@ -7171,8 +7562,8 @@ FROM [HR_Base].dbo.[PER_PERIODS_OF_PLACEMENT_B0] base
 JOIN [HR_Landing].dbo.[PER_PERIODS_OF_PLACEMENT_B0Landing] landing ON base.period_of_placement_id = landing.period_of_placement_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PERIODS_OF_PLACEMENT_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [period_of_placement_id],
@@ -7253,8 +7644,8 @@ HASHBYTES('MD5',
 FROM [dbo].[PER_PERIODS_OF_PLACEMENT_B0Landing] l)src
 JOIN [dbo].[PER_PERIODS_OF_PLACEMENT_B0Landing] TARGET ON src.[period_of_placement_id] = TARGET.[period_of_placement_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PERIODS_OF_SERVICE_B0,"DELETE FROM base
 FROM dbo.[PER_PERIODS_OF_SERVICE_B0] base
 WHERE NOT EXISTS
 (
@@ -7263,8 +7654,8 @@ WHERE NOT EXISTS
     WHERE base.period_of_service_id = landing.period_of_service_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_PERIODS_OF_SERVICE_B0,"UPDATE base
    SET base.period_of_service_id = landing.period_of_service_id
       ,base.business_group_id = landing.business_group_id
       ,base.termination_accepted_person_id = landing.termination_accepted_person_id
@@ -7351,8 +7742,8 @@ FROM [HR_Base].dbo.[PER_PERIODS_OF_SERVICE_B0] base
 JOIN [HR_Landing].dbo.[PER_PERIODS_OF_SERVICE_B0Landing] landing ON base.period_of_service_id = landing.period_of_service_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PERIODS_OF_SERVICE_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [period_of_service_id],
@@ -7434,8 +7825,8 @@ HASHBYTES('MD5',
 FROM [dbo].PER_PERIODS_OF_SERVICE_B0Landing l)src
 JOIN [dbo].PER_PERIODS_OF_SERVICE_B0Landing TARGET ON src.[period_of_service_id] = TARGET.[period_of_service_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PERSON_ANALYSES_B0,"DELETE FROM base
 FROM dbo.[PER_PERSON_ANALYSES_B0] base
 WHERE NOT EXISTS
 (
@@ -7444,8 +7835,8 @@ WHERE NOT EXISTS
     WHERE base.person_analysis_id = landing.person_analysis_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_PERSON_ANALYSES_B0,"UPDATE base
    SET base.[person_analysis_id]      = landing.person_analysis_id
       , base.[business_group_id]	  =   landing.[business_group_id]		
       , base.[analysis_criteria_id]	  =   landing.[analysis_criteria_id]	
@@ -7494,8 +7885,8 @@ FROM [dbo].[PER_PERSON_ANALYSES_B0] base
 JOIN [HR_Landing].dbo.[PER_PERSON_ANALYSES_B0Landing] landing ON base.person_analysis_id = landing.person_analysis_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PERSON_ANALYSES_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [person_analysis_id],
@@ -7539,8 +7930,8 @@ HASHBYTES('MD5',
 FROM [dbo].PER_PERSON_ANALYSES_B0Landing l)src
 JOIN [dbo].PER_PERSON_ANALYSES_B0Landing TARGET ON src.[person_analysis_id] = TARGET.[person_analysis_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PERSON_TYPES_B0,"DELETE FROM base
 FROM dbo.[PER_PERSON_TYPES_B0] base
 WHERE NOT EXISTS
 (
@@ -7549,8 +7940,8 @@ WHERE NOT EXISTS
     WHERE base.person_type_id = landing.person_type_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_PERSON_TYPES_B0,"UPDATE base
    SET base.[person_type_id] = landing.person_type_id
       , base.[business_group_id] = landing.business_group_id
       , base.[active_flag] = landing.active_flag
@@ -7572,8 +7963,8 @@ FROM [dbo].[PER_PERSON_TYPES_B0] base
 JOIN [HR_Landing].dbo.[PER_PERSON_TYPES_B0Landing] landing ON base.person_type_id = landing.person_type_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PERSON_TYPES_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [person_type_id],
@@ -7590,8 +7981,8 @@ HASHBYTES('MD5',
 FROM [dbo].PER_PERSON_TYPES_B0Landing l)src
 JOIN [dbo].PER_PERSON_TYPES_B0Landing TARGET ON src.[person_type_id] = TARGET.[person_type_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PHONES_B0,"DELETE FROM base
 FROM dbo.[PER_PHONES_B0] base
 WHERE NOT EXISTS
 (
@@ -7600,8 +7991,8 @@ WHERE NOT EXISTS
     WHERE base.phone_id = landing.phone_id
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_PHONES_B0,"UPDATE base
    SET base.[phone_id] =			 landing.phone_id,
       base.[date_from] =			 landing.date_from,
       base.[date_to] =				 landing.date_to, 
@@ -7656,8 +8047,8 @@ FROM [HR_Base].dbo.[PER_PHONES_B0] base
 JOIN [HR_Landing].dbo.[PER_PHONES_B0Landing] landing ON base.phone_id = landing.phone_id
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_PHONES_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [phone_id],
@@ -7706,8 +8097,8 @@ HASHBYTES('MD5',
 FROM [dbo].PER_PHONES_B0Landing l)src
 JOIN [dbo].PER_PHONES_B0Landing TARGET ON src.[phone_id] = TARGET.[phone_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_QUALIFICATIONS_B0,"DELETE FROM base
 FROM dbo.[PER_QUALIFICATIONS_B0] base
 WHERE NOT EXISTS
 (
@@ -7716,8 +8107,8 @@ WHERE NOT EXISTS
     WHERE base.[qualification_id] = landing.[qualification_id]
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_QUALIFICATIONS_B0,"UPDATE base
    SET base.[qualification_id]				= landing.qualification_id
       ,base.[business_group_id]				= landing.business_group_id
       ,base.[object_version_number]			= landing.object_version_number
@@ -7804,8 +8195,8 @@ FROM [HR_Base].dbo.[PER_QUALIFICATIONS_B0] base
 JOIN [HR_Landing].dbo.[PER_QUALIFICATIONS_B0Landing] landing ON base.[qualification_id] = landing.[qualification_id]
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_QUALIFICATIONS_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [qualification_id],
@@ -7891,8 +8282,8 @@ HASHBYTES('MD5',
 FROM [dbo].PER_QUALIFICATIONS_B0Landing l)src
 JOIN [dbo].PER_QUALIFICATIONS_B0Landing TARGET ON src.[qualification_id] = TARGET.[qualification_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"DELETE FROM base
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_QUALIFICATION_TYPES_B0,"DELETE FROM base
 FROM dbo.[PER_QUALIFICATION_TYPES_B0] base
 WHERE NOT EXISTS
 (
@@ -7901,8 +8292,8 @@ WHERE NOT EXISTS
     WHERE base.[qualification_type_id] = landing.[qualification_type_id]
 );
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE base
+SELECT @@ROWCOUNT AS DeleteCount ;",
+DataLakeHRISToBase_PER_QUALIFICATION_TYPES_B0,"UPDATE base
    SET base.qualification_type_id = landing.qualification_type_id
       ,base.name = landing.name
       ,base.category = landing.category
@@ -7984,8 +8375,8 @@ FROM [HR_Base].dbo.[PER_QUALIFICATION_TYPES_B0] base
 JOIN [HR_Landing].dbo.[PER_QUALIFICATION_TYPES_B0Landing] landing ON base.[qualification_type_id] = landing.[qualification_type_id]
 WHERE base.RowHash != landing.RowHash;
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"UPDATE target
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PER_QUALIFICATION_TYPES_B0,"UPDATE target
 SET target.RowHash = src.RowHash
 FROM 
 (SELECT [qualification_type_id],
@@ -8062,8 +8453,8 @@ HASHBYTES('MD5',
 FROM [dbo].PER_QUALIFICATION_TYPES_B0Landing l)src
 JOIN [dbo].PER_QUALIFICATION_TYPES_B0Landing TARGET ON src.[qualification_type_id] = TARGET.[qualification_type_id]
 
-SELECT @@ROWCOUNT AS UpdateCount;"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+SELECT @@ROWCOUNT AS UpdateCount;",UPDATE
+DataLakeHRISToBase_PositionBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
 	BEGIN
 		INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
 	END
@@ -8076,8 +8467,8 @@ SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
 
 SELECT @LastProcessedDate AS LastProcessedDate;
 
-"
-"UPDATE pbn 
+",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_PositionBN,"UPDATE pbn 
 SET pbn.Deleted = 'Y',
 pbn.BaseModifiedDate = GETDATE(),
 pbn.UpdateAuditID = ?
@@ -8092,8 +8483,12 @@ AND pbn.EffectiveStartDate = vpbn.EffectiveStartDate
 )
 AND pbn.Deleted IS NULL;
 
-SELECT @@ROWCOUNT AS DeleteCount ;"
-"UPDATE dbo.PositionBN 
+SELECT @@ROWCOUNT AS DeleteCount ;",UPDATE
+DataLakeHRISToBase_PositionBN,"UPDATE  dbo.ETLBatchControl 
+SET LastProcessedDate = GETDATE()
+, Status = 'Success'
+WHERE Tablename = ?;",UPDATE
+DataLakeHRISToBase_PositionBN,"UPDATE dbo.PositionBN 
 SET RowStatus = 'H'
 , BaseModifiedDate = GETDATE()
 , UpdateAuditID = ?
@@ -8101,8 +8496,8 @@ WHERE
 	CAST(BaseEndDate AS DATE)< CAST(GETDATE() AS DATE) 
 	AND RowStatus <> 'H'
 
-SELECT @@ROWCOUNT + ? AS UpdateCount;"
-"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
+SELECT @@ROWCOUNT + ? AS UpdateCount;",UPDATE
+DataLakeHRISToBase_TerminationBN,"IF NOT EXISTS (SELECT 1 FROM dbo.ETLBatchControl WHERE TableName = ?)
  BEGIN
   INSERT INTO dbo.ETLBatchControl (TableName) VALUES (?)
  END
@@ -8113,8 +8508,8 @@ DECLARE @BaseCreatedDate DATETIME = (SELECT MAX(BaseCreatedDate) FROM dbo.Accred
 IF @LastProcessedDate IS NULL OR @BaseCreatedDate IS NULL
 SET @LastProcessedDate = (SELECT CAST('1900-01-01' AS DATE));
 
-SELECT @LastProcessedDate AS LastProcessedDate;"
-"DECLARE @InsertAuditID bigint = ?
+SELECT @LastProcessedDate AS LastProcessedDate;",FROM dbo.ETLBatchControl
+DataLakeHRISToBase_TerminationBN,"DECLARE @InsertAuditID bigint = ?
 
 ;WITH PerPeriodOfService AS
 (
@@ -8143,8 +8538,13 @@ FROM
 	)
 	AND Trmn.Deleted IS NULL;
 
-SELECT @@RowCount AS DeleteCount;"
-"DECLARE @InsertAuditID bigint = ?
+SELECT @@RowCount AS DeleteCount;",Insert
+DataLakeHRISToBase_TerminationBN,"
+UPDATE  dbo.ETLBatchControl 
+SET LastProcessedDate = GETDATE()
+, Status = 'Success'
+WHERE Tablename = ?;",UPDATE
+DataLakeHRISToBase_TerminationBN,"DECLARE @InsertAuditID bigint = ?
 DECLARE @LastProcessedDate datetime = ?
 
 ;WITH B0Query AS
@@ -8257,4 +8657,4 @@ FROM
 	TerminationBNUpdate AS Upd
 		ON BN.PeriodofServiceID = Upd.period_of_service_id
 	
-SELECT @@ROWCOUNT AS UpdateCount"
+SELECT @@ROWCOUNT AS UpdateCount",Insert

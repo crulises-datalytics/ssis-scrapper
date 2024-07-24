@@ -1,6 +1,9 @@
 #%%
 import os
 import re
+import bs4 as bs
+import lxml
+import lxml.etree
 
 def create_directories(dirs:list, path:str) -> None: 
     for directory in dirs:
@@ -57,6 +60,7 @@ def dependencies(file_path):
 
     dir_name = os.path.dirname(file_path)
     matches = [os.path.join(dir_name, match) for match in matches]  # Assuming '.dtsx' needs to be appended
+    # matches = ["|".join([dir_name.split("\\")[-1], match]) for match in matches]
 
     if len(matches) > 0:
         return matches
@@ -119,11 +123,11 @@ def process_map_dict(map_dict):
     iterated_keys = []
     new_dep_dict = {}
     for key, value in map_dict.items():
-        print(f"{key} : {value}")
+        # print(f"{key} : {value}")
         if key not in iterated_keys:
             if value:
                 for v in value:
-                    print(f"    {v}")
+                    # print(f"    {v}")
                     if key not in new_dep_dict:
                         new_dep_dict[key] = {v: map_dict[v]}
                     else:
@@ -155,3 +159,49 @@ def clean_dep_dict(new_dep_dict, iterated_keys):
     for key in set(iterated_keys):
         new_dep_dict.pop(key, None)  # Use pop with None as default to avoid KeyError
     return {k: v for k, v in sorted(new_dep_dict.items(), key=lambda item: len(item[1]) if item[1] is not None else 0, reverse=True)}
+
+def get_package_inner_execution_order(file_path):
+    with open(file_path, 'r') as file:
+        content = file.read()
+    
+    soup = bs.BeautifulSoup(content, 'lxml')
+
+    inner_dependencies = {}
+
+    for i in soup.find_all('DTS:PrecedenceConstraints'.lower()):
+            for x in i.findChildren():
+                    # print(f"from: {x.attrs.get('dts:from')} to {x.attrs.get('dts:to')}")
+                    inner_dependencies[x.attrs.get('dts:to')] = x.attrs.get('dts:from')
+
+    return inner_dependencies
+
+def extract_activities(container, inner_dependencies):
+    prefix='{www.microsoft.com/SqlServer/Dts}'
+    
+    activities = container.findall(f'{prefix}Executables')[0].getchildren()
+    pack_dict = {
+        'activity_name' : container.attrib[f'{prefix}refId'],
+        'depends_on' : inner_dependencies.get(container.attrib[f'{prefix}refId'], None),
+        'elements' : []}
+    for act in activities:
+        if act.attrib[f'{prefix}ExecutableType'] == 'Microsoft.ExecutePackageTask':
+            pack_dict['elements'].append(act.attrib[f'{prefix}ObjectName'])
+        elif act.attrib[f'{prefix}ExecutableType'] == 'STOCK:SEQUENCE':
+            pack_dict['elements'].append(extract_activities(act, inner_dependencies))
+    
+    return pack_dict
+
+def build_dependencies(file_path):
+    tree = lxml.etree.parse(file_path)
+    prefix='{www.microsoft.com/SqlServer/Dts}'
+    root = tree.getroot()
+    
+    pack_dependencies = {root.attrib[f'{prefix}ObjectName'] : []}
+    inner_order = get_package_inner_execution_order(file_path)
+    
+    cajas = root.findall(f'{prefix}Executables')[0].getchildren()
+    
+    for caja in cajas:
+        pack_dependencies[root.attrib[f'{prefix}ObjectName']].append(extract_activities(caja, inner_order))
+    
+    return pack_dependencies

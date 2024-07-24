@@ -48,7 +48,7 @@ df.to_csv(f"{target_dir}\\total_StoreProcedures.csv", index=False)
 
 dir_path = os.path.join(path, "bing")
 target_dir = os.path.join(path, "analysis")
-valid_dirs = ['StagingToEDW', 'DWBaseIncrementalLoad']
+valid_dirs = ['DataLakeHRISToBase']
 
 discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".dtsx")
 files_path = discovery.get_files()
@@ -59,7 +59,7 @@ for file_path in files_path:
     package_name = "|".join(file_path.split("\\")[-2:])
     map_dict.update({package_name: dependencies(file_path)})
 
-with open(os.path.join(target_dir,'dependencies.json') , "w") as f:
+with open(os.path.join(target_dir,'parenthood_relations.json') , "w") as f:
     f.write(json.dumps(map_dict, indent=4))
     
 #%%

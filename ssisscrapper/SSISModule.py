@@ -175,10 +175,11 @@ class SSISDiscovery:
         """
         final_files = []
         for root, dirs, files in os.walk(self.root_directory):
-            for file in files:
-                file = os.path.join(root, file)
-                if file.endswith(self.file_extension) and any(word.lower() in file.lower() for word in self.valid_dirs):
-                    final_files.append(file)
+            if 'Archive' not in root:
+                for file in files:
+                    file = os.path.join(root, file)
+                    if file.endswith(self.file_extension) and any(word.lower() in file.lower() for word in self.valid_dirs):
+                        final_files.append(file)
         return final_files
     
     def extract_files(self, target_dir, files):
