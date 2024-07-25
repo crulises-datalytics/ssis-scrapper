@@ -1,7 +1,7 @@
 ExecutableType
 Microsoft.Package
 STOCK:SEQUENCE
-STOCK:FOREACHLOOP
 Microsoft.Pipeline
 Microsoft.ExecuteSQLTask
+STOCK:FOREACHLOOP
 Microsoft.ExecutePackageTask
