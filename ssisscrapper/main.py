@@ -44,7 +44,7 @@ if __name__ == '__main__':
     # EXTRACITING ALL .dtsx files From bing folder
     dir_path = os.path.join(path, "bing")
     target_dir = os.path.join(path, "dtsx")
-    valid_dirs = ['StagingToEDW', 'DataLakeHRISToBase', 'DWMartIncrementalLoad', 'DataLakeBaseToMart']
+    valid_dirs = ['StagingToEDW', 'DataLakeHRISToBase', 'DWMartIncrementalLoad', 'DataLakeBaseToMart','DataLakeADPToBase']
 
     discovery = SSISDiscovery(dir_path, valid_dirs=valid_dirs, file_extension=".dtsx")
     files = discovery.get_files()
