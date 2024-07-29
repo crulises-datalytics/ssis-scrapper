@@ -44,29 +44,6 @@
             ]
         }
     },
-    "BING_ADP_BaseEarningFactBN_Load_Daily": {
-        "package_name": "DataLakeADPToBase_FactEarningBN.dtsx",
-        "depends_on": "BING_ADP_DataLakeToBaseb10_Load_Daily",
-        "package_content": {
-            "FactEarningBN": [
-                {
-                    "activity_name": "Package\\SEQ - Base Data Load",
-                    "depends_on": "Package\\SEQ - Get Processing Range",
-                    "elements": []
-                },
-                {
-                    "activity_name": "Package\\SEQ - Get Processing Range",
-                    "depends_on": null,
-                    "elements": []
-                },
-                {
-                    "activity_name": "Package\\SEQ - Update LastProcessed & ETLBatchOverride",
-                    "depends_on": "Package\\SEQ - Base Data Load",
-                    "elements": []
-                }
-            ]
-        }
-    },
     "BING_ADP_BaseCostingFactBN_Load_Daily": {
         "package_name": "DataLakeADPToBase_FactCostingBN.dtsx",
         "depends_on": "BING_ADP_DataLakeToBaseb10_Load_Daily",
@@ -327,9 +304,9 @@
     "BING_ADP_MartEarningFAct_Load_Daily": {
         "package_name": "DataLakeBaseToMart_FactEarning.dtsx",
         "depends_on": [
-            "DataLakeADPToBase_FactEarningBN.dtsx",
-            "DWMartIncrementalLoad_DWMartParentPackage.dtsx",
-            "StagingToEDW_StagingToEDW_Dimension_GLandHR.dtsx"
+            "BING_ADP_BaseEarningFactBN_Load_Daily",
+            "BING_HRIS_MartDimensions_Load_Daily",
+            "BING Staging To EDW Dimension Load - EBS GL and HRIS"
         ],
         "package_content": {
             "FactEarning": [
@@ -344,9 +321,9 @@
     "BING_ADP_MartCostingFact_Load_Daily": {
         "package_name": "DataLakeBaseToMart_FactCosting.dtsx",
         "depends_on": [
-            "DataLakeADPToBase_FactCostingBN.dtsx",
-            "DWMartIncrementalLoad_DWMartParentPackage.dtsx",
-            "StagingToEDW_StagingToEDW_Dimension_GLandHR.dtsx"
+            "BING_ADP_BaseCostingFactBN_Load_Daily",
+            "BING_HRIS_MartDimensions_Load_Daily",
+            "BING Staging To EDW Dimension Load - EBS GL and HRIS"
         ],
         "package_content": {
             "FactCosting": [
