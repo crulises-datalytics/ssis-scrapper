@@ -1,0 +1,49 @@
+{   "BING_ADP_WokrflowExecutionCheck_Daily[BI-9268]" :{
+        "package_name" : "DataLakeADPToBase_ADP_Datalake_Runtime_Metadata.dtsx",
+        "depends_on" : null
+    },
+    "BING_ADP_DataLakeToBaseb10_Load_Daily":{
+        "package_name" : "DataLakeADPToBase_DataLakeADPToBaseParent.dtsx",
+        "depends_on" : "BING_ADP_WokrflowExecutionCheck_Daily[BI-9268]"
+    },
+
+    "BING_ADP_BaseCostingFactBN_Load_Daily":{
+        "package_name" : "DataLakeADPToBase_FactCostingBN.dtsx",
+        "depends_on" :"BING_ADP_DataLakeToBaseb10_Load_Daily"
+    },
+    "BING Staging To EDW Dimension Load - EBS GL and HRIS" : {
+        "package_name" : "StagingToEDW_StagingToEDW_Dimension_GLandHR.dtsx",
+        "depends_on": [
+            "BING Source To Staging CMS Incremental Load",
+            "BING_Source To Staging AD & Plan Allocation_Daily",
+            "BING Source to Staging EBS Incremental Load - GL",
+            "BING Source to Staging EBS Incremental Load - HR"
+        ],
+        "source" : "Finance"
+    },
+    "BING_HRIS_MartDimensions_Load_Daily" : {
+        "package_name" : "DWMartIncrementalLoad_DWMartParentPackage.dtsx",
+        "depends_on" : [
+            "BING_HRIS_BaseB0ToBN_Load_Daily",
+            "BING_HRIS_BaseEmployeeEventBN_Load_Daily",
+            "BING_HRIS_MartDimensions_Load_Daily"
+        ],
+        "source" : "Hr"
+    },
+    "BING_ADP_MartEarningFAct_Load_Daily" : {
+        "package_name" : "DataLakeBaseToMart_FactEarning.dtsx",
+        "depends_on" : [
+            "BING_ADP_BaseEarningFactBN_Load_Daily",
+            "BING_HRIS_MartDimensions_Load_Daily",
+            "BING Staging To EDW Dimension Load - EBS GL and HRIS"
+        ]
+    },
+    "BING_ADP_MartCostingFact_Load_Daily" : {
+        "package_name": "DataLakeBaseToMart_FactCosting.dtsx",
+        "depends_on" : [
+            "BING_ADP_BaseCostingFactBN_Load_Daily",
+            "BING_HRIS_MartDimensions_Load_Daily",
+            "BING Staging To EDW Dimension Load - EBS GL and HRIS"
+        ]
+    }
+}

@@ -1,0 +1,338 @@
+{
+    "BING_ADP_WokrflowExecutionCheck_Daily[BI-9268]": {
+        "package_name": "DataLakeADPToBase_ADP_Datalake_Runtime_Metadata.dtsx",
+        "depends_on": null,
+        "package_content": {
+            "ADP_Datalake_Runtime_Metadata": [
+                {
+                    "activity_name": "Package\\Base - Data Load",
+                    "depends_on": null,
+                    "elements": []
+                }
+            ]
+        }
+    },
+    "BING_ADP_DataLakeToBaseb10_Load_Daily": {
+        "package_name": "DataLakeADPToBase_DataLakeADPToBaseParent.dtsx",
+        "depends_on": "BING_ADP_WokrflowExecutionCheck_Daily[BI-9268]",
+        "package_content": {
+            "DataLakeADPToBaseParent": [
+                {
+                    "activity_name": "Package\\Parallel Execution 1",
+                    "depends_on": null,
+                    "elements": [
+                        "ADP_PS_AL_CHK_DATA_B0",
+                        "ADP_PS_AL_PG_ERN_DATA_B0",
+                        "ADP_PS_JOB_B0"
+                    ]
+                },
+                {
+                    "activity_name": "Package\\Parallel Execution 2",
+                    "depends_on": "Package\\Parallel Execution 1",
+                    "elements": [
+                        "ADP_PS_AL_CHK_DED_B0",
+                        "ADP_PS_AL_CHK_HRS_ERN_B0"
+                    ]
+                },
+                {
+                    "activity_name": "Package\\Parallel Execution 3",
+                    "depends_on": "Package\\Parallel Execution 2",
+                    "elements": [
+                        "ADP_GL_B0"
+                    ]
+                }
+            ]
+        }
+    },
+    "BING_ADP_BaseCostingFactBN_Load_Daily": {
+        "package_name": "DataLakeADPToBase_FactCostingBN.dtsx",
+        "depends_on": "BING_ADP_DataLakeToBaseb10_Load_Daily",
+        "package_content": {
+            "FactCostingBN": [
+                {
+                    "activity_name": "Package\\SEQ - Base Data Load",
+                    "depends_on": "Package\\SEQ - Get Processing Range",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\SEQ - Get Processing Range",
+                    "depends_on": null,
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\SEQ - Update Parent Audit Log",
+                    "depends_on": "Package\\SEQ - Base Data Load",
+                    "elements": []
+                }
+            ]
+        }
+    },
+    "BING Staging To EDW Dimension Load - EBS GL and HRIS": {
+        "package_name": "StagingToEDW_StagingToEDW_Dimension_GLandHR.dtsx",
+        "depends_on": [
+            "BING Source To Staging CMS Incremental Load",
+            "BING_Source To Staging AD & Plan Allocation_Daily",
+            "BING Source to Staging EBS Incremental Load - GL",
+            "BING Source to Staging EBS Incremental Load - HR"
+        ],
+        "package_content": {
+            "StagingToEDW_Dimension_GLandHR": [
+                {
+                    "activity_name": "Package\\Change History - StagingToEDW_Dimension_GLandHR",
+                    "depends_on": null,
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\ORACLE GL and HRIS Dimensions",
+                    "depends_on": "Package\\Change History - StagingToEDW_Dimension_GLandHR",
+                    "elements": [
+                        "EPT - DimMartCostCenter",
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Excecute GL_Staging to EDW DimDate load before other Dimensions",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging HrAllOrganizationUnits load",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To DW_Mart DimAccountSubaccount",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\EPT - DimMartCostCenter",
+                            "elements": [
+                                "EPT - DimMartAccountSubaccount"
+                            ]
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW BridgeCompanyRollup load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimCompanyRollup load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimAccountSubaccount load",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimCompany load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Excecute GL_Staging to EDW DimDate load before other Dimensions",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimCompanyRollup load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimCompany load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimCostCenterType load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW BridgeCompanyRollup load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging OrgLeaderAccess load",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW BridgeSecurityPersonHRISGroup",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerson load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW BridgeSecurityPersonOrg",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerson load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimAssessmentType load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerformanceRating load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimAssignmentType load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPayGrade load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimComplianceItem load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerformanceRating load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimComplianceRating load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimComplianceItem load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimHRUser load",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimLeaveReason load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimLeaveType load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimLeaveType load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimAssignmentType load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging to EDW DimLocation load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging to EDW DimOrganization Load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging to EDW DimOrganization Load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging OrgLeaderAccess load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPayBasis load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPayGrade load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPayGrade load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPeopleGroup load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPeopleGroup load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimHRUser load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerformanceRating load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerson load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerson load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging to EDW DimOrganization Load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPosition load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimLeaveReason load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimQualificationType",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPerformanceRating load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimSpecialInfo load",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW DimPosition load",
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute HR_Staging To EDW \u2022 DimPayRateChangeReason load",
+                            "depends_on": null,
+                            "elements": []
+                        },
+                        {
+                            "activity_name": "Package\\ORACLE GL and HRIS Dimensions\\Execute MISC_Staging To EDW DimReport Profile",
+                            "depends_on": "Package\\ORACLE GL and HRIS Dimensions\\Execute GL_Staging To EDW DimAccountSubaccount load",
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "BING_HRIS_MartDimensions_Load_Daily": {
+        "package_name": "DWMartIncrementalLoad_DWMartParentPackage.dtsx",
+        "depends_on": [
+            "BING_HRIS_BaseB0ToBN_Load_Daily",
+            "BING_HRIS_BaseEmployeeEventBN_Load_Daily",
+            "BING_HRIS_MartDimensions_Load_Daily"
+        ],
+        "package_content": {
+            "DWMartParentPackage": [
+                {
+                    "activity_name": "Package\\Sequence Container",
+                    "depends_on": null,
+                    "elements": [
+                        {
+                            "activity_name": "Package\\Sequence Container\\Dimensions",
+                            "depends_on": null,
+                            "elements": [
+                                "DimCostCenter",
+                                "DimDataScenario",
+                                "DimDate",
+                                "DimMeasure",
+                                "DimTimeCalculation",
+                                "ReportMeasure"
+                            ]
+                        },
+                        {
+                            "activity_name": "Package\\Sequence Container\\Fact Load",
+                            "depends_on": "Package\\Sequence Container\\Dimensions",
+                            "elements": [
+                                "ARBalance",
+                                "FTESnapshot",
+                                "GLBalancePlanAllocation_FTE",
+                                "GLBalancePlanAllocation_LaborHours",
+                                "GLBalancePlanAllocation_LaborSalary",
+                                "GLBalancePlanAllocation_NetRevenue",
+                                "LaborHours",
+                                "LaborSalary",
+                                "LeadEvent",
+                                "LifeCycleStatus",
+                                "NetRevenue"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "activity_name": "Package\\SQL - Package Completion",
+                    "depends_on": "Package\\Sequence Container",
+                    "elements": []
+                },
+                {
+                    "activity_name": "Package\\SQL - Package Duration",
+                    "depends_on": "Package\\Sequence Container",
+                    "elements": []
+                }
+            ]
+        }
+    },
+    "BING_ADP_MartEarningFAct_Load_Daily": {
+        "package_name": "DataLakeBaseToMart_FactEarning.dtsx",
+        "depends_on": [
+            "BING_ADP_BaseEarningFactBN_Load_Daily",
+            "BING_HRIS_MartDimensions_Load_Daily",
+            "BING Staging To EDW Dimension Load - EBS GL and HRIS"
+        ],
+        "package_content": {
+            "FactEarning": [
+                {
+                    "activity_name": "Package\\SEQ - FactEarning",
+                    "depends_on": null,
+                    "elements": []
+                }
+            ]
+        }
+    },
+    "BING_ADP_MartCostingFact_Load_Daily": {
+        "package_name": "DataLakeBaseToMart_FactCosting.dtsx",
+        "depends_on": [
+            "BING_ADP_BaseCostingFactBN_Load_Daily",
+            "BING_HRIS_MartDimensions_Load_Daily",
+            "BING Staging To EDW Dimension Load - EBS GL and HRIS"
+        ],
+        "package_content": {
+            "FactCosting": [
+                {
+                    "activity_name": "Package\\SEQ - FactCosting",
+                    "depends_on": null,
+                    "elements": []
+                }
+            ]
+        }
+    }
+}
